@@ -47,13 +47,21 @@ public class IamController {
 
     @GetMapping("/me")
     public ResponseEntity<UserResponse> me() {
-        UUID userId = (UUID) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getPrincipal() == null) {
+            return ResponseEntity.status(401).build();
+        }
+        UUID userId = (UUID) auth.getPrincipal();
         return ResponseEntity.ok(iamService.getMe(userId));
     }
 
     @PutMapping("/update")
     public ResponseEntity<UserResponse> update(@RequestBody UpdateUserRequest req) {
-        UUID userId = (UUID) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getPrincipal() == null) {
+            return ResponseEntity.status(401).build();
+        }
+        UUID userId = (UUID) auth.getPrincipal();
         UpdateUserCommand command = new UpdateUserCommand(
                 userId,
                 req.email(),
