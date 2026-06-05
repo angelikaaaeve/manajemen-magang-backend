@@ -23,7 +23,7 @@ Get student activity logs with optional filter parameters.
 - **Method:** `GET`
 - **Headers:** `Authorization: Bearer <token>`
 - **Query Parameters:**
-  - `status` (String, optional): Filter by logbook status (e.g. `disetujui` | `belum disetujui` | `ditolak`)
+  - `status` (String, optional): Filter by logbook status (must be `disetujui` \| `belum disetujui` \| `ditolak`)
   - `namaMahasiswa` (String, optional): Filter by student name substring
 - **Response Payload (`List<ActivityResponse>` - HTTP 200 OK):**
 ```json
@@ -34,8 +34,8 @@ Get student activity logs with optional filter parameters.
     "namaMahasiswa": "Budi Santoso",
     "judul": "Implementasi Integration Testing & Next.js Layout Refactoring",
     "deskripsi": "Melakukan refactoring terhadap layout utama admin dashboard untuk meningkatkan performa routing Next.js.",
-    "waktu": "2026-05-29T17:00:00+07:00", // ISO-8601
-    "fileUrl": "https://storage.internflow.com/logbook/budi-weekly-report-week8.pdf", // Optional
+    "waktu": "2026-05-29T17:00:00+07:00", // ISO-8601 OffsetDateTime
+    "fileUrl": "https://storage.internflow.com/logbook/budi-weekly-report-week8.pdf", // Nullable
     "status": "disetujui" // "disetujui" | "belum disetujui" | "ditolak"
   }
 ]

@@ -15,26 +15,26 @@ This module tracks the completion certificates issued to students upon finishing
 ## 📋 Detailed Endpoints & Payloads
 
 ### 1. List Student Certificates
-Get uploaded certificates with optional filters.
+Get uploaded certificates with optional filters (Mentor).
 
 - **URL:** `/api/sertifikat`
 - **Method:** `GET`
 - **Headers:** `Authorization: Bearer <token>`
 - **Query Parameters:**
-  - `status` (String, optional): Filter by certificate status (e.g. `Sudah Diunggah` | `Belum Diunggah`)
+  - `status` (String, optional): Filter by certificate status (must be lowercase in backend logic: `sudah diunggah` | `belum diunggah` or `semua status`)
   - `namaMahasiswa` (String, optional): Filter by student name substring
 - **Response Payload (`List<SertifikatResponse>` - HTTP 200 OK):**
 ```json
 [
   {
-    "id": "b10a9c8d-3f2e-4aa4-8f2c-5b3cf1e9a2b8",
-    "periodeMagangId": "5c1a8d9b-2e9c-4aa4-8f7b-23fcd10d9e81",
-    "mahasiswaId": "f81d4fae-7dec-11d0-a765-00a0c91e6bf6",
+    "id": "b10a9c8d-3f2e-4aa4-8f2c-5b3cf1e9a2b8", // UUID
+    "periodeMagangId": "5c1a8d9b-2e9c-4aa4-8f7b-23fcd10d9e81", // UUID
+    "mahasiswaId": "f81d4fae-7dec-11d0-a765-00a0c91e6bf6", // UUID
     "nim": "2201012001",
     "namaMahasiswa": "Budi Santoso",
     "url": "https://storage.internflow.com/certificates/budi-completion-cert.pdf",
     "statusSertifikat": "Sudah Diunggah", // "Sudah Diunggah" | "Belum Diunggah"
-    "createdAt": "2026-05-31T14:00:00"
+    "createdAt": "2026-05-31T14:00:00" // LocalDateTime
   }
 ]
 ```
@@ -46,11 +46,11 @@ Mentors or admins register a certificate file.
 
 - **URL:** `/api/sertifikat`
 - **Method:** `POST`
-- **Headers:** `Authorization: Bearer <token>`
+- **Headers:** `Authorization: Bearer <token>`, `Content-Type: application/json`
 - **Request Payload (`SertifikatRequest`):**
 ```json
 {
-  "periodeMagangId": "5c1a8d9b-2e9c-4aa4-8f7b-23fcd10d9e81", // Required
+  "periodeMagangId": "5c1a8d9b-2e9c-4aa4-8f7b-23fcd10d9e81", // Required (UUID)
   "url": "https://storage.internflow.com/certificates/budi-completion-cert.pdf" // Required
 }
 ```
@@ -71,7 +71,7 @@ Mentors or admins register a certificate file.
 ---
 
 ### 3. Certificate Upload Statistics
-Retrieve cumulative certificate statistics.
+Retrieve cumulative certificate statistics (Mentor).
 
 - **URL:** `/api/sertifikat/statistik`
 - **Method:** `GET`

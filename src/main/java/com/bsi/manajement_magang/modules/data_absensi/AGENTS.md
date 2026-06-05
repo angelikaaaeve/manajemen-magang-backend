@@ -6,25 +6,28 @@ This module manages student daily attendance logs, mentor approval workflows, si
 
 | Method | Endpoint | Auth Required | Description |
 |---|---|---|---|
-| `GET` | `/api/absensi` | Yes | Retrieves list of attendance logs with optional filter parameters. |
-| `POST` | `/api/absensi/{id}/verifikasi` | Yes | Approves or rejects an attendance request (e.g. sick/leave approvals). |
-| `DELETE` | `/api/absensi/{id}` | Yes | Deletes an attendance record. |
-| `GET` | `/api/absensi/statistik` | Yes | Retrieves statistical counters of attendance. |
-| `GET` | `/api/absensi/{id}/surat-keterangan` | Yes | Obtains the attachment file url (like medical certificate/leave request). |
-| `GET` | `/api/absensi/ekspor` | Yes | Exports a raw CSV formatted logbook suitable for MS Excel. |
+| `GET` | `/api/absensi` | Yes | Retrieves list of attendance logs with optional filter parameters (Mentor). |
+| `POST` | `/api/absensi/{id}/verifikasi` | Yes | Approves or rejects an attendance request (e.g. sick/leave approvals) (Mentor). |
+| `DELETE` | `/api/absensi/{id}` | Yes | Deletes an attendance record (Mentor). |
+| `GET` | `/api/absensi/statistik` | Yes | Retrieves statistical counters of attendance (Mentor). |
+| `GET` | `/api/absensi/{id}/surat-keterangan` | Yes | Obtains the attachment file url (like medical certificate/leave request) (Mentor). |
+| `GET` | `/api/absensi/ekspor` | Yes | Exports a raw CSV formatted logbook suitable for MS Excel (Mentor). |
+| `POST` | `/api/absensi/mahasiswa/submit` | Yes | Submits student's daily attendance entry with optional file attachment (Mahasiswa). |
+| `GET` | `/api/absensi/mahasiswa/riwayat` | Yes | Retrieves student's personal attendance history logs for the last 30 days (Mahasiswa). |
+| `GET` | `/api/absensi/mahasiswa/statistik` | Yes | Retrieves private attendance statistics counters (Hadir, Izin, Sakit, Alfa) (Mahasiswa). |
 
 ---
 
 ## 📋 Detailed Endpoints & Payloads
 
 ### 1. List Attendance Logs
-Get student attendance entries with optional filter params.
+Get student attendance entries with optional filter params (Mentor).
 
 - **URL:** `/api/absensi`
 - **Method:** `GET`
 - **Headers:** `Authorization: Bearer <token>`
 - **Query Parameters:**
-  - `status` (String, optional): Filter by day status (e.g. `Hadir` | `Izin` | `Sakit`)
+  - `status` (String, optional): Filter by day status (e.g. `Hadir` | `Izin` | `Sakit` | `Alpha`)
   - `namaMahasiswa` (String, optional): Filter by student name substring
 - **Response Payload (`List<AbsensiResponse>` - HTTP 200 OK):**
 ```json
@@ -89,7 +92,7 @@ Removes an attendance record.
 ---
 
 ### 4. Attendance Statistics
-Get total attendance counts.
+Get total attendance counts (Mentor).
 
 - **URL:** `/api/absensi/statistik`
 - **Method:** `GET`
@@ -124,7 +127,7 @@ Get the downloadable URL for sick leave proof.
 ---
 
 ### 6. Export Attendance Data
-Download a generated CSV format of all student attendance records.
+Download a generated CSV format of all student attendance records (Mentor).
 
 - **URL:** `/api/absensi/ekspor`
 - **Method:** `GET`
@@ -136,4 +139,84 @@ Download a generated CSV format of all student attendance records.
 ```csv
 ID,NIM,Nama Mahasiswa,Tanggal,Status,Status Verifikasi
 e0a6d1b2...,2201012001,Budi Santoso,2026-05-29,Hadir,Disetujui
+```
+
+---
+
+### 7. Submit Daily Attendance (Mahasiswa)
+Student submits their daily attendance entry. Supports files like doctor notes or event invitations.
+
+- **URL:** `/api/absensi/mahasiswa/submit`
+- **Method:** `POST`
+- **Headers:** `Authorization: Bearer <token>`, `Content-Type: multipart/form-data`
+- **Query Parameters:**
+  - `userId` (UUID, Required): User ID of the student
+  - `status` (String, Required): Must be one of `hadir` | `izin` | `sakit` (case-insensitive)
+  - `keterangan` (String, Optional): Mandatory explanation/notes for `izin` and `sakit` status
+- **Request Part (Multipart Form-Data):**
+  - `file` (MultipartFile, Optional): Support attachment file, must be PDF or Image format, maximum size 10MB.
+- **Response Payload (`AbsensiResponse` - HTTP 201 Created):**
+```json
+{
+  "id": "e0a6d1b2-132d-4bfb-bdf0-4b95d3cbe7b4",
+  "periodeMagangId": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+  "mahasiswaId": "f81d4fae-7dec-11d0-a765-00a0c91e6bf6",
+  "nim": "2201012001",
+  "namaMahasiswa": "Budi Santoso",
+  "tanggal": "2026-06-05",
+  "waktuMasuk": "2026-06-05T08:15:00+07:00",
+  "waktuKeluar": null,
+  "status": "hadir",
+  "attachmentUrl": null,
+  "statusVerifikasi": "PENDING"
+}
+```
+
+---
+
+### 8. Get Last 30 Days Attendance History (Mahasiswa)
+Retrieves the logged-in student's daily attendance records for the last 30 days.
+
+- **URL:** `/api/absensi/mahasiswa/riwayat`
+- **Method:** `GET`
+- **Headers:** `Authorization: Bearer <token>`
+- **Query Parameter:**
+  - `userId` (UUID, Required): Student's user ID.
+- **Response Payload (`List<AbsensiResponse>` - HTTP 200 OK):**
+```json
+[
+  {
+    "id": "e0a6d1b2-132d-4bfb-bdf0-4b95d3cbe7b4",
+    "periodeMagangId": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+    "mahasiswaId": "f81d4fae-7dec-11d0-a765-00a0c91e6bf6",
+    "nim": "2201012001",
+    "namaMahasiswa": "Budi Santoso",
+    "tanggal": "2026-06-05",
+    "waktuMasuk": "2026-06-05T08:15:00+07:00",
+    "waktuKeluar": "2026-06-05T17:00:00+07:00",
+    "status": "hadir",
+    "attachmentUrl": null,
+    "statusVerifikasi": "DISETUJUI"
+  }
+]
+```
+
+---
+
+### 9. Get Private Attendance Statistics (Mahasiswa)
+Retrieves personal statistics counters (Hadir, Izin, Sakit, Alfa) for the student.
+
+- **URL:** `/api/absensi/mahasiswa/statistik`
+- **Method:** `GET`
+- **Headers:** `Authorization: Bearer <token>`
+- **Query Parameter:**
+  - `userId` (UUID, Required): Student's user ID.
+- **Response Payload (`AbsensiMahasiswaStatResponse` - HTTP 200 OK):**
+```json
+{
+  "totalHadir": 76,
+  "totalIzin": 1,
+  "totalSakit": 2,
+  "totalAlfa": 0
+}
 ```

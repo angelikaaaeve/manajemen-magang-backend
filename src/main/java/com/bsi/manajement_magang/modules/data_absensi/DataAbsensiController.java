@@ -76,6 +76,11 @@ public class DataAbsensiController {
         headers.setContentType(new MediaType("text", "csv", StandardCharsets.UTF_8));
         headers.setContentDispositionFormData("attachment", "rekap-absensi.csv");
 
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(body);
+    }
+
     // ================================================================
     // MAHASISWA-SIDE ENDPOINTS
     // ================================================================

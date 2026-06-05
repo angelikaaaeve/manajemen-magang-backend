@@ -200,4 +200,14 @@ public class DataAbsensiService {
     public AbsensiMahasiswaStatResponse getMahasiswaStat(UUID userId) {
         return repository.getMahasiswaStat(userId);
     }
+
+    private String escapeCsvField(String field) {
+        if (field == null) {
+            return "";
+        }
+        if (field.contains(";") || field.contains(",") || field.contains("\"") || field.contains("\n") || field.contains("\r")) {
+            return "\"" + field.replace("\"", "\"\"") + "\"";
+        }
+        return field;
+    }
 }
