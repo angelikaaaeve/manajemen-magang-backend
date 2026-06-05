@@ -1,10 +1,17 @@
 package com.bsi.manajement_magang.modules.data_absensi;
 
+import com.bsi.manajement_magang.modules.data_absensi.schema.AbsensiMahasiswaStatResponse;
 import com.bsi.manajement_magang.modules.data_absensi.schema.AbsensiResponse;
 import com.bsi.manajement_magang.modules.data_absensi.schema.AbsensiStatResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
@@ -101,12 +108,96 @@ public class DataAbsensiService {
         return csv.toString();
     }
 
-    // Helper to escape CSV fields
-    private String escapeCsvField(String field) {
-        if (field == null) return "";
-        if (field.contains(";") || field.contains("\"") || field.contains("\n")) {
-            return "\"" + field.replace("\"", "\"\"") + "\"";
+    // ========================================================
+    // MAHASISWA-SIDE METHODS
+    // ========================================================
+
+    /**
+     * Submit absensi harian mahasiswa.
+     * - hadir   : tidak butuh file
+     * - izin    : wajib ada keterangan, file PDF/image optional (maks 10MB)
+     * - sakit   : wajib ada keterangan, file PDF/image optional (maks 10MB)
+     * Satu mahasiswa hanya boleh submit 1x per hari (UNIQUE constraint di DB).
+     *
+     * @param userId       user_id mahasiswa yang login
+     * @param status       "hadir" | "izin" | "sakit"
+     * @param keterangan   alasan/keterangan (untuk izin & sakit)
+     * @param file         dokumen pendukung (nullable, maks 10MB)
+     */
+    @Transactional
+    public AbsensiResponse submitAbsensi(UUID userId, String status,
+                                         String keterangan, MultipartFile file) {
+        // 1. Validasi status
+        String statusLower = status != null ? status.toLowerCase().trim() : "";
+        if (!List.of("hadir", "izin", "sakit").contains(statusLower)) {
+            throw new IllegalArgumentException(
+                "Status tidak valid: '" + status + "'. Pilihan: hadir, izin, sakit");
         }
-        return field;
+
+        // 2. Cari periode magang aktif
+        UUID periodeMagangId = repository.findActivePeriodeByUserId(userId)
+                .orElseThrow(() -> new IllegalStateException(
+                    "Mahasiswa tidak memiliki periode magang aktif. Absensi tidak dapat dilakukan."));
+
+        // 3. Cek duplikat – 1 absensi per hari
+        LocalDate today = LocalDate.now();
+        if (repository.existsByPeriodeAndTanggal(periodeMagangId, today)) {
+            throw new IllegalStateException(
+                "Absensi untuk hari ini (" + today + ") sudah tercatat.");
+        }
+
+        // 4. Validasi & simpan file (jika ada)
+        String attachmentUrl = null;
+        if (file != null && !file.isEmpty()) {
+            // Validasi tipe file
+            String contentType = file.getContentType();
+            if (contentType == null ||
+                    (!contentType.startsWith("image/") && !contentType.equals("application/pdf"))) {
+                throw new IllegalArgumentException(
+                    "Tipe file tidak didukung. Hanya PDF dan gambar (JPEG/PNG) yang diperbolehkan.");
+            }
+            // Validasi ukuran file (maks 10MB)
+            long maxSizeBytes = 10L * 1024 * 1024;
+            if (file.getSize() > maxSizeBytes) {
+                throw new IllegalArgumentException(
+                    "Ukuran file melebihi batas maksimum 10MB.");
+            }
+
+            try {
+                // Simpan ke local storage (di production ganti dengan cloud storage)
+                String uploadDir = "uploads/absensi/";
+                String ext = contentType.equals("application/pdf") ? ".pdf" :
+                             contentType.equals("image/png") ? ".png" : ".jpg";
+                String fileName = userId + "_" + today + "_" + UUID.randomUUID() + ext;
+                Path uploadPath = Paths.get(uploadDir);
+                Files.createDirectories(uploadPath);
+                Path filePath = uploadPath.resolve(fileName);
+                file.transferTo(filePath.toFile());
+                attachmentUrl = "/uploads/absensi/" + fileName;
+            } catch (IOException e) {
+                throw new RuntimeException("Gagal menyimpan file attachment: " + e.getMessage(), e);
+            }
+        }
+
+        // 5. Insert ke DB
+        UUID newId = repository.insertAbsensi(periodeMagangId, today, statusLower, keterangan, attachmentUrl);
+
+        // 6. Kembalikan record yang baru dibuat
+        return repository.findById(newId)
+                .orElseThrow(() -> new IllegalStateException("Gagal mengambil record absensi setelah insert."));
+    }
+
+    /**
+     * Riwayat absensi 30 hari terakhir milik mahasiswa (berdasarkan user_id).
+     */
+    public List<AbsensiResponse> getRiwayatAbsensi(UUID userId) {
+        return repository.listAbsensiByUserId(userId);
+    }
+
+    /**
+     * Statistik absensi mahasiswa: hadir, izin, sakit, alfa.
+     */
+    public AbsensiMahasiswaStatResponse getMahasiswaStat(UUID userId) {
+        return repository.getMahasiswaStat(userId);
     }
 }

@@ -1,3 +1,5 @@
+#MENTOR#
+
 #Query
  1. status:  ("semua status", "Sudah Diunggah". "belum diunggah") 
 2. nama mahasiswa: string
@@ -13,3 +15,11 @@ statusnya akan menjadi"belum diunggah"
 a. total sertifikat diunggah
 b. total sertifikat belum diunggah
 c. total jumlah sertifikat
+
+#MAHASISWA# 
+
+# Endpoint
+1. Sertifikat
+a. melihat/review (mahasiswa dapat melihat sertifikat yg tertera) 
+b. unduh sertfikat (mahasiswa dapat mengunduh sertfikat yang telah di unggah oleh mentor)
+c. Spesifikasi Sertifikat (di dalam kolom ini mahasiswa dapat melihat "tanggal terbit", "format berkas" ) 

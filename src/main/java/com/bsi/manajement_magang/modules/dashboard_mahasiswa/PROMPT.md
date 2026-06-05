@@ -1,2 +1,3 @@
 1. #Endpoint
- a. statistik dashboard ("total kehadiran", "sisa waktu magang")
+ a. kolom nama mahasiswa
+ b. statistik dashboard ("total kehadiran", "sisa waktu magang") 

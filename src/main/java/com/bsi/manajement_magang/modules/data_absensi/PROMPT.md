@@ -1,3 +1,4 @@
+###MENTOR###
 #   Query
 1.Status
 a. semua status
@@ -17,3 +18,19 @@ e.alfa
 5.Statistik absensi(ngikutin filter)
 a. total absensi dengan status ' hadir'
 b total absensi dengan status 'izin/sakit' 
+
+###MAHASISWA###
+1. #Endpoint 
+a. fitur absensi
+-Hadir
+-Sakit(mahasiswa bisa mengupload file pdf dan image maX.10MB)
+-izin(mahasiswa bisa mengupload file pdf dan image maX.10MB)
+-alpha/tanpa keterangan (mahasiswa tidak melakukan absensi hadir, sakit, dan izin)
+-form keterangan/alasan (yg bisa di akses mahasiswa di halaman izin dan sakit)
+-tombol kirim presensi harian (submit) 
+b. riwayat absensi harian terakhir yg diakses mahasiwa
+2. statistik absensi mahasiswa
+a. jumlah hadir
+b. jumlah izin 
+c. jumlah sakit
+d. jumlah alfa/tanpa keterangan

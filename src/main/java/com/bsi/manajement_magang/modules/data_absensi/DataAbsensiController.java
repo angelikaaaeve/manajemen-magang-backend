@@ -1,5 +1,6 @@
 package com.bsi.manajement_magang.modules.data_absensi;
 
+import com.bsi.manajement_magang.modules.data_absensi.schema.AbsensiMahasiswaStatResponse;
 import com.bsi.manajement_magang.modules.data_absensi.schema.AbsensiResponse;
 import com.bsi.manajement_magang.modules.data_absensi.schema.AbsensiStatResponse;
 import org.springframework.http.HttpHeaders;
@@ -7,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -74,6 +76,47 @@ public class DataAbsensiController {
         headers.setContentType(new MediaType("text", "csv", StandardCharsets.UTF_8));
         headers.setContentDispositionFormData("attachment", "rekap-absensi.csv");
 
-        return new ResponseEntity<>(body, headers, HttpStatus.OK);
+    // ================================================================
+    // MAHASISWA-SIDE ENDPOINTS
+    // ================================================================
+
+    /**
+     * [MAHASISWA] Submit absensi harian.
+     * - status : hadir | izin | sakit
+     * - keterangan : alasan (untuk izin & sakit)
+     * - file : dokumen pendukung PDF/image, maks 10MB (optional)
+     * userId dikirim sebagai query param (dari JWT di FE, atau dikirim langsung).
+     * POST /api/absensi/mahasiswa/submit?userId=...
+     */
+    @PostMapping(value = "/mahasiswa/submit", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<AbsensiResponse> submitAbsensi(
+            @RequestParam UUID userId,
+            @RequestParam String status,
+            @RequestParam(required = false) String keterangan,
+            @RequestPart(required = false) MultipartFile file) {
+        AbsensiResponse response = dataAbsensiService.submitAbsensi(userId, status, keterangan, file);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    /**
+     * [MAHASISWA] Riwayat absensi 30 hari terakhir milik mahasiswa.
+     * GET /api/absensi/mahasiswa/riwayat?userId=...
+     */
+    @GetMapping("/mahasiswa/riwayat")
+    public ResponseEntity<List<AbsensiResponse>> getRiwayatAbsensi(
+            @RequestParam UUID userId) {
+        List<AbsensiResponse> response = dataAbsensiService.getRiwayatAbsensi(userId);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * [MAHASISWA] Statistik absensi pribadi (hadir, izin, sakit, alfa).
+     * GET /api/absensi/mahasiswa/statistik?userId=...
+     */
+    @GetMapping("/mahasiswa/statistik")
+    public ResponseEntity<AbsensiMahasiswaStatResponse> getMahasiswaStat(
+            @RequestParam UUID userId) {
+        AbsensiMahasiswaStatResponse response = dataAbsensiService.getMahasiswaStat(userId);
+        return ResponseEntity.ok(response);
     }
 }

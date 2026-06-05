@@ -1,3 +1,5 @@
+#mentor#
+
 # Query
 1. status:  ("disetujui", "belum disetujui". "ditolak") 
 2. nama mahasiswa: string
@@ -14,3 +16,14 @@ d. statistikk kegiatan (support filter/query)
  - Disetujui
  - Ditolak
 
+
+#mahasiswa#
+# Query
+1. status ("semua status", "sudah diunggah", "belum diunggah")
+2. nama kegiatan: string 
+
+# Endpoint 
+1. kegiatan
+a. catat/tambah kegiatan baru (mahasiswa bisa mencantumkan "nama kegiatan", "tanggal kegiatan", "waktu")
+b. unggah file tugas dikolom upload file (mahasiswa bisa mengupload file pdf dan image maX.10MB)
+c. fitur "hapus" di kolom aksi (mahasiswa bisa menghapus kegiatan yg sudah diupload)

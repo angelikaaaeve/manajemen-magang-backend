@@ -1,5 +1,6 @@
 package com.bsi.manajement_magang.modules.data_absensi;
 
+import com.bsi.manajement_magang.modules.data_absensi.schema.AbsensiMahasiswaStatResponse;
 import com.bsi.manajement_magang.modules.data_absensi.schema.AbsensiResponse;
 import com.bsi.manajement_magang.modules.data_absensi.schema.AbsensiStatResponse;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -111,7 +112,133 @@ public class DataAbsensiRepository {
         );
     }
 
+    // ========================================================
+    // MAHASISWA-SIDE METHODS
+    // ========================================================
+
+    /**
+     * Mencari periode magang aktif milik mahasiswa berdasarkan user_id.
+     * Mengembalikan periode_magang.id jika ada, kosong jika tidak.
+     */
+    public Optional<UUID> findActivePeriodeByUserId(UUID userId) {
+        String sql =
+            "SELECT pm.id " +
+            "FROM periode_magang pm " +
+            "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
+            "WHERE m.user_id = :userId AND pm.status = 'aktif' " +
+            "ORDER BY pm.created_at DESC " +
+            "LIMIT 1";
+        MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
+        return jdbc.queryForList(sql, params, UUID.class).stream().findFirst();
+    }
+
+    /**
+     * Cek apakah absensi pada tanggal tertentu sudah ada di periode tersebut.
+     */
+    public boolean existsByPeriodeAndTanggal(UUID periodeMagangId, LocalDate tanggal) {
+        String sql =
+            "SELECT COUNT(1) FROM absensi " +
+            "WHERE periode_magang_id = :periodeMagangId AND tanggal = :tanggal";
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("periodeMagangId", periodeMagangId)
+                .addValue("tanggal", tanggal);
+        Long count = jdbc.queryForObject(sql, params, Long.class);
+        return count != null && count > 0;
+    }
+
+    /**
+     * Insert record absensi baru. attachment_url nullable (untuk izin/sakit).
+     * Mengembalikan ID record yang baru dibuat.
+     */
+    public UUID insertAbsensi(UUID periodeMagangId, LocalDate tanggal,
+                              String status, String keterangan,
+                              String attachmentUrl) {
+        UUID id = UUID.randomUUID();
+        String sql =
+            "INSERT INTO absensi " +
+            "(id, periode_magang_id, tanggal, waktu_masuk, status, attachment_url, status_verifikasi) " +
+            "VALUES (:id, :periodeMagangId, :tanggal, NOW(), :status, :attachmentUrl, 'PENDING')";
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("id", id)
+                .addValue("periodeMagangId", periodeMagangId)
+                .addValue("tanggal", tanggal)
+                .addValue("status", status)
+                .addValue("attachmentUrl", attachmentUrl);
+        jdbc.update(sql, params);
+        return id;
+    }
+
+    /**
+     * List riwayat absensi milik mahasiswa (berdasarkan user_id), urut terbaru.
+     */
+    public List<AbsensiResponse> listAbsensiByUserId(UUID userId) {
+        String sql =
+            "SELECT a.id, a.periode_magang_id, pm.mahasiswa_id, m.nim, m.nama as nama_mahasiswa, " +
+            "       a.tanggal, a.waktu_masuk, a.waktu_keluar, a.status, a.attachment_url, a.status_verifikasi " +
+            "FROM absensi a " +
+            "JOIN periode_magang pm ON a.periode_magang_id = pm.id " +
+            "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
+            "WHERE m.user_id = :userId " +
+            "ORDER BY a.tanggal DESC " +
+            "LIMIT 30";
+        MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
+        return jdbc.query(sql, params, this::mapAbsensiResponse);
+    }
+
+    /**
+     * Statistik absensi mahasiswa: hadir, izin, sakit, alfa.
+     * alfa = total hari kerja periode aktif dikurangi semua record absensi.
+     */
+    public AbsensiMahasiswaStatResponse getMahasiswaStat(UUID userId) {
+        MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
+
+        String sqlHadir =
+            "SELECT COUNT(1) FROM absensi a " +
+            "JOIN periode_magang pm ON a.periode_magang_id = pm.id " +
+            "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
+            "WHERE m.user_id = :userId AND a.status = 'hadir'";
+        Long hadir = jdbc.queryForObject(sqlHadir, params, Long.class);
+
+        String sqlIzin =
+            "SELECT COUNT(1) FROM absensi a " +
+            "JOIN periode_magang pm ON a.periode_magang_id = pm.id " +
+            "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
+            "WHERE m.user_id = :userId AND a.status = 'izin'";
+        Long izin = jdbc.queryForObject(sqlIzin, params, Long.class);
+
+        String sqlSakit =
+            "SELECT COUNT(1) FROM absensi a " +
+            "JOIN periode_magang pm ON a.periode_magang_id = pm.id " +
+            "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
+            "WHERE m.user_id = :userId AND a.status = 'sakit'";
+        Long sakit = jdbc.queryForObject(sqlSakit, params, Long.class);
+
+        // Alfa = total hari kerja sejak tanggal_mulai hingga hari ini (maks tanggal_berakhir)
+        // dikurangi semua record absensi yang sudah masuk
+        String sqlAlfa =
+            "SELECT " +
+            "  GREATEST(0, " +
+            "    (SELECT GREATEST(0, (LEAST(CURRENT_DATE, pm2.tanggal_berakhir) - pm2.tanggal_mulai + 1)) " +
+            "     FROM periode_magang pm2 JOIN mahasiswa m2 ON pm2.mahasiswa_id = m2.id " +
+            "     WHERE m2.user_id = :userId ORDER BY pm2.created_at DESC LIMIT 1) " +
+            "    - (SELECT COUNT(1) FROM absensi a " +
+            "       JOIN periode_magang pm ON a.periode_magang_id = pm.id " +
+            "       JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
+            "       WHERE m.user_id = :userId) " +
+            "  )";
+        Long alfa = jdbc.queryForObject(sqlAlfa, params, Long.class);
+
+        return new AbsensiMahasiswaStatResponse(
+            hadir  != null ? hadir  : 0L,
+            izin   != null ? izin   : 0L,
+            sakit  != null ? sakit  : 0L,
+            alfa   != null ? alfa   : 0L
+        );
+    }
+
+    // ========================================================
     // Row mapper helper
+    // ========================================================
     private AbsensiResponse mapAbsensiResponse(ResultSet rs, int rowNum) throws SQLException {
         UUID id = UUID.fromString(rs.getString("id"));
         UUID periodeMagangId = UUID.fromString(rs.getString("periode_magang_id"));

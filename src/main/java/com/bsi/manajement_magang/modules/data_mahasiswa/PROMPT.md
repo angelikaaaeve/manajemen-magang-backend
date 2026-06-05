@@ -1,3 +1,5 @@
+#MENTOR#
+
 # Query
 1. gender
 2.universitas
@@ -14,3 +16,4 @@
   b. total mahasiswa dengan status 'selesai'
   c. total mahasiswa dengan status 'aktif dan belum ada data penilaian'
 5. Detail Mahasiswa (mahasiswa.id)
+
