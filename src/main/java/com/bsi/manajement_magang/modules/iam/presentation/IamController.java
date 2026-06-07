@@ -15,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.UUID;
 
 @RestController
@@ -40,9 +42,29 @@ public class IamController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest req) {
+    public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest req, HttpServletResponse response) {
         LoginCommand command = new LoginCommand(req.email(), req.password());
-        return ResponseEntity.ok(iamService.login(command));
+        LoginResponse res = iamService.login(command);
+
+        Cookie cookie = new Cookie("internflow_token", res.accessToken());
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true); // Works on localhost and HTTPS
+        cookie.setPath("/");
+        cookie.setMaxAge(3 * 24 * 60 * 60); // 3 days
+        response.addCookie(cookie);
+
+        return ResponseEntity.ok(res);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletResponse response) {
+        Cookie cookie = new Cookie("internflow_token", null);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/me")

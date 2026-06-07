@@ -1,6 +1,5 @@
 package com.bsi.manajement_magang.modules.media;
 
-import com.bsi.manajement_magang.shared.infra.CloudflareR1;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -10,31 +9,21 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/media")
 public class MediaController {
 
-    private final CloudflareR1 cloudflareR1;
+    private final MediaService mediaService;
 
-    public MediaController(CloudflareR1 cloudflareR1) {
-        this.cloudflareR1 = cloudflareR1;
+    public MediaController(MediaService mediaService) {
+        this.mediaService = mediaService;
     }
 
     @PostMapping("/upload")
     public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file) {
         try {
-            String originalFilename = file.getOriginalFilename();
-            String extension = "";
-            if (originalFilename != null && originalFilename.contains(".")) {
-                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-            }
-            
-            // Generate a unique key for the file
-            String key = UUID.randomUUID().toString() + extension;
-            
-            cloudflareR1.uploadFile(key, file.getInputStream(), file.getSize(), file.getContentType());
+            String key = mediaService.uploadFile(file);
             
             return ResponseEntity.ok(Map.of(
                     "message", "File uploaded successfully",
@@ -52,7 +41,7 @@ public class MediaController {
     @GetMapping("/{key}")
     public ResponseEntity<byte[]> getFile(@PathVariable String key) {
         try {
-            byte[] fileContent = cloudflareR1.downloadFile(key);
+            byte[] fileContent = mediaService.getFile(key);
             
             HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + key + "\"");
@@ -78,7 +67,7 @@ public class MediaController {
     @DeleteMapping("/{key}")
     public ResponseEntity<?> deleteFile(@PathVariable String key) {
         try {
-            cloudflareR1.deleteFile(key);
+            mediaService.deleteFile(key);
             return ResponseEntity.ok(Map.of(
                     "message", "File deleted successfully",
                     "key", key

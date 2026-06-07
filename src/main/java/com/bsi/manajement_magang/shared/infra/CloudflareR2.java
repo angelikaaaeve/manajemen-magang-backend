@@ -16,21 +16,21 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class CloudflareR1 {
+public class CloudflareR2 {
 
-    @Value("${cloudflare.r1.bucket}")
+    @Value("${cloudflare.r2.bucket}")
     private String bucket;
 
-    @Value("${cloudflare.r1.access-key}")
+    @Value("${cloudflare.r2.access-key}")
     private String accessKey;
 
-    @Value("${cloudflare.r1.secret-key}")
+    @Value("${cloudflare.r2.secret-key}")
     private String secretKey;
 
-    @Value("${cloudflare.r1.endpoint}")
+    @Value("${cloudflare.r2.endpoint}")
     private String endpoint;
 
-    @Value("${cloudflare.r1.region}")
+    @Value("${cloudflare.r2.region}")
     private String region;
 
     private S3Client s3Client;
@@ -62,7 +62,11 @@ public class CloudflareR1 {
                 .key(key)
                 .build();
 
-        return s3Client.getObject(getObjectRequest).readAllBytes();
+        try {
+            return s3Client.getObject(getObjectRequest).readAllBytes();
+        } catch (java.io.IOException e) {
+            throw new RuntimeException("Failed to read file from R2: " + e.getMessage(), e);
+        }
     }
 
     public void deleteFile(String key) {

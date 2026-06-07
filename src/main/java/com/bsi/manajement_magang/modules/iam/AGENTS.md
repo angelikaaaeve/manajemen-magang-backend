@@ -96,9 +96,7 @@ Authenticates a user and issues a JWT token.
 - **Response Payload (`LoginResponse` - HTTP 200 OK):**
   ```json
   {
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...", // Bearer token
-    "email": "budi.santoso@student.ui.ac.id",
-    "role": "mahasiswa"
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." // Bearer token
   }
   ```
 

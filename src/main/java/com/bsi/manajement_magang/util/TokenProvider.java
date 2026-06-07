@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public class TokenProvider {
     private static final String SECRET = "skripsi_manajemen_magang_2026_super_secret_key_extremely_long_and_secure";
-    private static final long EXPIRY_MS = 86400000L; // 24 jam
+    private static final long EXPIRY_MS = 259200000L; // 3 hari
 
     public static record Claims(UUID userId, String role) {}
 

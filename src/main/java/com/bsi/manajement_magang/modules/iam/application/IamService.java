@@ -99,7 +99,7 @@ public class IamService {
         }
 
         String token = TokenProvider.generateToken(user.getId(), user.getRole().name());
-        return new LoginResponse(token, user.getEmail(), user.getRole().name());
+        return new LoginResponse(token);
     }
 
     public UserResponse getMe(UUID userId) {
