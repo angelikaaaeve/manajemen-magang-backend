@@ -1,4 +1,6 @@
 spring:
+  config:
+    import: optional:file:.env[.properties]
   flyway:
     enabled: true
     locations: classpath:db/migration
@@ -6,9 +8,9 @@ spring:
   application:
     name: manajement_magang
   datasource:
-    url: jdbc:postgresql://localhost:5432/manajemen_magang
-    username: postgres
-    password: root
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: update
@@ -17,3 +19,11 @@ spring:
   hibernate:
     dialect: org.hibernate.dialect.postgreSQLDialect
     format_sql: true
+
+cloudflare:
+  r1:
+    bucket: ${CLOUDFLARE_R1_BUCKET:default-bucket}
+    access-key: ${CLOUDFLARE_R1_ACCESS_KEY:default-access-key}
+    secret-key: ${CLOUDFLARE_R1_SECRET_KEY:default-secret-key}
+    endpoint: ${CLOUDFLARE_R1_ENDPOINT:https://<account-id>.r2.cloudflarestorage.com}
+    region: ${CLOUDFLARE_R1_REGION:auto}

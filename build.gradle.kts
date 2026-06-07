@@ -31,6 +31,7 @@ dependencies {
 	implementation("org.flywaydb:flyway-core")
 	implementation("org.flywaydb:flyway-database-postgresql")
 	implementation("org.bouncycastle:bcprov-jdk18on:1.78")
+	implementation("software.amazon.awssdk:s3:2.25.27")
 }
 
 tasks.withType<Test> {
