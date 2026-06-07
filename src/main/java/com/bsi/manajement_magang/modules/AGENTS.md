@@ -1,4 +1,4 @@
-cd# InternFlow Backend API Modules Documentation Index
+# InternFlow Backend API Modules Documentation Index
 
 Welcome! This directory contains the complete Spring Boot backend implementation for **InternFlow** (Sistem Informasi Manajemen Magang). To make it easy for frontend AI developers and team members to build and integrate modules, we have compiled recursive `AGENTS.md` files for each subdirectory module.
 
@@ -22,6 +22,10 @@ Select a module to view its detailed endpoints, query parameters, request payloa
    - Certificate tracking, upload handlers, and completion status.
 7. **[Surat Keterangan (Completion Letters)](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/surat_keterangan/AGENTS.md)**
    - Internship official completion letter tracking, uploads, and statuses.
+8. **[Dashboard Mahasiswa (Student Dashboard)](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/dashboard_mahasiswa/AGENTS.md)**
+   - Dashboard statistics (attendance metrics and remaining internship time).
+9. **[Dashboard Mentor (Mentor Dashboard)](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/dashboard_mentor/AGENTS.md)**
+   - Mentor dashboard features: student search, student registration, and overall attendance statistics.
 
 ---
 
