@@ -33,28 +33,6 @@ public class DataAbsensiServiceImpl implements DataAbsensiService {
         return repository.listAbsensi(status, namaMahasiswa);
     }
 
-    // Verify / Approve attendance record
-    @Override
-    @Transactional
-    public AbsensiResponse verifyAbsensi(UUID id, String action) {
-        AbsensiResponse record = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Attendance record with ID '" + id + "' was not found"));
-
-        String statusVerifikasi;
-        if ("setujui".equalsIgnoreCase(action)) {
-            statusVerifikasi = "DISETUJUI";
-        } else if ("tolak".equalsIgnoreCase(action)) {
-            statusVerifikasi = "DITOLAK";
-        } else {
-            throw new IllegalArgumentException("Invalid verification action: '" + action + "'. Supported: 'setujui', 'tolak'");
-        }
-
-        repository.verifyAbsensi(id, statusVerifikasi);
-
-        return repository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Failed to retrieve updated attendance record"));
-    }
-
     // Delete attendance record
     @Override
     @Transactional
@@ -94,22 +72,17 @@ public class DataAbsensiServiceImpl implements DataAbsensiService {
         csv.append('﻿');
 
         // CSV Header
-        csv.append("No;Tanggal;NIM;Nama Mahasiswa;Jam Masuk;Jam Keluar;Status Presensi;Status Verifikasi;URL Lampiran\n");
+        csv.append("No;Tanggal;NIM;Nama Mahasiswa;Status Presensi;URL Lampiran\n");
 
         int index = 1;
         for (AbsensiResponse record : records) {
-            String jamMasuk = record.waktuMasuk() != null ? record.waktuMasuk().format(TIME_FORMATTER) : "-";
-            String jamKeluar = record.waktuKeluar() != null ? record.waktuKeluar().format(TIME_FORMATTER) : "-";
             String attachment = record.attachmentUrl() != null ? record.attachmentUrl() : "-";
 
             csv.append(index++).append(";")
                .append(record.tanggal()).append(";")
                .append(record.nim()).append(";")
                .append(escapeCsvField(record.namaMahasiswa())).append(";")
-               .append(jamMasuk).append(";")
-               .append(jamKeluar).append(";")
                .append(record.status().toUpperCase()).append(";")
-               .append(record.statusVerifikasi()).append(";")
                .append(attachment).append("\n");
         }
 

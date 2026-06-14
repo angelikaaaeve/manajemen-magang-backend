@@ -11,9 +11,6 @@ public record AbsensiResponse(
     String nim,
     String namaMahasiswa,
     LocalDate tanggal,
-    OffsetDateTime waktuMasuk,
-    OffsetDateTime waktuKeluar,
     String status,
-    String attachmentUrl,
-    String statusVerifikasi
+    String attachmentUrl
 ) {}

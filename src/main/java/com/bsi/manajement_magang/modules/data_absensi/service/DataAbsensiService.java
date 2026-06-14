@@ -12,8 +12,6 @@ public interface DataAbsensiService {
 
     List<AbsensiResponse> listAbsensi(String status, String namaMahasiswa);
 
-    AbsensiResponse verifyAbsensi(UUID id, String action);
-
     void deleteAbsensi(UUID id);
 
     AbsensiStatResponse getAbsensiStatistics(String namaMahasiswa);

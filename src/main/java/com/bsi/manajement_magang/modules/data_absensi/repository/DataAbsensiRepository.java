@@ -26,7 +26,7 @@ public class DataAbsensiRepository {
     public List<AbsensiResponse> listAbsensi(String status, String namaMahasiswa) {
         StringBuilder sql = new StringBuilder(
             "SELECT a.id, a.periode_magang_id, pm.mahasiswa_id, m.nim, m.nama as nama_mahasiswa, " +
-            "       a.tanggal, a.waktu_masuk, a.waktu_keluar, a.status, a.attachment_url, a.status_verifikasi " +
+            "       a.tanggal, a.status, a.attachment_url " +
             "FROM absensi a " +
             "JOIN periode_magang pm ON a.periode_magang_id = pm.id " +
             "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
@@ -54,7 +54,7 @@ public class DataAbsensiRepository {
     public Optional<AbsensiResponse> findById(UUID id) {
         String sql =
             "SELECT a.id, a.periode_magang_id, pm.mahasiswa_id, m.nim, m.nama as nama_mahasiswa, " +
-            "       a.tanggal, a.waktu_masuk, a.waktu_keluar, a.status, a.attachment_url, a.status_verifikasi " +
+            "       a.tanggal, a.status, a.attachment_url " +
             "FROM absensi a " +
             "JOIN periode_magang pm ON a.periode_magang_id = pm.id " +
             "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
@@ -64,14 +64,7 @@ public class DataAbsensiRepository {
         return jdbc.query(sql, params, this::mapAbsensiResponse).stream().findFirst();
     }
 
-    // Verify/Approve attendance record
-    public void verifyAbsensi(UUID id, String statusVerifikasi) {
-        String sql = "UPDATE absensi SET status_verifikasi = :statusVerifikasi WHERE id = :id";
-        MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("id", id)
-                .addValue("statusVerifikasi", statusVerifikasi);
-        jdbc.update(sql, params);
-    }
+    // Verify/Approve attendance record removed
 
     // Delete attendance record
     public void deleteAbsensi(UUID id) {
@@ -156,8 +149,8 @@ public class DataAbsensiRepository {
         UUID id = UUID.randomUUID();
         String sql =
             "INSERT INTO absensi " +
-            "(id, periode_magang_id, tanggal, waktu_masuk, status, attachment_url, status_verifikasi) " +
-            "VALUES (:id, :periodeMagangId, :tanggal, NOW(), :status, :attachmentUrl, 'PENDING')";
+            "(id, periode_magang_id, tanggal, status, attachment_url) " +
+            "VALUES (:id, :periodeMagangId, :tanggal, :status, :attachmentUrl)";
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("id", id)
                 .addValue("periodeMagangId", periodeMagangId)
@@ -174,7 +167,7 @@ public class DataAbsensiRepository {
     public List<AbsensiResponse> listAbsensiByUserId(UUID userId) {
         String sql =
             "SELECT a.id, a.periode_magang_id, pm.mahasiswa_id, m.nim, m.nama as nama_mahasiswa, " +
-            "       a.tanggal, a.waktu_masuk, a.waktu_keluar, a.status, a.attachment_url, a.status_verifikasi " +
+            "       a.tanggal, a.status, a.attachment_url " +
             "FROM absensi a " +
             "JOIN periode_magang pm ON a.periode_magang_id = pm.id " +
             "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
@@ -257,12 +250,6 @@ public class DataAbsensiRepository {
         String namaMahasiswa = rs.getString("nama_mahasiswa");
         LocalDate tanggal = rs.getDate("tanggal").toLocalDate();
 
-        java.sql.Timestamp tMasuk = rs.getTimestamp("waktu_masuk");
-        java.sql.Timestamp tKeluar = rs.getTimestamp("waktu_keluar");
-
-        OffsetDateTime waktuMasuk = tMasuk != null ? OffsetDateTime.ofInstant(tMasuk.toInstant(), ZoneId.systemDefault()) : null;
-        OffsetDateTime waktuKeluar = tKeluar != null ? OffsetDateTime.ofInstant(tKeluar.toInstant(), ZoneId.systemDefault()) : null;
-
         return new AbsensiResponse(
             id,
             periodeMagangId,
@@ -270,11 +257,8 @@ public class DataAbsensiRepository {
             nim,
             namaMahasiswa,
             tanggal,
-            waktuMasuk,
-            waktuKeluar,
             rs.getString("status"),
-            rs.getString("attachment_url"),
-            rs.getString("status_verifikasi")
+            rs.getString("attachment_url")
         );
     }
 }

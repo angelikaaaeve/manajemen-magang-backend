@@ -41,6 +41,30 @@ public class DataAbsensiController {
         }
     }
 
+    // Endpoint statistik harian kehadiran mahasiswa (mengambil data diri sendiri)
+    @GetMapping("/statistik-kehadiran")
+    public ResponseEntity<Map<String, Long>> getStatistikKehadiran() {
+        var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        // Validasi harus ada session dan rolenya Mahasiswa
+        if (auth == null || auth.getPrincipal() == null || !auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_MAHASISWA"))) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        try {
+            UUID userId = (UUID) auth.getPrincipal(); // Ekstrak ID si peminta
+            AbsensiMahasiswaStatResponse stat = dataAbsensiService.getMahasiswaStat(userId);
+            
+            // Format response sesuai permintaan
+            Map<String, Long> response = Map.of(
+                "totalHadir", stat.totalHadir(),
+                "totalIzin", stat.totalIzin(),
+                "totalSakit", stat.totalSakit()
+            );
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     // 1. Baca / List Absensi Mahasiswa (with filters)
     @GetMapping
     public ResponseEntity<List<AbsensiResponse>> listAbsensi(
@@ -50,16 +74,7 @@ public class DataAbsensiController {
         return ResponseEntity.ok(response);
     }
 
-    // 2. Verifikasi Absensi: setujui (action=setujui) / tolak (action=tolak)
-    @PostMapping("/{id}/verifikasi")
-    public ResponseEntity<AbsensiResponse> verifyAbsensi(
-            @PathVariable UUID id,
-            @RequestParam String action) {
-        AbsensiResponse response = dataAbsensiService.verifyAbsensi(id, action);
-        return ResponseEntity.ok(response);
-    }
-
-    // 2b. Verifikasi Absensi: hapus (DELETE /api/absensi/{id})
+    // 2. Hapus Absensi (DELETE /api/absensi/{id})
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAbsensi(@PathVariable UUID id) {
         dataAbsensiService.deleteAbsensi(id);
