@@ -3,15 +3,20 @@
 This module manages user credentials, JWT authentications, profiles, registration, and role allocations.
 
 ## 📂 Code Files
-- Controller: [IamController.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/iam/presentation/IamController.java)
-- Service: [IamService.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/iam/application/IamService.java)
-- Repository: [UserRepositoryImpl.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/iam/infrastructure/UserRepositoryImpl.java)
+- Controller: [IamController.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/iam/controller/IamController.java)
+- Service: [IamService.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/iam/service/IamService.java) (impl: [IamServiceImpl.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/iam/service/impl/IamServiceImpl.java))
+- Repository: [UserRepository.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/iam/repository/UserRepository.java) (impl: [UserRepositoryImpl.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/iam/repository/impl/UserRepositoryImpl.java))
 - DTO Schemas:
-  - [RegisterRequest.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/iam/presentation/request/RegisterRequest.java)
-  - [LoginRequest.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/iam/presentation/request/LoginRequest.java)
-  - [UpdateUserRequest.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/iam/presentation/request/UpdateUserRequest.java)
-  - [UserResponse.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/iam/application/response/UserResponse.java)
-  - [LoginResponse.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/iam/application/response/LoginResponse.java)
+  - [RegisterRequest.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/iam/schema/request/RegisterRequest.java)
+  - [LoginRequest.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/iam/schema/request/LoginRequest.java)
+  - [UpdateUserRequest.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/iam/schema/request/UpdateUserRequest.java)
+  - [UserResponse.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/iam/schema/response/UserResponse.java)
+  - [LoginResponse.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/iam/schema/response/LoginResponse.java)
+- Entities:
+  - [UserEntity.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/iam/schema/entity/UserEntity.java)
+  - [MahasiswaEntity.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/iam/schema/entity/MahasiswaEntity.java)
+  - [MentorEntity.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/iam/schema/entity/MentorEntity.java)
+  - [Role.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/iam/schema/entity/Role.java)
 
 ---
 

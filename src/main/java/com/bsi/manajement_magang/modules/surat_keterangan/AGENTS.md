@@ -3,13 +3,13 @@
 This module manages official completion letters (surat keterangan selesai magang) issued to students after their internship periods conclude.
 
 ## 📂 Code Files
-- Controller: [SuratKeteranganController.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/surat_keterangan/SuratKeteranganController.java)
-- Service: [SuratKeteranganService.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/surat_keterangan/SuratKeteranganService.java)
-- Repository: [SuratKeteranganRepository.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/surat_keterangan/SuratKeteranganRepository.java)
+- Controller: [SuratKeteranganController.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/surat_keterangan/controller/SuratKeteranganController.java)
+- Service: [SuratKeteranganService.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/surat_keterangan/service/SuratKeteranganService.java) (impl: [SuratKeteranganServiceImpl.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/surat_keterangan/service/impl/SuratKeteranganServiceImpl.java))
+- Repository: [SuratKeteranganRepository.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/surat_keterangan/repository/SuratKeteranganRepository.java)
 - DTO Schemas:
-  - [SuratKeteranganRequest.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/surat_keterangan/schema/SuratKeteranganRequest.java)
-  - [SuratKeteranganResponse.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/surat_keterangan/schema/SuratKeteranganResponse.java)
-  - [SuratKeteranganStatResponse.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/surat_keterangan/schema/SuratKeteranganStatResponse.java)
+  - [SuratKeteranganRequest.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/surat_keterangan/schema/request/SuratKeteranganRequest.java)
+  - [SuratKeteranganResponse.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/surat_keterangan/schema/response/SuratKeteranganResponse.java)
+  - [SuratKeteranganStatResponse.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/surat_keterangan/schema/response/SuratKeteranganStatResponse.java)
 
 ---
 

@@ -2,6 +2,11 @@
 
 This document provides a concise overview of the endpoints, types, and behaviors for the `media` module. The base path for these endpoints is `/api/media`.
 
+## Code Files
+- Controller: `controller/MediaController.java`
+- Service: `service/MediaService.java` (impl: `service/impl/MediaServiceImpl.java`)
+- Repository: `repository/MediaRepository.java` (impl: `repository/impl/CloudflareMediaRepository.java`)
+
 ## Endpoints
 
 ### 1. Upload File

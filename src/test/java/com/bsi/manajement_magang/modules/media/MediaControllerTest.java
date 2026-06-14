@@ -1,5 +1,6 @@
 package com.bsi.manajement_magang.modules.media;
 
+import com.bsi.manajement_magang.modules.media.service.MediaService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

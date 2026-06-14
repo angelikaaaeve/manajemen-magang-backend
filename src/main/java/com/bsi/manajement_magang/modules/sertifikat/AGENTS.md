@@ -3,13 +3,13 @@
 This module tracks completion certificates issued to students upon finishing their industrial internship program.
 
 ## 📂 Code Files
-- Controller: [SertifikatController.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/sertifikat/SertifikatController.java)
-- Service: [SertifikatService.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/sertifikat/SertifikatService.java)
-- Repository: [SertifikatRepository.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/sertifikat/SertifikatRepository.java)
+- Controller: [SertifikatController.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/sertifikat/controller/SertifikatController.java)
+- Service: [SertifikatService.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/sertifikat/service/SertifikatService.java) (impl: [SertifikatServiceImpl.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/sertifikat/service/impl/SertifikatServiceImpl.java))
+- Repository: [SertifikatRepository.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/sertifikat/repository/SertifikatRepository.java)
 - DTO Schemas:
-  - [SertifikatRequest.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/sertifikat/schema/SertifikatRequest.java)
-  - [SertifikatResponse.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/sertifikat/schema/SertifikatResponse.java)
-  - [SertifikatStatResponse.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/sertifikat/schema/SertifikatStatResponse.java)
+  - [SertifikatRequest.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/sertifikat/schema/request/SertifikatRequest.java)
+  - [SertifikatResponse.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/sertifikat/schema/response/SertifikatResponse.java)
+  - [SertifikatStatResponse.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/sertifikat/schema/response/SertifikatStatResponse.java)
 
 ---
 

@@ -3,13 +3,14 @@
 This module manages student daily attendance logs, mentor approval workflows, sick/leave attachments, and rekap exports.
 
 ## 📂 Code Files
-- Controller: [DataAbsensiController.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_absensi/DataAbsensiController.java)
-- Service: [DataAbsensiService.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_absensi/DataAbsensiService.java)
-- Repository: [DataAbsensiRepository.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_absensi/DataAbsensiRepository.java)
+- Controller: [DataAbsensiController.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_absensi/controller/DataAbsensiController.java)
+- Service: [DataAbsensiService.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_absensi/service/DataAbsensiService.java) (impl: [DataAbsensiServiceImpl.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_absensi/service/impl/DataAbsensiServiceImpl.java))
+- Repository: [DataAbsensiRepository.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_absensi/repository/DataAbsensiRepository.java)
 - DTO Schemas:
-  - [AbsensiResponse.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_absensi/schema/AbsensiResponse.java)
-  - [AbsensiStatResponse.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_absensi/schema/AbsensiStatResponse.java)
-  - [AbsensiMahasiswaStatResponse.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_absensi/schema/AbsensiMahasiswaStatResponse.java)
+  - [AbsensiResponse.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_absensi/schema/response/AbsensiResponse.java)
+  - [AbsensiStatResponse.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_absensi/schema/response/AbsensiStatResponse.java)
+  - [AbsensiMahasiswaStatResponse.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_absensi/schema/response/AbsensiMahasiswaStatResponse.java)
+  - [SubmitAbsensiRequest.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_absensi/schema/request/SubmitAbsensiRequest.java)
 
 ---
 

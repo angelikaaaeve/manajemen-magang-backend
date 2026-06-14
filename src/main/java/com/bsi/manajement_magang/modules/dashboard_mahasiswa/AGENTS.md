@@ -3,10 +3,10 @@
 This module manages the dashboard statistics and info for the Student (Mahasiswa) dashboard.
 
 ## 📂 Code Files
-- Controller: [DashboardMahasiswaController.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/dashboard_mahasiswa/DashboardMahasiswaController.java)
-- Service: [DashboardMahasiswaService.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/dashboard_mahasiswa/DashboardMahasiswaService.java)
-- Repository: [DashboardMahasiswaRepository.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/dashboard_mahasiswa/DashboardMahasiswaRepository.java)
-- Response DTO: [DashboardMahasiswaStatResponse.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/dashboard_mahasiswa/schema/DashboardMahasiswaStatResponse.java)
+- Controller: [DashboardMahasiswaController.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/dashboard_mahasiswa/controller/DashboardMahasiswaController.java)
+- Service: [DashboardMahasiswaService.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/dashboard_mahasiswa/service/DashboardMahasiswaService.java) (impl: [DashboardMahasiswaServiceImpl.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/dashboard_mahasiswa/service/impl/DashboardMahasiswaServiceImpl.java))
+- Repository: [DashboardMahasiswaRepository.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/dashboard_mahasiswa/repository/DashboardMahasiswaRepository.java)
+- Response DTO: [DashboardMahasiswaStatResponse.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/dashboard_mahasiswa/schema/response/DashboardMahasiswaStatResponse.java)
 
 ---
 

@@ -3,13 +3,13 @@
 This module manages the student query/search, registration (daftarkan mahasiswa baru), and dashboard statistics (active/completed students count & attendance accumulation charts) for the Mentor dashboard.
 
 ## 📂 Code Files
-- Controller: [DashboardMentorController.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/dashboard_mentor/DashboardMentorController.java)
-- Service: [DashboardMentorService.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/dashboard_mentor/DashboardMentorService.java)
-- Repository: [DashboardMentorRepository.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/dashboard_mentor/DashboardMentorRepository.java)
+- Controller: [DashboardMentorController.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/dashboard_mentor/controller/DashboardMentorController.java)
+- Service: [DashboardMentorService.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/dashboard_mentor/service/DashboardMentorService.java) (impl: [DashboardMentorServiceImpl.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/dashboard_mentor/service/impl/DashboardMentorServiceImpl.java))
+- Repository: [DashboardMentorRepository.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/dashboard_mentor/repository/DashboardMentorRepository.java)
 - DTO Schemas:
-  - [DashboardStatResponse.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/dashboard_mentor/schema/DashboardStatResponse.java)
-  - [RegisterStudentRequest.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/dashboard_mentor/schema/RegisterStudentRequest.java)
-  - [SearchStudentResponse.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/dashboard_mentor/schema/SearchStudentResponse.java)
+  - [DashboardStatResponse.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/dashboard_mentor/schema/response/DashboardStatResponse.java)
+  - [RegisterStudentRequest.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/dashboard_mentor/schema/request/RegisterStudentRequest.java)
+  - [SearchStudentResponse.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/dashboard_mentor/schema/response/SearchStudentResponse.java)
 
 ---
 

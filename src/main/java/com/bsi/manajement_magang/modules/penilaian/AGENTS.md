@@ -3,13 +3,13 @@
 This module manages the internship evaluation process, enabling mentors to submit scores across multiple performance criteria (kinerja, kedisiplinan, responsibility, etc.) and view total score averages.
 
 ## 📂 Code Files
-- Controller: [PenilaianController.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/penilaian/PenilaianController.java)
-- Service: [PenilaianSerivice.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/penilaian/PenilaianSerivice.java)
-- Repository: [PenilaianRepository.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/penilaian/PenilaianRepository.java)
+- Controller: [PenilaianController.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/penilaian/controller/PenilaianController.java)
+- Service: [PenilaianService.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/penilaian/service/PenilaianService.java) (impl: [PenilaianServiceImpl.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/penilaian/service/impl/PenilaianServiceImpl.java))
+- Repository: [PenilaianRepository.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/penilaian/repository/PenilaianRepository.java)
 - DTO Schemas:
-  - [PenilaianRequest.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/penilaian/schema/PenilaianRequest.java)
-  - [PenilaianResponse.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/penilaian/schema/PenilaianResponse.java)
-  - [PenilaianStatResponse.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/penilaian/schema/PenilaianStatResponse.java)
+  - [PenilaianRequest.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/penilaian/schema/request/PenilaianRequest.java)
+  - [PenilaianResponse.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/penilaian/schema/response/PenilaianResponse.java)
+  - [PenilaianStatResponse.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/penilaian/schema/response/PenilaianStatResponse.java)
 
 ---
 

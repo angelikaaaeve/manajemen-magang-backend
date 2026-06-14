@@ -3,12 +3,12 @@
 This module manages students' daily/weekly activity logbooks, comments, and approvals by industry supervisors/mentors.
 
 ## 📂 Code Files
-- Controller: [DataKegiatanController.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_kegiatan/DataKegiatanController.java)
-- Service: [DataKegiatanService.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_kegiatan/DataKegiatanService.java)
-- Repository: [DataKegiatanRepository.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_kegiatan/DataKegiatanRepository.java)
+- Controller: [DataKegiatanController.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_kegiatan/controller/DataKegiatanController.java)
+- Service: [DataKegiatanService.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_kegiatan/service/DataKegiatanService.java) (impl: [DataKegiatanServiceImpl.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_kegiatan/service/impl/DataKegiatanServiceImpl.java))
+- Repository: [DataKegiatanRepository.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_kegiatan/repository/DataKegiatanRepository.java)
 - DTO Schemas:
-  - [ActivityResponse.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_kegiatan/schema/ActivityResponse.java)
-  - [ActivityStatResponse.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_kegiatan/schema/ActivityStatResponse.java)
+  - [ActivityResponse.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_kegiatan/schema/response/ActivityResponse.java)
+  - [ActivityStatResponse.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_kegiatan/schema/response/ActivityStatResponse.java)
 
 ---
 

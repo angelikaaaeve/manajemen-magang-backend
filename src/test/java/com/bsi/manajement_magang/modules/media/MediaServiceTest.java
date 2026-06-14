@@ -1,5 +1,7 @@
 package com.bsi.manajement_magang.modules.media;
 
+import com.bsi.manajement_magang.modules.media.repository.MediaRepository;
+import com.bsi.manajement_magang.modules.media.service.impl.MediaServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -22,7 +24,7 @@ public class MediaServiceTest {
     private MediaRepository mediaRepository;
 
     @InjectMocks
-    private MediaService mediaService;
+    private MediaServiceImpl mediaService;
 
     @BeforeEach
     public void setUp() {

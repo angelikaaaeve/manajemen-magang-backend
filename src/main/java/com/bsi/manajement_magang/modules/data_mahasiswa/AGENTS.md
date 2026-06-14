@@ -3,14 +3,14 @@
 This module manages student profiles, administrative fields, and academic/industry internship period details.
 
 ## 📂 Code Files
-- Controller: [DataMahasiswaController.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_mahasiswa/DataMahasiswaController.java)
-- Service: [DataMahasiwaService.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_mahasiswa/DataMahasiwaService.java)
-- Repository: [DataMahasiswaRepository.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_mahasiswa/DataMahasiswaRepository.java)
+- Controller: [DataMahasiswaController.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_mahasiswa/controller/DataMahasiswaController.java)
+- Service: [DataMahasiswaService.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_mahasiswa/service/DataMahasiswaService.java) (impl: [DataMahasiswaServiceImpl.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_mahasiswa/service/impl/DataMahasiswaServiceImpl.java))
+- Repository: [DataMahasiswaRepository.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_mahasiswa/repository/DataMahasiswaRepository.java)
 - DTO Schemas:
-  - [StudentRequest.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_mahasiswa/schema/StudentRequest.java)
-  - [StudentResponse.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_mahasiswa/schema/StudentResponse.java)
-  - [StudentStatResponse.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_mahasiswa/schema/StudentStatResponse.java)
-  - [UpdateStudentRequest.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_mahasiswa/schema/UpdateStudentRequest.java)
+  - [StudentRequest.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_mahasiswa/schema/request/StudentRequest.java)
+  - [StudentResponse.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_mahasiswa/schema/response/StudentResponse.java)
+  - [StudentStatResponse.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_mahasiswa/schema/response/StudentStatResponse.java)
+  - [UpdateStudentRequest.java](file:///c:/Users/LENOVO1/Documents/PROJECT%20SKRIPSI/manajement_magang/src/main/java/com/bsi/manajement_magang/modules/data_mahasiswa/schema/request/UpdateStudentRequest.java)
 
 ---
 

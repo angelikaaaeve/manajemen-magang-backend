@@ -1,0 +1,123 @@
+package com.bsi.manajement_magang.modules.dashboard_mentor.service.impl;
+
+import com.bsi.manajement_magang.modules.dashboard_mentor.repository.DashboardMentorRepository;
+import com.bsi.manajement_magang.modules.dashboard_mentor.schema.request.RegisterStudentRequest;
+import com.bsi.manajement_magang.modules.dashboard_mentor.schema.response.DashboardStatResponse;
+import com.bsi.manajement_magang.modules.dashboard_mentor.schema.response.SearchStudentResponse;
+import com.bsi.manajement_magang.modules.dashboard_mentor.service.DashboardMentorService;
+import com.bsi.manajement_magang.shared.Argon2Hasher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.util.*;
+
+@Service
+public class DashboardMentorServiceImpl implements DashboardMentorService {
+    private final DashboardMentorRepository repository;
+    private final Argon2Hasher argon2Hasher;
+
+    public DashboardMentorServiceImpl(DashboardMentorRepository repository, Argon2Hasher argon2Hasher) {
+        this.repository = repository;
+        this.argon2Hasher = argon2Hasher;
+    }
+
+    // 1. Register new student (daftarkan mahasiswa baru)
+    @Override
+    @Transactional
+    public SearchStudentResponse addStudent(RegisterStudentRequest req) {
+        if (repository.existsByEmail(req.email())) {
+            throw new IllegalArgumentException("Email '" + req.email() + "' is already registered");
+        }
+        if (repository.existsByNim(req.nim())) {
+            throw new IllegalArgumentException("NIM '" + req.nim() + "' is already registered");
+        }
+
+        UUID userId = UUID.randomUUID();
+        UUID studentId = UUID.randomUUID();
+
+        // Hash raw password
+        String hashedPassword = argon2Hasher.hash(req.password());
+
+        // Save records to database
+        repository.saveUser(userId, req.email(), hashedPassword);
+        repository.saveMahasiswa(
+                studentId,
+                userId,
+                req.nim(),
+                req.nama(),
+                req.noHp(),
+                req.gender(),
+                req.universitas()
+        );
+
+        // Save period record if both dates are specified
+        if (req.tanggalMulai() != null && req.tanggalBerakhir() != null) {
+            repository.savePeriod(UUID.randomUUID(), studentId, req.tanggalMulai(), req.tanggalBerakhir());
+        }
+
+        // Return the created student details
+        return repository.findStudentById(studentId)
+                .orElseThrow(() -> new IllegalStateException("Failed to retrieve newly registered student details"));
+    }
+
+    // 2. Query / Search students by name
+    @Override
+    public List<SearchStudentResponse> searchStudentsByName(String name) {
+        List<Map<String, Object>> rows = repository.searchStudentsByName(name);
+        List<SearchStudentResponse> results = new ArrayList<>();
+
+        for (Map<String, Object> row : rows) {
+            results.add(new SearchStudentResponse(
+                    toUUID(row.get("id")),
+                    toUUID(row.get("user_id")),
+                    (String) row.get("email"),
+                    (String) row.get("nim"),
+                    (String) row.get("nama"),
+                    (String) row.get("no_hp"),
+                    (String) row.get("gender"),
+                    (String) row.get("universitas"),
+                    toUUID(row.get("periode_id")),
+                    toLocalDate(row.get("tanggal_mulai")),
+                    toLocalDate(row.get("tanggal_berakhir")),
+                    (String) row.get("status_periode")
+            ));
+        }
+
+        return results;
+    }
+
+    // 3. Get Dashboard Statistics (Active Count, Completed Count, and Attendance Breakdown)
+    @Override
+    public DashboardStatResponse getDashboardStats(UUID mentorId) {
+        long activeCount = repository.countActiveStudents(mentorId);
+        long completedCount = repository.countCompletedStudents(mentorId);
+        Map<String, Long> attendanceMap = repository.getAttendanceAccumulation(mentorId);
+
+        return new DashboardStatResponse(activeCount, completedCount, attendanceMap);
+    }
+
+    // Robust type converters for PostgreSQL result maps
+    private UUID toUUID(Object obj) {
+        if (obj == null) {
+            return null;
+        }
+        if (obj instanceof UUID) {
+            return (UUID) obj;
+        }
+        return UUID.fromString(obj.toString());
+    }
+
+    private LocalDate toLocalDate(Object obj) {
+        if (obj == null) {
+            return null;
+        }
+        if (obj instanceof java.sql.Date) {
+            return ((java.sql.Date) obj).toLocalDate();
+        }
+        if (obj instanceof LocalDate) {
+            return (LocalDate) obj;
+        }
+        return LocalDate.parse(obj.toString());
+    }
+}
