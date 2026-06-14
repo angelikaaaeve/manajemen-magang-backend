@@ -25,6 +25,22 @@ public class DataAbsensiController {
         this.dataAbsensiService = dataAbsensiService;
     }
 
+    // return jumlah count(absensi) mahasiswa 
+    @GetMapping("/total-kehadiran")
+    public ResponseEntity<Long> getTotalKehadiran() {
+        var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getPrincipal() == null || !auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_MAHASISWA"))) {
+            return ResponseEntity.ok(0L);
+        }
+        try {
+            UUID userId = (UUID) auth.getPrincipal();
+            Long total = dataAbsensiService.getTotalKehadiran(userId);
+            return ResponseEntity.ok(total != null ? total : 0L);
+        } catch (Exception e) {
+            return ResponseEntity.ok(0L);
+        }
+    }
+
     // 1. Baca / List Absensi Mahasiswa (with filters)
     @GetMapping
     public ResponseEntity<List<AbsensiResponse>> listAbsensi(

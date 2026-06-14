@@ -288,6 +288,25 @@ public class DataMahasiswaRepository {
         );
     }
 
+    // Get sisa waktu magang in days by user ID
+    public Long getSisaWaktuMagangByUserId(UUID userId) {
+        String sql = "SELECT pm.tanggal_berakhir - CURRENT_DATE " +
+                     "FROM mahasiswa m " +
+                     "JOIN periode_magang pm ON m.id = pm.mahasiswa_id " +
+                     "WHERE m.user_id = :userId " +
+                     "ORDER BY pm.created_at DESC LIMIT 1";
+        MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
+        try {
+            Integer sisaHari = jdbc.queryForObject(sql, params, Integer.class);
+            if (sisaHari == null || sisaHari < 0) {
+                return 0L;
+            }
+            return sisaHari.longValue();
+        } catch (org.springframework.dao.EmptyResultDataAccessException e) {
+            return 0L;
+        }
+    }
+
     // Row mapper helper
     private StudentResponse mapStudentResponse(ResultSet rs, int rowNum) throws SQLException {
         String pId = rs.getString("periode_id");

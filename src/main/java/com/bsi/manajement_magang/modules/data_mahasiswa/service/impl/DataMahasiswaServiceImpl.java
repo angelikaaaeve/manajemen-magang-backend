@@ -178,4 +178,10 @@ public class DataMahasiswaServiceImpl implements DataMahasiswaService {
     public StudentStatResponse getStudentStatistics(String gender, String universitas) {
         return repository.getStudentStatistics(gender, universitas);
     }
+
+    // Get Sisa Waktu Magang
+    @Override
+    public Long getSisaWaktuMagang(UUID userId) {
+        return repository.getSisaWaktuMagangByUserId(userId);
+    }
 }

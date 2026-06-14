@@ -236,6 +236,16 @@ public class DataAbsensiRepository {
         );
     }
 
+    public Long getTotalKehadiran(UUID userId) {
+        String sql = "SELECT COUNT(1) FROM absensi a " +
+                     "JOIN periode_magang pm ON a.periode_magang_id = pm.id " +
+                     "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
+                     "WHERE m.user_id = :userId AND a.status = 'hadir'";
+        MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
+        Long count = jdbc.queryForObject(sql, params, Long.class);
+        return count != null ? count : 0L;
+    }
+
     // ========================================================
     // Row mapper helper
     // ========================================================

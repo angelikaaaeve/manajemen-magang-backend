@@ -27,4 +27,6 @@ public interface DataAbsensiService {
     List<AbsensiResponse> getRiwayatAbsensi(UUID userId);
 
     AbsensiMahasiswaStatResponse getMahasiswaStat(UUID userId);
+
+    Long getTotalKehadiran(UUID userId);
 }

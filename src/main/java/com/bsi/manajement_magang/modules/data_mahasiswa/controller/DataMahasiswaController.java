@@ -63,4 +63,21 @@ public class DataMahasiswaController {
         StudentResponse response = dataMahasiswaService.getStudentDetail(id);
         return ResponseEntity.ok(response);
     }
+
+    // 6. Sisa Waktu Magang (berdasarkan sesi mahasiswa login)
+    @GetMapping("/sisa-waktu-magang")
+    public ResponseEntity<Long> getSisaWaktuMagang() {
+        var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_MAHASISWA"))) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        try {
+            UUID userId = (UUID) auth.getPrincipal();
+            Long sisaHari = dataMahasiswaService.getSisaWaktuMagang(userId);
+            return ResponseEntity.ok(sisaHari);
+        } catch (ClassCastException e) {
+            return ResponseEntity.ok(0L);
+        }
+    }
 }

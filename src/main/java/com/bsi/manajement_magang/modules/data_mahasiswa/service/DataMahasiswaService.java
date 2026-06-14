@@ -19,4 +19,6 @@ public interface DataMahasiswaService {
     StudentResponse getStudentDetail(UUID id);
 
     StudentStatResponse getStudentStatistics(String gender, String universitas);
+
+    Long getSisaWaktuMagang(UUID userId);
 }

@@ -212,6 +212,11 @@ public class DataAbsensiServiceImpl implements DataAbsensiService {
         return repository.getMahasiswaStat(userId);
     }
 
+    @Override
+    public Long getTotalKehadiran(UUID userId) {
+        return repository.getTotalKehadiran(userId);
+    }
+
     private String escapeCsvField(String field) {
         if (field == null) {
             return "";
