@@ -35,7 +35,7 @@ public class IamService {
 
         UUID userId = UUID.randomUUID();
         String hashedPassword = argon2Hasher.hash(cmd.password());
-        
+
         User user = new User(
                 userId,
                 cmd.email(),
@@ -50,18 +50,32 @@ public class IamService {
         String nim = null;
         String nama = cmd.nama();
         String noHp = null;
+        String gender = null;
+        String universitas = null;
 
         switch (cmd.role()) {
             case mahasiswa:
                 nim = cmd.nim();
                 noHp = cmd.noHp();
+                gender = cmd.gender();
+                universitas = cmd.universitas();
+
+                // Resolve university FK if provided
+                Long idUniversity = null;
+                if (universitas != null && !universitas.trim().isEmpty()) {
+                    idUniversity = userRepository.findOrCreateUniversityByName(universitas);
+                }
+
                 Mahasiswa mahasiswa = new Mahasiswa(
                         UUID.randomUUID(),
                         userId,
                         nim,
                         nama,
-                        noHp
+                        noHp,
+                        gender,
+                        universitas
                 );
+                mahasiswa.setIdUniversity(idUniversity);
                 userRepository.saveMahasiswa(mahasiswa);
                 break;
             case mentor:
@@ -82,7 +96,9 @@ public class IamService {
                 user.getRole().name(),
                 nim,
                 nama,
-                noHp
+                noHp,
+                gender,
+                universitas
         );
     }
 
@@ -109,6 +125,8 @@ public class IamService {
         String nim = null;
         String nama = null;
         String noHp = null;
+        String gender = null;
+        String universitas = null;
 
         switch (user.getRole()) {
             case mahasiswa:
@@ -117,6 +135,8 @@ public class IamService {
                 nim = m.getNim();
                 nama = m.getNama();
                 noHp = m.getNoHp();
+                gender = m.getGender();
+                universitas = m.getUniversitas();
                 break;
             case mentor:
                 Mentor mentor = userRepository.findMentorByUserId(userId)
@@ -134,7 +154,9 @@ public class IamService {
                 user.getRole().name(),
                 nim,
                 nama,
-                noHp
+                noHp,
+                gender,
+                universitas
         );
     }
 
@@ -154,40 +176,44 @@ public class IamService {
         String nim = null;
         String nama = cmd.nama();
         String noHp = null;
+        String gender = null;
+        String universitas = null;
 
         switch (user.getRole()) {
             case mahasiswa:
                 Mahasiswa m = userRepository.findMahasiswaByUserId(cmd.userId())
                         .orElseThrow(() -> new IllegalArgumentException("Mahasiswa profile not found"));
-                
-                if (cmd.nim() != null) {
-                    m.setNim(cmd.nim());
+
+                if (cmd.nim() != null) m.setNim(cmd.nim());
+                if (cmd.nama() != null) m.setNama(cmd.nama());
+                if (cmd.noHp() != null) m.setNoHp(cmd.noHp());
+                if (cmd.gender() != null) m.setGender(cmd.gender());
+
+                // Resolve university FK if universitas name is provided
+                if (cmd.universitas() != null && !cmd.universitas().trim().isEmpty()) {
+                    Long idUniversity = userRepository.findOrCreateUniversityByName(cmd.universitas());
+                    m.setIdUniversity(idUniversity);
+                    m.setUniversitas(cmd.universitas());
                 }
-                if (cmd.nama() != null) {
-                    m.setNama(cmd.nama());
-                }
-                if (cmd.noHp() != null) {
-                    m.setNoHp(cmd.noHp());
-                }
-                
+
                 userRepository.updateMahasiswa(m);
                 nim = m.getNim();
                 nama = m.getNama();
                 noHp = m.getNoHp();
+                gender = m.getGender();
+                universitas = m.getUniversitas();
                 break;
-                
+
             case mentor:
                 Mentor mentor = userRepository.findMentorByUserId(cmd.userId())
                         .orElseThrow(() -> new IllegalArgumentException("Mentor profile not found"));
-                
-                if (cmd.nama() != null) {
-                    mentor.setNama(cmd.nama());
-                }
-                
+
+                if (cmd.nama() != null) mentor.setNama(cmd.nama());
+
                 userRepository.updateMentor(mentor);
                 nama = mentor.getNama();
                 break;
-                
+
             default:
                 break;
         }
@@ -198,7 +224,9 @@ public class IamService {
                 user.getRole().name(),
                 nim,
                 nama,
-                noHp
+                noHp,
+                gender,
+                universitas
         );
     }
 }

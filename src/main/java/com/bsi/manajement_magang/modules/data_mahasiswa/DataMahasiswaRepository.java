@@ -55,6 +55,27 @@ public class DataMahasiswaRepository {
         return count != null && count > 0;
     }
 
+    // Find university ID by name (case-insensitive), or null if not found
+    public Optional<Long> findUniversityIdByName(String name) {
+        String sql = "SELECT id FROM university WHERE LOWER(name_university) = LOWER(:name) LIMIT 1";
+        MapSqlParameterSource params = new MapSqlParameterSource("name", name);
+        List<Long> result = jdbc.queryForList(sql, params, Long.class);
+        return result.stream().findFirst();
+    }
+
+    // Find or create a university by name, returning its id
+    public Long findOrCreateUniversityByName(String name) {
+        return findUniversityIdByName(name).orElseGet(() -> {
+            String sql = "INSERT INTO university (name_university, created_at) VALUES (:name, NOW()) RETURNING id";
+            MapSqlParameterSource params = new MapSqlParameterSource("name", name);
+            Long id = jdbc.queryForObject(sql, params, Long.class);
+            if (id == null) {
+                throw new IllegalStateException("Failed to create university: " + name);
+            }
+            return id;
+        });
+    }
+
     // Save user record
     public void saveUser(UUID id, String email, String hashedPassword) {
         String sql = "INSERT INTO \"user\" (id, email, password, role, is_active, created_at, updated_at) " +
@@ -75,10 +96,10 @@ public class DataMahasiswaRepository {
         jdbc.update(sql, params);
     }
 
-    // Save mahasiswa profile
-    public void saveMahasiswa(UUID id, UUID userId, String nim, String nama, String noHp, String gender, String universitas) {
-        String sql = "INSERT INTO mahasiswa (id, user_id, nim, nama, no_hp, gender, universitas) " +
-                     "VALUES (:id, :userId, :nim, :nama, :noHp, :gender, :universitas)";
+    // Save mahasiswa profile (id_university is the FK to university table)
+    public void saveMahasiswa(UUID id, UUID userId, String nim, String nama, String noHp, String gender, Long idUniversity) {
+        String sql = "INSERT INTO mahasiswa (id, user_id, nim, nama, no_hp, gender, id_university) " +
+                     "VALUES (:id, :userId, :nim, :nama, :noHp, :gender, :idUniversity)";
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("id", id)
                 .addValue("userId", userId)
@@ -86,13 +107,13 @@ public class DataMahasiswaRepository {
                 .addValue("nama", nama)
                 .addValue("noHp", noHp)
                 .addValue("gender", gender)
-                .addValue("universitas", universitas);
+                .addValue("idUniversity", idUniversity);
         jdbc.update(sql, params);
     }
 
-    // Update mahasiswa profile
-    public void updateMahasiswa(UUID id, String nim, String nama, String noHp, String gender, String universitas) {
-        String sql = "UPDATE mahasiswa SET nim = :nim, nama = :nama, no_hp = :noHp, gender = :gender, universitas = :universitas " +
+    // Update mahasiswa profile (id_university is the FK to university table)
+    public void updateMahasiswa(UUID id, String nim, String nama, String noHp, String gender, Long idUniversity) {
+        String sql = "UPDATE mahasiswa SET nim = :nim, nama = :nama, no_hp = :noHp, gender = :gender, id_university = :idUniversity " +
                      "WHERE id = :id";
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("id", id)
@@ -100,7 +121,7 @@ public class DataMahasiswaRepository {
                 .addValue("nama", nama)
                 .addValue("noHp", noHp)
                 .addValue("gender", gender)
-                .addValue("universitas", universitas);
+                .addValue("idUniversity", idUniversity);
         jdbc.update(sql, params);
     }
 
@@ -140,11 +161,13 @@ public class DataMahasiswaRepository {
     // Read list of students with filters
     public List<StudentResponse> listStudents(String gender, String universitas, String status) {
         StringBuilder sql = new StringBuilder(
-            "SELECT m.id, m.user_id, u.email, m.nim, m.nama, m.no_hp, m.gender, m.universitas, " +
+            "SELECT m.id, m.user_id, u.email, m.nim, m.nama, m.no_hp, m.gender, " +
+            "       univ.name_university AS universitas, " +
             "       pm.id as periode_id, pm.tanggal_mulai, pm.tanggal_berakhir, pm.status as status_periode, " +
             "       men.id as mentor_id, men.nama as nama_mentor " +
             "FROM mahasiswa m " +
             "JOIN \"user\" u ON m.user_id = u.id " +
+            "LEFT JOIN university univ ON m.id_university = univ.id " +
             "LEFT JOIN ( " +
             "    SELECT DISTINCT ON (mahasiswa_id) id, mahasiswa_id, tanggal_mulai, tanggal_berakhir, status " +
             "    FROM periode_magang " +
@@ -163,7 +186,7 @@ public class DataMahasiswaRepository {
         }
 
         if (universitas != null && !universitas.trim().isEmpty()) {
-            sql.append("AND m.universitas = :universitas ");
+            sql.append("AND LOWER(univ.name_university) = LOWER(:universitas) ");
             params.addValue("universitas", universitas);
         }
 
@@ -183,12 +206,14 @@ public class DataMahasiswaRepository {
 
     // Detail student profile
     public Optional<StudentResponse> findStudentDetailById(UUID id) {
-        String sql = 
-            "SELECT m.id, m.user_id, u.email, m.nim, m.nama, m.no_hp, m.gender, m.universitas, " +
+        String sql =
+            "SELECT m.id, m.user_id, u.email, m.nim, m.nama, m.no_hp, m.gender, " +
+            "       univ.name_university AS universitas, " +
             "       pm.id as periode_id, pm.tanggal_mulai, pm.tanggal_berakhir, pm.status as status_periode, " +
             "       men.id as mentor_id, men.nama as nama_mentor " +
             "FROM mahasiswa m " +
             "JOIN \"user\" u ON m.user_id = u.id " +
+            "LEFT JOIN university univ ON m.id_university = univ.id " +
             "LEFT JOIN ( " +
             "    SELECT DISTINCT ON (mahasiswa_id) id, mahasiswa_id, tanggal_mulai, tanggal_berakhir, status " +
             "    FROM periode_magang " +
@@ -213,14 +238,20 @@ public class DataMahasiswaRepository {
         }
 
         if (universitas != null && !universitas.trim().isEmpty()) {
-            filterClause.append("AND m.universitas = :universitas ");
+            filterClause.append("AND LOWER(univ.name_university) = LOWER(:universitas) ");
             params.addValue("universitas", universitas);
         }
 
+        // Determine if we need a JOIN with university for filter
+        String univJoin = (universitas != null && !universitas.trim().isEmpty())
+            ? "LEFT JOIN university univ ON m.id_university = univ.id "
+            : "";
+
         // 1. Count active
-        String sqlActive = 
+        String sqlActive =
             "SELECT COUNT(DISTINCT m.id) " +
             "FROM mahasiswa m " +
+            univJoin +
             "JOIN ( " +
             "    SELECT DISTINCT ON (mahasiswa_id) mahasiswa_id, status " +
             "    FROM periode_magang ORDER BY mahasiswa_id, created_at DESC " +
@@ -229,9 +260,10 @@ public class DataMahasiswaRepository {
         Long totalActive = jdbc.queryForObject(sqlActive, params, Long.class);
 
         // 2. Count completed
-        String sqlCompleted = 
+        String sqlCompleted =
             "SELECT COUNT(DISTINCT m.id) " +
             "FROM mahasiswa m " +
+            univJoin +
             "JOIN ( " +
             "    SELECT DISTINCT ON (mahasiswa_id) mahasiswa_id, status " +
             "    FROM periode_magang ORDER BY mahasiswa_id, created_at DESC " +
@@ -240,9 +272,10 @@ public class DataMahasiswaRepository {
         Long totalCompleted = jdbc.queryForObject(sqlCompleted, params, Long.class);
 
         // 3. Count active and unassessed
-        String sqlUnassessed = 
+        String sqlUnassessed =
             "SELECT COUNT(DISTINCT m.id) " +
             "FROM mahasiswa m " +
+            univJoin +
             "JOIN periode_magang pm ON m.id = pm.mahasiswa_id " +
             "LEFT JOIN penilaian p ON pm.id = p.periode_magang_id " +
             "WHERE pm.status = 'aktif' AND p.id IS NULL " + filterClause;

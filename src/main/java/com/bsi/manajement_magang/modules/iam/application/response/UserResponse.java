@@ -8,5 +8,7 @@ public record UserResponse(
     String role,
     String nim,
     String nama,
-    String noHp
+    String noHp,
+    String gender,
+    String universitas
 ) {}

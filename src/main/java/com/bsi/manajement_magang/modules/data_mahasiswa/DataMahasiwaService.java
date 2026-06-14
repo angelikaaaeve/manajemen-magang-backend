@@ -35,6 +35,9 @@ public class DataMahasiwaService {
         // Hash password
         String hashedPassword = argon2Hasher.hash(req.password());
 
+        // Resolve university name to id (find or create)
+        Long idUniversity = repository.findOrCreateUniversityByName(req.universitas());
+
         // Save User
         repository.saveUser(userId, req.email(), hashedPassword);
 
@@ -46,7 +49,7 @@ public class DataMahasiwaService {
                 req.nama(),
                 req.noHp() != null ? req.noHp() : "-",
                 req.gender(),
-                req.universitas()
+                idUniversity
         );
 
         // Save Period if dates are provided
@@ -87,12 +90,23 @@ public class DataMahasiwaService {
             }
         }
 
+        // Resolve universitas: if provided in request, find or create; otherwise keep existing (by name lookup)
+        Long idUniversity;
+        if (req.universitas() != null && !req.universitas().trim().isEmpty()) {
+            idUniversity = repository.findOrCreateUniversityByName(req.universitas());
+        } else {
+            // Keep existing university — resolve current name back to id
+            String currentUniversitas = student.universitas();
+            idUniversity = (currentUniversitas != null && !currentUniversitas.trim().isEmpty())
+                ? repository.findOrCreateUniversityByName(currentUniversitas)
+                : null;
+        }
+
         // Update Student Profile
         String resolvedNama = req.nama() != null ? req.nama() : student.nama();
         String resolvedNim = req.nim() != null ? req.nim() : student.nim();
         String resolvedNoHp = req.noHp() != null ? req.noHp() : student.noHp();
         String resolvedGender = req.gender() != null ? req.gender() : student.gender();
-        String resolvedUniv = req.universitas() != null ? req.universitas() : student.universitas();
 
         repository.updateMahasiswa(
                 student.id(),
@@ -100,7 +114,7 @@ public class DataMahasiwaService {
                 resolvedNama,
                 resolvedNoHp,
                 resolvedGender,
-                resolvedUniv
+                idUniversity
         );
 
         // Handle nested Period update

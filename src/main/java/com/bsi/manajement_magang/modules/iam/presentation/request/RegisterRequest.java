@@ -18,5 +18,7 @@ public record RegisterRequest(
 
     String nim,
     String nama,
-    String noHp
+    String noHp,
+    String gender,
+    String universitas
 ) {}

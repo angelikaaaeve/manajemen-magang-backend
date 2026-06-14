@@ -43,10 +43,35 @@ public class DashboardMentorRepository {
         jdbc.update(sql, params);
     }
 
-    // 4. Save Mahasiswa
+    // Find university ID by name (case-insensitive), or null if not found
+    public Optional<Long> findUniversityIdByName(String name) {
+        String sql = "SELECT id FROM university WHERE LOWER(name_university) = LOWER(:name) LIMIT 1";
+        MapSqlParameterSource params = new MapSqlParameterSource("name", name);
+        List<Long> result = jdbc.queryForList(sql, params, Long.class);
+        return result.stream().findFirst();
+    }
+
+    // Find or create a university by name, returning its id
+    public Long findOrCreateUniversityByName(String name) {
+        return findUniversityIdByName(name).orElseGet(() -> {
+            String sql = "INSERT INTO university (name_university, created_at) VALUES (:name, NOW()) RETURNING id";
+            MapSqlParameterSource params = new MapSqlParameterSource("name", name);
+            Long id = jdbc.queryForObject(sql, params, Long.class);
+            if (id == null) {
+                throw new IllegalStateException("Failed to create university: " + name);
+            }
+            return id;
+        });
+    }
+
+    // 4. Save Mahasiswa (universitas is a name string; resolved to id_university FK)
     public void saveMahasiswa(UUID id, UUID userId, String nim, String nama, String noHp, String gender, String universitas) {
-        String sql = "INSERT INTO mahasiswa (id, user_id, nim, nama, no_hp, gender, universitas) " +
-                     "VALUES (:id, :userId, :nim, :nama, :noHp, :gender, :universitas)";
+        Long idUniversity = (universitas != null && !universitas.trim().isEmpty())
+            ? findOrCreateUniversityByName(universitas)
+            : null;
+
+        String sql = "INSERT INTO mahasiswa (id, user_id, nim, nama, no_hp, gender, id_university) " +
+                     "VALUES (:id, :userId, :nim, :nama, :noHp, :gender, :idUniversity)";
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("id", id)
                 .addValue("userId", userId)
@@ -54,7 +79,7 @@ public class DashboardMentorRepository {
                 .addValue("nama", nama)
                 .addValue("noHp", noHp != null ? noHp : "-")
                 .addValue("gender", gender)
-                .addValue("universitas", universitas);
+                .addValue("idUniversity", idUniversity);
         jdbc.update(sql, params);
     }
 
@@ -73,10 +98,12 @@ public class DashboardMentorRepository {
     // 6. Query / Search students by name
     public List<Map<String, Object>> searchStudentsByName(String name) {
         StringBuilder sql = new StringBuilder(
-            "SELECT m.id, m.user_id, u.email, m.nim, m.nama, m.no_hp, m.gender, m.universitas, " +
+            "SELECT m.id, m.user_id, u.email, m.nim, m.nama, m.no_hp, m.gender, " +
+            "       univ.name_university AS universitas, " +
             "       pm.id as periode_id, pm.tanggal_mulai, pm.tanggal_berakhir, pm.status as status_periode " +
             "FROM mahasiswa m " +
             "JOIN \"user\" u ON m.user_id = u.id " +
+            "LEFT JOIN university univ ON m.id_university = univ.id " +
             "LEFT JOIN ( " +
             "    SELECT DISTINCT ON (mahasiswa_id) id, mahasiswa_id, tanggal_mulai, tanggal_berakhir, status " +
             "    FROM periode_magang " +
@@ -169,11 +196,13 @@ public class DashboardMentorRepository {
 
     // 10. Find single student details by ID
     public Optional<SearchStudentResponse> findStudentById(UUID id) {
-        String sql = 
-            "SELECT m.id, m.user_id, u.email, m.nim, m.nama, m.no_hp, m.gender, m.universitas, " +
+        String sql =
+            "SELECT m.id, m.user_id, u.email, m.nim, m.nama, m.no_hp, m.gender, " +
+            "       univ.name_university AS universitas, " +
             "       pm.id as periode_id, pm.tanggal_mulai, pm.tanggal_berakhir, pm.status as status_periode " +
             "FROM mahasiswa m " +
             "JOIN \"user\" u ON m.user_id = u.id " +
+            "LEFT JOIN university univ ON m.id_university = univ.id " +
             "LEFT JOIN ( " +
             "    SELECT DISTINCT ON (mahasiswa_id) id, mahasiswa_id, tanggal_mulai, tanggal_berakhir, status " +
             "    FROM periode_magang " +

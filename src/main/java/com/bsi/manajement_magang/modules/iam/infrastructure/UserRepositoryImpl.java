@@ -12,6 +12,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -48,7 +49,7 @@ public class UserRepositoryImpl implements UserRepository {
                 .addValue("nama", mahasiswa.getNama())
                 .addValue("no_hp", mahasiswa.getNoHp())
                 .addValue("gender", mahasiswa.getGender())
-                .addValue("universitas", mahasiswa.getUniversitas());
+                .addValue("id_university", mahasiswa.getIdUniversity());
         jdbc.update(sql, params);
     }
 
@@ -108,7 +109,7 @@ public class UserRepositoryImpl implements UserRepository {
                 .addValue("nama", mahasiswa.getNama())
                 .addValue("noHp", mahasiswa.getNoHp())
                 .addValue("gender", mahasiswa.getGender())
-                .addValue("universitas", mahasiswa.getUniversitas());
+                .addValue("id_university", mahasiswa.getIdUniversity());
         jdbc.update(sql, params);
     }
 
@@ -119,5 +120,23 @@ public class UserRepositoryImpl implements UserRepository {
                 .addValue("userId", mentor.getUserId())
                 .addValue("nama", mentor.getNama());
         jdbc.update(sql, params);
+    }
+
+    @Override
+    public Long findOrCreateUniversityByName(String name) {
+        // Try to find existing by name (case-insensitive)
+        String findSql = "SELECT id FROM university WHERE LOWER(name_university) = LOWER(:name) LIMIT 1";
+        MapSqlParameterSource params = new MapSqlParameterSource("name", name);
+        List<Long> result = jdbc.queryForList(findSql, params, Long.class);
+        if (!result.isEmpty()) {
+            return result.get(0);
+        }
+        // Create new
+        String insertSql = "INSERT INTO university (name_university, created_at) VALUES (:name, NOW()) RETURNING id";
+        Long id = jdbc.queryForObject(insertSql, params, Long.class);
+        if (id == null) {
+            throw new IllegalStateException("Failed to create university: " + name);
+        }
+        return id;
     }
 }

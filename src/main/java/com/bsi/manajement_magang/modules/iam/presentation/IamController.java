@@ -36,7 +36,9 @@ public class IamController {
                 Role.fromString(req.role()),
                 req.nim(),
                 req.nama(),
-                req.noHp()
+                req.noHp(),
+                req.gender(),
+                req.universitas()
         );
         return ResponseEntity.ok(iamService.register(command));
     }
@@ -89,7 +91,9 @@ public class IamController {
                 req.email(),
                 req.nim(),
                 req.nama(),
-                req.noHp()
+                req.noHp(),
+                req.gender(),
+                req.universitas()
         );
         return ResponseEntity.ok(iamService.update(command));
     }

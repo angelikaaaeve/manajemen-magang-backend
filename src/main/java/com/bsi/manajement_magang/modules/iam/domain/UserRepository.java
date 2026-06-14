@@ -7,13 +7,17 @@ public interface UserRepository {
     void saveUser(User user);
     void saveMahasiswa(Mahasiswa mahasiswa);
     void saveMentor(Mentor mentor);
-    
+
     Optional<User> findByEmail(String email);
     Optional<User> findById(UUID id);
     Optional<Mahasiswa> findMahasiswaByUserId(UUID userId);
     Optional<Mentor> findMentorByUserId(UUID userId);
-    
+
     void updateUser(User user);
     void updateMahasiswa(Mahasiswa mahasiswa);
     void updateMentor(Mentor mentor);
+
+    /** Finds an existing university by name (case-insensitive) or creates a new one. Returns its ID. */
+    Long findOrCreateUniversityByName(String name);
 }
+

@@ -4,5 +4,7 @@ public record UpdateUserRequest(
     String email,
     String nim,
     String nama,
-    String noHp
+    String noHp,
+    String gender,
+    String universitas
 ) {}

@@ -9,6 +9,8 @@ public class Mahasiswa {
     private String nama;
     private String noHp;
     private String gender;
+    private Long idUniversity;
+    // Transient: populated by JOIN with university table, not stored in mahasiswa
     private String universitas;
 
     public Mahasiswa() {}
@@ -28,6 +30,7 @@ public class Mahasiswa {
         this.nama = nama;
         this.noHp = noHp;
         this.gender = gender;
+        // Store as transient text (from JOIN result)
         this.universitas = universitas;
     }
 
@@ -77,6 +80,14 @@ public class Mahasiswa {
 
     public void setGender(String gender) {
         this.gender = gender;
+    }
+
+    public Long getIdUniversity() {
+        return idUniversity;
+    }
+
+    public void setIdUniversity(Long idUniversity) {
+        this.idUniversity = idUniversity;
     }
 
     public String getUniversitas() {
