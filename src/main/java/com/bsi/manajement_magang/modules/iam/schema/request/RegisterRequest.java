@@ -20,5 +20,8 @@ public record RegisterRequest(
     String nama,
     String noHp,
     String gender,
-    String universitas
+    String universitas,
+
+    // Required when role is "mentor", validated against app.mentor.secret-key
+    String secretKey
 ) {}

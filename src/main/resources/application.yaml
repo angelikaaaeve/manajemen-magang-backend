@@ -27,3 +27,7 @@ cloudflare:
     secret-key: ${CLOUDFLARE_R2_SECRET_KEY:default-secret-key}
     endpoint: ${CLOUDFLARE_R2_ENDPOINT:https://dummy-account-id.r2.cloudflarestorage.com}
     region: ${CLOUDFLARE_R2_REGION:auto}
+
+app:
+  mentor:
+    secret-key: ${MENTOR_SECRET_KEY:}

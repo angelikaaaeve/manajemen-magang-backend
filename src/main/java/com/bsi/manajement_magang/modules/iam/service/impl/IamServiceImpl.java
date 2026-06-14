@@ -13,6 +13,7 @@ import com.bsi.manajement_magang.modules.iam.schema.response.UserResponse;
 import com.bsi.manajement_magang.modules.iam.service.IamService;
 import com.bsi.manajement_magang.util.TokenProvider;
 import com.bsi.manajement_magang.shared.Argon2Hasher;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,20 +24,35 @@ import java.util.UUID;
 public class IamServiceImpl implements IamService {
     private final UserRepository userRepository;
     private final Argon2Hasher argon2Hasher;
+    private final MentorRegistrationGuard mentorRegistrationGuard;
 
-    public IamServiceImpl(UserRepository userRepository, Argon2Hasher argon2Hasher) {
+    @Value("${app.mentor.secret-key:}")
+    private String mentorSecretKey;
+
+    public IamServiceImpl(UserRepository userRepository, Argon2Hasher argon2Hasher, MentorRegistrationGuard mentorRegistrationGuard) {
         this.userRepository = userRepository;
         this.argon2Hasher = argon2Hasher;
+        this.mentorRegistrationGuard = mentorRegistrationGuard;
     }
 
     @Override
     @Transactional
-    public UserResponse register(RegisterRequest req) {
+    public UserResponse register(RegisterRequest req, String clientIp) {
+        Role role = Role.fromString(req.role());
+
+        if (role == Role.mentor) {
+            mentorRegistrationGuard.assertNotBlocked(clientIp);
+
+            if (mentorSecretKey == null || mentorSecretKey.isBlank() || !mentorSecretKey.equals(req.secretKey())) {
+                mentorRegistrationGuard.recordFailure(clientIp);
+                throw new IllegalArgumentException("Secret key mentor tidak valid");
+            }
+        }
+
         if (userRepository.findByEmail(req.email()).isPresent()) {
             throw new IllegalArgumentException("Email is already registered");
         }
 
-        Role role = Role.fromString(req.role());
         UUID userId = UUID.randomUUID();
         String hashedPassword = argon2Hasher.hash(req.password());
 
@@ -89,6 +105,7 @@ public class IamServiceImpl implements IamService {
                         nama
                 );
                 userRepository.saveMentor(mentor);
+                mentorRegistrationGuard.recordSuccess(clientIp);
                 break;
             default:
                 break;

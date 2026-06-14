@@ -10,7 +10,7 @@ import java.util.UUID;
 
 public interface IamService {
 
-    UserResponse register(RegisterRequest req);
+    UserResponse register(RegisterRequest req, String clientIp);
 
     LoginResponse login(LoginRequest req);
 
