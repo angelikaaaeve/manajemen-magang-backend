@@ -30,7 +30,7 @@ public class DataMahasiswaController {
     }
 
     // 2. Edit Mahasiswa (Data Mahasiswa & Periode)
-    @PutMapping("/{id}")
+    @PutMapping("/edit-by-mentor/{id}")
     public ResponseEntity<StudentResponse> editStudent(
             @PathVariable UUID id,
             @RequestBody @Valid UpdateStudentRequest req) {

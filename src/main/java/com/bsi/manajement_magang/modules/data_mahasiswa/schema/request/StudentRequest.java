@@ -25,8 +25,8 @@ public record StudentRequest(
     @Pattern(regexp = "Laki-laki|Perempuan", message = "Gender must be 'Laki-laki' or 'Perempuan'")
     String gender,
 
-    @NotBlank(message = "Universitas is required")
-    String universitas,
+    @jakarta.validation.constraints.NotNull(message = "idUniversity is required")
+    Long idUniversity,
 
     LocalDate tanggalMulai,
     LocalDate tanggalBerakhir,

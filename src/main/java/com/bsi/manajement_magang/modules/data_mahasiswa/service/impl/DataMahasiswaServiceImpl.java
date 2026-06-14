@@ -42,7 +42,7 @@ public class DataMahasiswaServiceImpl implements DataMahasiswaService {
         String hashedPassword = argon2Hasher.hash(req.password());
 
         // Resolve university name to id (find or create)
-        Long idUniversity = repository.findOrCreateUniversityByName(req.universitas());
+        Long idUniversity = req.idUniversity();
 
         // Save User
         repository.saveUser(userId, req.email(), hashedPassword);
@@ -97,15 +97,11 @@ public class DataMahasiswaServiceImpl implements DataMahasiswaService {
             }
         }
 
-        // Resolve universitas: if provided in request, find or create; otherwise keep existing (by name lookup)
-        Long idUniversity;
-        if (req.universitas() != null && !req.universitas().trim().isEmpty()) {
-            idUniversity = repository.findOrCreateUniversityByName(req.universitas());
-        } else {
-            // Keep existing university — resolve current name back to id
+        Long resolvedIdUniversity = req.idUniversity();
+        if (resolvedIdUniversity == null) {
             String currentUniversitas = student.universitas();
-            idUniversity = (currentUniversitas != null && !currentUniversitas.trim().isEmpty())
-                ? repository.findOrCreateUniversityByName(currentUniversitas)
+            resolvedIdUniversity = (currentUniversitas != null && !currentUniversitas.trim().isEmpty())
+                ? repository.findUniversityIdByName(currentUniversitas).orElse(null)
                 : null;
         }
 
@@ -121,7 +117,7 @@ public class DataMahasiswaServiceImpl implements DataMahasiswaService {
                 resolvedNama,
                 resolvedNoHp,
                 resolvedGender,
-                idUniversity
+                resolvedIdUniversity
         );
 
         // Handle nested Period update

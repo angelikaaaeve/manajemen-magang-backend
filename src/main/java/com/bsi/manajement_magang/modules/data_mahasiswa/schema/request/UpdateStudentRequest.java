@@ -8,12 +8,12 @@ public record UpdateStudentRequest(
     String nama,
     String noHp,
     String gender,
-    String universitas,
+    Long idUniversity,
     UpdatePeriodRequest periode
 ) {
     public record UpdatePeriodRequest(
         LocalDate tanggalMulai,
         LocalDate tanggalBerakhir,
-        String status
+        String status //aktif, selesai, batal
     ) {}
 }

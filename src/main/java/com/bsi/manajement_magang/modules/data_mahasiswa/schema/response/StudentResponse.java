@@ -11,6 +11,7 @@ public record StudentResponse(
     String nama,
     String noHp,
     String gender,
+    Long idUniversity,
     String universitas,
     UUID periodeId,
     LocalDate tanggalMulai,

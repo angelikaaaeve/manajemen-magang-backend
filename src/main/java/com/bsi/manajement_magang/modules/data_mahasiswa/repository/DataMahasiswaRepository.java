@@ -162,7 +162,7 @@ public class DataMahasiswaRepository {
     public List<StudentResponse> listStudents(String gender, String universitas, String status) {
         StringBuilder sql = new StringBuilder(
             "SELECT m.id, m.user_id, u.email, m.nim, m.nama, m.no_hp, m.gender, " +
-            "       univ.name_university AS universitas, " +
+            "       m.id_university, univ.name_university AS universitas, " +
             "       pm.id as periode_id, pm.tanggal_mulai, pm.tanggal_berakhir, pm.status as status_periode, " +
             "       men.id as mentor_id, men.nama as nama_mentor " +
             "FROM mahasiswa m " +
@@ -208,7 +208,7 @@ public class DataMahasiswaRepository {
     public Optional<StudentResponse> findStudentDetailById(UUID id) {
         String sql =
             "SELECT m.id, m.user_id, u.email, m.nim, m.nama, m.no_hp, m.gender, " +
-            "       univ.name_university AS universitas, " +
+            "       m.id_university, univ.name_university AS universitas, " +
             "       pm.id as periode_id, pm.tanggal_mulai, pm.tanggal_berakhir, pm.status as status_periode, " +
             "       men.id as mentor_id, men.nama as nama_mentor " +
             "FROM mahasiswa m " +
@@ -325,6 +325,7 @@ public class DataMahasiswaRepository {
             rs.getString("nama"),
             rs.getString("no_hp"),
             rs.getString("gender"),
+            rs.getObject("id_university") != null ? rs.getLong("id_university") : null,
             rs.getString("universitas"),
             periodeId,
             tanggalMulai,
