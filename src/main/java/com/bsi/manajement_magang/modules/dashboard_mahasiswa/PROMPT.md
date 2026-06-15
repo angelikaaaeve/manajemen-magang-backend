@@ -1,3 +1,7 @@
-1. #Endpoint
- a. kolom nama mahasiswa
- b. statistik dashboard ("total kehadiran", "sisa waktu magang") 
+# Daftar Fitur Modul Dashboard Mahasiswa
+
+## Mahasiswa
+- Menampilkan nama mahasiswa.
+- Menampilkan statistik dashboard:
+  - Total Kehadiran.
+  - Sisa Waktu Magang.

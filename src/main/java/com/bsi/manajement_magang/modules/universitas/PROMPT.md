@@ -1,6 +1,7 @@
+# Daftar Fitur Modul Universitas
 
-  # Endpoint
-  1. fitur Menambahkan universitas
-  2. fitur Menghapus Universitas
-  3. Fitur Edit Universitas
-  3. fitur ngebaca list universitas
+## Administrator / Mentor
+- Menambahkan data master Universitas baru.
+- Menghapus data Universitas yang sudah ada.
+- Mengedit (update) informasi Universitas.
+- Membaca dan menampilkan daftar (list) Universitas yang bekerjasama/terdaftar.

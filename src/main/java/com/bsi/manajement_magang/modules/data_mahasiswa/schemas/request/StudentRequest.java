@@ -1,0 +1,34 @@
+package com.bsi.manajement_magang.modules.data_mahasiswa.schemas.request;
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import java.time.LocalDate;
+
+public record StudentRequest(
+    @NotBlank(message = "Email is required")
+    @Email(message = "Invalid email format")
+    String email,
+
+    @NotBlank(message = "Password is required")
+    String password,
+
+    @NotBlank(message = "NIM is required")
+    String nim,
+
+    @NotBlank(message = "Nama is required")
+    String nama,
+
+    String noHp,
+
+    @NotBlank(message = "Gender is required")
+    @Pattern(regexp = "Laki-laki|Perempuan", message = "Gender must be 'Laki-laki' or 'Perempuan'")
+    String gender,
+
+    @jakarta.validation.constraints.NotNull(message = "idUniversity is required")
+    Long idUniversity,
+
+    LocalDate tanggalMulai,
+    LocalDate tanggalBerakhir,
+    String periodeStatus
+) {}

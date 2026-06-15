@@ -1,25 +1,16 @@
-#MENTOR#
+# Daftar Fitur Modul Penilaian
 
-# Query
-1. status:  ("semua status", "sudah dinilai". "belum dinilai") 
-2. nama mahasiswa: string
+## Mentor
+- Filter penilaian berdasarkan status (Semua Status, Sudah Dinilai, Belum Dinilai).
+- Filter penilaian berdasarkan pencarian nama mahasiswa.
+- Mengubah dan menyimpan nilai evaluasi untuk mahasiswa (Relasi 1-to-1).
+- Melihat statistik penilaian dengan filter:
+  - Total Penilaian.
+  - Total Sudah Dinilai.
+  - Total Belum Dinilai.
 
-# Endpoint
-1. penilaian
-a. edit penilaian 
--endpoint ini digunakan untuk menilai mahasiswa
-- mahasiswa hanya bisa mempunyai 1 nilai(one to one)
-Statistik penilaian (support filter) 
-a. total penilaian
-b. total sudah dinilai
-c. total belum di nilai 
-
-#MAHASISWA#
-# Query 
-1. Status ("semua status", "sangat baik", "baik")
-2. nama penilaian: string 
- 
- # Endpoint 
- 1. penilaian 
- a. cetak nilai(dalam bentuk pdf bisa di download)
- b. nilai akhir dan grade (mahasiswa bisa melihat nilai akhir dan grade saat sudah di nilai oleh mentor)
+## Mahasiswa
+- Filter riwayat penilaian berdasarkan status/grade (Sangat Baik, Baik, dll).
+- Filter berdasarkan pencarian nama komponen penilaian.
+- Melihat hasil Nilai Akhir dan Grade ketika sudah dievaluasi oleh mentor.
+- Mencetak (download) hasil penilaian dalam format dokumen PDF.
