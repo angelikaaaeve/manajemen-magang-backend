@@ -1,5 +1,6 @@
 package com.bsi.manajement_magang.modules.data_absensi.controller;
 
+import com.bsi.manajement_magang.modules.data_absensi.schema.request.SubmitAbsensiRequest;
 import com.bsi.manajement_magang.modules.data_absensi.schema.response.AbsensiMahasiswaStatResponse;
 import com.bsi.manajement_magang.modules.data_absensi.schema.response.AbsensiResponse;
 import com.bsi.manajement_magang.modules.data_absensi.schema.response.AbsensiStatResponse;
@@ -9,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -121,17 +121,15 @@ public class DataAbsensiController {
      * [MAHASISWA] Submit absensi harian.
      * - status : hadir | izin | sakit
      * - keterangan : alasan (untuk izin & sakit)
-     * - file : dokumen pendukung PDF/image, maks 10MB (optional)
+     * - attachmentUrl : key media dokumen pendukung (optional, hasil upload via /api/media/upload)
      * userId dikirim sebagai query param (dari JWT di FE, atau dikirim langsung).
      * POST /api/absensi/mahasiswa/submit?userId=...
      */
-    @PostMapping(value = "/mahasiswa/submit", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PostMapping("/mahasiswa/submit")
     public ResponseEntity<AbsensiResponse> submitAbsensi(
             @RequestParam UUID userId,
-            @RequestParam String status,
-            @RequestParam(required = false) String keterangan,
-            @RequestPart(required = false) MultipartFile file) {
-        AbsensiResponse response = dataAbsensiService.submitAbsensi(userId, status, keterangan, file);
+            @RequestBody SubmitAbsensiRequest req) {
+        AbsensiResponse response = dataAbsensiService.submitAbsensi(userId, req.status(), req.keterangan(), req.attachmentUrl());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

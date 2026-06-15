@@ -7,12 +7,7 @@ import com.bsi.manajement_magang.modules.data_absensi.schema.response.AbsensiSta
 import com.bsi.manajement_magang.modules.data_absensi.service.DataAbsensiService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -103,12 +98,12 @@ public class DataAbsensiServiceImpl implements DataAbsensiService {
      * @param userId       user_id mahasiswa yang login
      * @param status       "hadir" | "izin" | "sakit"
      * @param keterangan   alasan/keterangan (untuk izin & sakit)
-     * @param file         dokumen pendukung (nullable, maks 10MB)
+     * @param attachmentUrl key media dokumen pendukung (nullable, hasil upload via modul media)
      */
     @Override
     @Transactional
     public AbsensiResponse submitAbsensi(UUID userId, String status,
-                                         String keterangan, MultipartFile file) {
+                                         String keterangan, String attachmentUrl) {
         // 1. Validasi status
         String statusLower = status != null ? status.toLowerCase().trim() : "";
         if (!List.of("hadir", "izin", "sakit").contains(statusLower)) {
@@ -128,43 +123,10 @@ public class DataAbsensiServiceImpl implements DataAbsensiService {
                 "Absensi untuk hari ini (" + today + ") sudah tercatat.");
         }
 
-        // 4. Validasi & simpan file (jika ada)
-        String attachmentUrl = null;
-        if (file != null && !file.isEmpty()) {
-            // Validasi tipe file
-            String contentType = file.getContentType();
-            if (contentType == null ||
-                    (!contentType.startsWith("image/") && !contentType.equals("application/pdf"))) {
-                throw new IllegalArgumentException(
-                    "Tipe file tidak didukung. Hanya PDF dan gambar (JPEG/PNG) yang diperbolehkan.");
-            }
-            // Validasi ukuran file (maks 10MB)
-            long maxSizeBytes = 10L * 1024 * 1024;
-            if (file.getSize() > maxSizeBytes) {
-                throw new IllegalArgumentException(
-                    "Ukuran file melebihi batas maksimum 10MB.");
-            }
-
-            try {
-                // Simpan ke local storage (di production ganti dengan cloud storage)
-                String uploadDir = "uploads/absensi/";
-                String ext = contentType.equals("application/pdf") ? ".pdf" :
-                             contentType.equals("image/png") ? ".png" : ".jpg";
-                String fileName = userId + "_" + today + "_" + UUID.randomUUID() + ext;
-                Path uploadPath = Paths.get(uploadDir);
-                Files.createDirectories(uploadPath);
-                Path filePath = uploadPath.resolve(fileName);
-                file.transferTo(filePath.toFile());
-                attachmentUrl = "/uploads/absensi/" + fileName;
-            } catch (IOException e) {
-                throw new RuntimeException("Gagal menyimpan file attachment: " + e.getMessage(), e);
-            }
-        }
-
-        // 5. Insert ke DB
+        // 4. Insert ke DB
         UUID newId = repository.insertAbsensi(periodeMagangId, today, statusLower, keterangan, attachmentUrl);
 
-        // 6. Kembalikan record yang baru dibuat
+        // 5. Kembalikan record yang baru dibuat
         return repository.findById(newId)
                 .orElseThrow(() -> new IllegalStateException("Gagal mengambil record absensi setelah insert."));
     }

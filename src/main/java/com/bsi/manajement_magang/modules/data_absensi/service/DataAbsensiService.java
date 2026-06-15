@@ -3,7 +3,6 @@ package com.bsi.manajement_magang.modules.data_absensi.service;
 import com.bsi.manajement_magang.modules.data_absensi.schema.response.AbsensiMahasiswaStatResponse;
 import com.bsi.manajement_magang.modules.data_absensi.schema.response.AbsensiResponse;
 import com.bsi.manajement_magang.modules.data_absensi.schema.response.AbsensiStatResponse;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -20,7 +19,7 @@ public interface DataAbsensiService {
 
     String exportRekapAbsensi(String status, String namaMahasiswa);
 
-    AbsensiResponse submitAbsensi(UUID userId, String status, String keterangan, MultipartFile file);
+    AbsensiResponse submitAbsensi(UUID userId, String status, String keterangan, String attachmentUrl);
 
     List<AbsensiResponse> getRiwayatAbsensi(UUID userId);
 
