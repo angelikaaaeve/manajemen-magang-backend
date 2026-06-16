@@ -266,7 +266,7 @@ public class DataMahasiswaRepository {
             ") pm ON m.id = pm.mahasiswa_id " +
             "LEFT JOIN mentor_mahasiswa mm ON m.id = mm.mahasiswa_id " +
             "LEFT JOIN mentor men ON mm.mentor_id = men.id " +
-            "WHERE m.id = :id";
+            "WHERE m.id = :id OR m.user_id = :id";
 
         MapSqlParameterSource params = new MapSqlParameterSource("id", id);
         return jdbc.query(sql, params, this::mapStudentResponse).stream().findFirst();
