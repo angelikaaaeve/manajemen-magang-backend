@@ -1,20 +1,6 @@
 package com.bsi.manajement_magang.modules.iam;
 
-<<<<<<< HEAD:src/main/java/com/bsi/manajement_magang/modules/iam/service/impl/IamServiceImpl.java
 import com.bsi.manajement_magang.enums.Gender;
-
-import com.bsi.manajement_magang.modules.iam.repository.UserRepository;
-import com.bsi.manajement_magang.modules.iam.schema.entity.MahasiswaEntity;
-import com.bsi.manajement_magang.modules.iam.schema.entity.MentorEntity;
-import com.bsi.manajement_magang.modules.iam.schema.entity.Role;
-import com.bsi.manajement_magang.modules.iam.schema.entity.UserEntity;
-import com.bsi.manajement_magang.modules.iam.schema.request.LoginRequest;
-import com.bsi.manajement_magang.modules.iam.schema.request.RegisterRequest;
-import com.bsi.manajement_magang.modules.iam.schema.request.UpdateUserRequest;
-import com.bsi.manajement_magang.modules.iam.schema.response.LoginResponse;
-import com.bsi.manajement_magang.modules.iam.schema.response.UserResponse;
-import com.bsi.manajement_magang.modules.iam.service.IamService;
-=======
 import com.bsi.manajement_magang.modules.iam.UserRepository;
 import com.bsi.manajement_magang.modules.iam.schemas.entity.MahasiswaEntity;
 import com.bsi.manajement_magang.modules.iam.schemas.entity.MentorEntity;
@@ -25,8 +11,6 @@ import com.bsi.manajement_magang.modules.iam.schemas.request.RegisterRequest;
 import com.bsi.manajement_magang.modules.iam.schemas.request.UpdateUserRequest;
 import com.bsi.manajement_magang.modules.iam.schemas.response.LoginResponse;
 import com.bsi.manajement_magang.modules.iam.schemas.response.UserResponse;
-import com.bsi.manajement_magang.modules.iam.IamService;
->>>>>>> a11560409e32746ee9839d8ff9ca04d46fc57240:src/main/java/com/bsi/manajement_magang/modules/iam/IamService.java
 import com.bsi.manajement_magang.util.TokenProvider;
 import com.bsi.manajement_magang.shared.Argon2Hasher;
 import org.springframework.beans.factory.annotation.Value;

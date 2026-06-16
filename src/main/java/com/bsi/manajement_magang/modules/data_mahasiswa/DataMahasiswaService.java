@@ -1,22 +1,11 @@
 package com.bsi.manajement_magang.modules.data_mahasiswa;
 
-<<<<<<< HEAD:src/main/java/com/bsi/manajement_magang/modules/data_mahasiswa/service/impl/DataMahasiswaServiceImpl.java
 import com.bsi.manajement_magang.enums.Gender;
-
-import com.bsi.manajement_magang.modules.data_mahasiswa.repository.DataMahasiswaRepository;
-import com.bsi.manajement_magang.modules.data_mahasiswa.schema.request.StudentRequest;
-import com.bsi.manajement_magang.modules.data_mahasiswa.schema.request.UpdateStudentRequest;
-import com.bsi.manajement_magang.modules.data_mahasiswa.schema.response.StudentResponse;
-import com.bsi.manajement_magang.modules.data_mahasiswa.schema.response.StudentStatResponse;
-import com.bsi.manajement_magang.modules.data_mahasiswa.service.DataMahasiswaService;
-=======
 import com.bsi.manajement_magang.modules.data_mahasiswa.DataMahasiswaRepository;
 import com.bsi.manajement_magang.modules.data_mahasiswa.schemas.request.StudentRequest;
 import com.bsi.manajement_magang.modules.data_mahasiswa.schemas.request.UpdateStudentRequest;
 import com.bsi.manajement_magang.modules.data_mahasiswa.schemas.response.StudentResponse;
 import com.bsi.manajement_magang.modules.data_mahasiswa.schemas.response.StudentStatResponse;
-import com.bsi.manajement_magang.modules.data_mahasiswa.DataMahasiswaService;
->>>>>>> a11560409e32746ee9839d8ff9ca04d46fc57240:src/main/java/com/bsi/manajement_magang/modules/data_mahasiswa/DataMahasiswaService.java
 import com.bsi.manajement_magang.shared.Argon2Hasher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,4 +1,4 @@
-package com.bsi.manajement_magang.modules.iam.repository.mapper;
+package com.bsi.manajement_magang.modules.iam;
 
 import com.bsi.manajement_magang.modules.iam.schemas.entity.MentorEntity;
 import org.springframework.jdbc.core.RowMapper;

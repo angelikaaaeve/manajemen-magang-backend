@@ -1,19 +1,8 @@
 package com.bsi.manajement_magang.modules.iam;
 
-import com.bsi.manajement_magang.modules.iam.UserRepository;
-import com.bsi.manajement_magang.modules.iam.repository.mapper.MahasiswaRowMapper;
-import com.bsi.manajement_magang.modules.iam.repository.mapper.MentorRowMapper;
-import com.bsi.manajement_magang.modules.iam.repository.mapper.UserRowMapper;
-<<<<<<< HEAD:src/main/java/com/bsi/manajement_magang/modules/iam/repository/impl/UserRepositoryImpl.java
-import com.bsi.manajement_magang.modules.iam.schema.entity.MahasiswaEntity;
-import com.bsi.manajement_magang.modules.iam.schema.entity.MentorEntity;
-import com.bsi.manajement_magang.modules.iam.schema.entity.UserEntity;
-=======
 import com.bsi.manajement_magang.modules.iam.schemas.entity.MahasiswaEntity;
 import com.bsi.manajement_magang.modules.iam.schemas.entity.MentorEntity;
 import com.bsi.manajement_magang.modules.iam.schemas.entity.UserEntity;
-import com.bsi.manajement_magang.util.SqlLoader;
->>>>>>> a11560409e32746ee9839d8ff9ca04d46fc57240:src/main/java/com/bsi/manajement_magang/modules/iam/UserRepository.java
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;

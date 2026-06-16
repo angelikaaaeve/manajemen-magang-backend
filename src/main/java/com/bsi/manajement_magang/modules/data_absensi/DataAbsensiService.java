@@ -4,7 +4,6 @@ import com.bsi.manajement_magang.modules.data_absensi.DataAbsensiRepository;
 import com.bsi.manajement_magang.modules.data_absensi.schemas.response.AbsensiMahasiswaStatResponse;
 import com.bsi.manajement_magang.modules.data_absensi.schemas.response.AbsensiResponse;
 import com.bsi.manajement_magang.modules.data_absensi.schemas.response.AbsensiStatResponse;
-import com.bsi.manajement_magang.modules.data_absensi.DataAbsensiService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

@@ -1,16 +1,9 @@
 package com.bsi.manajement_magang.modules.data_absensi;
 
-<<<<<<< HEAD:src/main/java/com/bsi/manajement_magang/modules/data_absensi/repository/DataAbsensiRepository.java
 import com.bsi.manajement_magang.enums.StatusAbsensi;
-
-import com.bsi.manajement_magang.modules.data_absensi.schema.response.AbsensiMahasiswaStatResponse;
-import com.bsi.manajement_magang.modules.data_absensi.schema.response.AbsensiResponse;
-import com.bsi.manajement_magang.modules.data_absensi.schema.response.AbsensiStatResponse;
-=======
 import com.bsi.manajement_magang.modules.data_absensi.schemas.response.AbsensiMahasiswaStatResponse;
 import com.bsi.manajement_magang.modules.data_absensi.schemas.response.AbsensiResponse;
 import com.bsi.manajement_magang.modules.data_absensi.schemas.response.AbsensiStatResponse;
->>>>>>> a11560409e32746ee9839d8ff9ca04d46fc57240:src/main/java/com/bsi/manajement_magang/modules/data_absensi/DataAbsensiRepository.java
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;

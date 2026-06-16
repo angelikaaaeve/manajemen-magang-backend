@@ -1,13 +1,8 @@
 package com.bsi.manajement_magang.modules.dashboard_mentor;
 
-<<<<<<< HEAD:src/main/java/com/bsi/manajement_magang/modules/dashboard_mentor/repository/DashboardMentorRepository.java
 import com.bsi.manajement_magang.enums.Gender;
 import com.bsi.manajement_magang.enums.StatusPeriode;
-
-import com.bsi.manajement_magang.modules.dashboard_mentor.schema.response.SearchStudentResponse;
-=======
 import com.bsi.manajement_magang.modules.dashboard_mentor.schemas.response.SearchStudentResponse;
->>>>>>> a11560409e32746ee9839d8ff9ca04d46fc57240:src/main/java/com/bsi/manajement_magang/modules/dashboard_mentor/DashboardMentorRepository.java
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;

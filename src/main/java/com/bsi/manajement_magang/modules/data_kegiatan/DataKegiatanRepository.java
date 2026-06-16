@@ -1,14 +1,8 @@
 package com.bsi.manajement_magang.modules.data_kegiatan;
 
-<<<<<<< HEAD:src/main/java/com/bsi/manajement_magang/modules/data_kegiatan/repository/DataKegiatanRepository.java
 import com.bsi.manajement_magang.enums.StatusKegiatan;
-
-import com.bsi.manajement_magang.modules.data_kegiatan.schema.response.ActivityResponse;
-import com.bsi.manajement_magang.modules.data_kegiatan.schema.response.ActivityStatResponse;
-=======
 import com.bsi.manajement_magang.modules.data_kegiatan.schemas.response.ActivityResponse;
 import com.bsi.manajement_magang.modules.data_kegiatan.schemas.response.ActivityStatResponse;
->>>>>>> a11560409e32746ee9839d8ff9ca04d46fc57240:src/main/java/com/bsi/manajement_magang/modules/data_kegiatan/DataKegiatanRepository.java
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;

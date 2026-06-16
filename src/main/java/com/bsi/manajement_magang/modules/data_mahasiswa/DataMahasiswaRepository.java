@@ -1,15 +1,9 @@
 package com.bsi.manajement_magang.modules.data_mahasiswa;
 
-<<<<<<< HEAD:src/main/java/com/bsi/manajement_magang/modules/data_mahasiswa/repository/DataMahasiswaRepository.java
 import com.bsi.manajement_magang.enums.Gender;
 import com.bsi.manajement_magang.enums.StatusPeriode;
-
-import com.bsi.manajement_magang.modules.data_mahasiswa.schema.response.StudentResponse;
-import com.bsi.manajement_magang.modules.data_mahasiswa.schema.response.StudentStatResponse;
-=======
 import com.bsi.manajement_magang.modules.data_mahasiswa.schemas.response.StudentResponse;
 import com.bsi.manajement_magang.modules.data_mahasiswa.schemas.response.StudentStatResponse;
->>>>>>> a11560409e32746ee9839d8ff9ca04d46fc57240:src/main/java/com/bsi/manajement_magang/modules/data_mahasiswa/DataMahasiswaRepository.java
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
