@@ -94,6 +94,14 @@ public class UserRepository {
         jdbc.update(sql, params);
     }
 
+    public void updatePassword(UUID userId, String hashedPassword) {
+        String sql = "UPDATE \"user\" SET password = :password, updated_at = NOW() WHERE id = :id";
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("id", userId)
+                .addValue("password", hashedPassword);
+        jdbc.update(sql, params);
+    }
+
     public void updateMahasiswa(MahasiswaEntity mahasiswa) {
         String sql = "UPDATE mahasiswa SET nim = :nim, nama = :nama, no_hp = :noHp, gender = :gender, id_university = :id_university " +
                      "WHERE user_id = :userId";

@@ -8,5 +8,7 @@ public record UpdateUserRequest(
     String nama,
     String noHp,
     Gender gender,
-    String universitas
+    String universitas,
+    String oldPassword,
+    String newPassword
 ) {}

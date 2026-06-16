@@ -34,7 +34,7 @@ public class DataMahasiswaRepository {
     public boolean existsByEmailAndIdNot(String email, UUID userId) {
         String sql = "SELECT COUNT(1) FROM \"user\" WHERE email = :email AND id <> :userId";
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("email", email)
+                .addValue(" email", email)
                 .addValue("userId", userId);
         Integer count = jdbc.queryForObject(sql, params, Integer.class);
         return count != null && count > 0;

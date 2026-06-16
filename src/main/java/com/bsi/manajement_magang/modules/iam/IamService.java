@@ -193,6 +193,19 @@ public class IamService {
             userRepository.updateUser(user);
         }
 
+        if (req.newPassword() != null && !req.newPassword().isBlank()) {
+            if (req.oldPassword() == null || req.oldPassword().isBlank()) {
+                throw DomainException.validationFailed("Password lama harus diisi untuk mengganti password");
+            }
+            if (!argon2Hasher.matches(req.oldPassword(), user.getPassword())) {
+                throw DomainException.unauthorized("Password lama tidak sesuai");
+            }
+            if (req.newPassword().length() < 8) {
+                throw DomainException.validationFailed("Password baru minimal 8 karakter");
+            }
+            userRepository.updatePassword(userId, argon2Hasher.hash(req.newPassword()));
+        }
+
         String nim = null;
         String nama = req.nama();
         String noHp = null;
