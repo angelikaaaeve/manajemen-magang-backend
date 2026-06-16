@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ERD - Sistem Manajemen Magang</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border-bottom: 1px solid #334155;
+      padding: 24px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+    }
+    .header-left h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, #60a5fa, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .header-left p {
+      font-size: 0.78rem;
+      color: #64748b;
+      margin-top: 2px;
+    }
+    .badge-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .badge {
+      padding: 4px 12px;
+      border-radius: 99px;
+      font-size: 0.72rem;
+      font-weight: 500;
+    }
+    .badge-blue  { background: #1e3a5f; color: #60a5fa; border: 1px solid #2563eb44; }
+    .badge-purple{ background: #2d1b69; color: #a78bfa; border: 1px solid #7c3aed44; }
+    .badge-green { background: #14532d; color: #4ade80; border: 1px solid #16a34a44; }
+
+    /* ── Legend ── */
+    .legend {
+      display: flex;
+      gap: 24px;
+      padding: 14px 40px;
+      background: #131720;
+      border-bottom: 1px solid #1e293b;
+      flex-wrap: wrap;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.75rem;
+      color: #94a3b8;
+    }
+    .legend-dot {
+      width: 12px; height: 12px;
+      border-radius: 3px;
+    }
+
+    /* ── Tabs ── */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      padding: 16px 40px 0;
+      background: #0f1117;
+      border-bottom: 1px solid #1e293b;
+    }
+    .tab {
+      padding: 8px 20px;
+      border-radius: 8px 8px 0 0;
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid transparent;
+      border-bottom: none;
+      color: #64748b;
+      background: transparent;
+      transition: all 0.2s;
+    }
+    .tab:hover { color: #cbd5e1; background: #1e293b; }
+    .tab.active {
+      color: #60a5fa;
+      background: #1e293b;
+      border-color: #334155;
+    }
+
+    /* ── Content ── */
+    .content { padding: 32px 40px; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── ERD Diagram Panel ── */
+    .diagram-wrapper {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 32px;
+      overflow: auto;
+      min-height: 500px;
+      position: relative;
+    }
+    .diagram-wrapper .mermaid {
+      display: flex;
+      justify-content: center;
+    }
+
+    /* ── Table Info ── */
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+      margin-top: 0;
+    }
+    .table-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      overflow: hidden;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .table-card:hover {
+      transform: translateY(-2px);
+      border-color: #475569;
+    }
+    .table-card-header {
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .table-icon {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+    }
+    .table-card-header h3 {
+      font-size: 0.85rem;
+      font-weight: 600;
+      font-family: 'Courier New', monospace;
+    }
+    .table-card-body {
+      padding: 0 16px 12px;
+    }
+    .col-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 0;
+      border-bottom: 1px solid #0f172a;
+      font-size: 0.75rem;
+    }
+    .col-row:last-child { border-bottom: none; }
+    .col-name {
+      font-family: 'Courier New', monospace;
+      color: #e2e8f0;
+      min-width: 130px;
+    }
+    .col-type {
+      color: #60a5fa;
+      font-size: 0.7rem;
+    }
+    .col-tag {
+      margin-left: auto;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.65rem;
+      font-weight: 600;
+    }
+    .tag-pk  { background: #422006; color: #fb923c; }
+    .tag-fk  { background: #14532d; color: #4ade80; }
+    .tag-uniq{ background: #2d1b69; color: #a78bfa; }
+
+    /* ── Migration Timeline ── */
+    .timeline { position: relative; padding-left: 32px; }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 11px; top: 0; bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom, #3b82f6, #8b5cf6);
+    }
+    .tl-item {
+      position: relative;
+      margin-bottom: 24px;
+    }
+    .tl-dot {
+      position: absolute;
+      left: -27px; top: 8px;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      border: 2px solid #0f1117;
+    }
+    .tl-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 14px 18px;
+    }
+    .tl-card h4 {
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .tl-card p {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      line-height: 1.5;
+    }
+    .tl-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.68rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      padding: 24px;
+      color: #334155;
+      font-size: 0.72rem;
+      border-top: 1px solid #1e293b;
+      margin-top: 40px;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0f1117; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-left">
+    <h1>🗂️ ERD — Sistem Manajemen Magang</h1>
+    <p>Database PostgreSQL · Flyway Migration · 8 Versi</p>
+  </div>
+  <div class="badge-group">
+    <span class="badge badge-blue">12 Tabel</span>
+    <span class="badge badge-purple">PostgreSQL</span>
+    <span class="badge badge-green">V1 → V8</span>
+  </div>
+</div>
+
+<!-- Legend -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#fb923c"></div> Primary Key</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#4ade80"></div> Foreign Key</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#60a5fa"></div> Relasi 1:1</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#a78bfa"></div> Relasi 1:N</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#f472b6"></div> GENERATED Column</div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('diagram')">📊 Diagram ERD</button>
+  <button class="tab" onclick="switchTab('tables')">📋 Detail Tabel</button>
+  <button class="tab" onclick="switchTab('migration')">🔄 Migration History</button>
+</div>
+
+<!-- Content -->
+<div class="content">
+
+  <!-- TAB: Diagram -->
+  <div id="tab-diagram" class="tab-panel active">
+    <div class="diagram-wrapper">
+      <div class="mermaid">
+erDiagram
+    USER {
+        UUID id PK
+        VARCHAR email
+        VARCHAR password
+        VARCHAR role
+        BOOLEAN is_active
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
+    }
+    UNIVERSITY {
+        BIGSERIAL id PK
+        TEXT name_university
+        TIMESTAMP created_at
+    }
+    MAHASISWA {
+        UUID id PK
+        UUID user_id FK
+        BIGINT id_university FK
+        VARCHAR nim
+        VARCHAR nama
+        VARCHAR no_hp
+        VARCHAR gender
+    }
+    MENTOR {
+        UUID id PK
+        UUID user_id FK
+        VARCHAR nama
+    }
+    MENTOR_MAHASISWA {
+        UUID id PK
+        UUID mentor_id FK
+        UUID mahasiswa_id FK
+        TIMESTAMP created_at
+    }
+    PERIODE_MAGANG {
+        UUID id PK
+        UUID mahasiswa_id FK
+        DATE tanggal_mulai
+        DATE tanggal_berakhir
+        VARCHAR status
+        TIMESTAMP created_at
+    }
+    ABSENSI {
+        UUID id PK
+        UUID periode_magang_id FK
+        DATE tanggal
+        VARCHAR status
+        TEXT attachment_url
+        TIMESTAMP created_at
+    }
+    DATA_KEGIATAN {
+        UUID id PK
+        UUID periode_magang_id FK
+        VARCHAR judul
+        TEXT deskripsi
+        TIMESTAMPTZ waktu
+        VARCHAR status
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
+    }
+    FILE_KEGIATAN {
+        UUID id PK
+        UUID data_kegiatan_id FK
+        VARCHAR nama_file
+        TEXT url
+        VARCHAR tipe_file
+        TIMESTAMP created_at
+    }
+    PENILAIAN {
+        UUID id PK
+        UUID periode_magang_id FK
+        UUID mentor_id FK
+        NUMERIC kinerja
+        NUMERIC kedisiplinan
+        NUMERIC tanggung_jawab
+        NUMERIC komunikasi
+        NUMERIC sikap
+        NUMERIC kerapihan
+        NUMERIC absensi_nilai
+        NUMERIC kerjasama
+        NUMERIC nilai_total
+        TEXT catatan
+        TIMESTAMP created_at
+    }
+    SURAT_KETERANGAN_MAGANG {
+        UUID id PK
+        UUID periode_magang_id FK
+        TEXT url
+        TIMESTAMP created_at
+    }
+    SERTIFIKAT {
+        UUID id PK
+        UUID periode_magang_id FK
+        TEXT url
+        TIMESTAMP created_at
+    }
+
+    USER ||--|| MAHASISWA : "memiliki"
+    USER ||--|| MENTOR : "memiliki"
+    UNIVERSITY ||--o{ MAHASISWA : "mendaftarkan"
+    MENTOR ||--o{ MENTOR_MAHASISWA : "membimbing"
+    MAHASISWA ||--|| MENTOR_MAHASISWA : "dibimbing"
+    MAHASISWA ||--o{ PERIODE_MAGANG : "menjalani"
+    PERIODE_MAGANG ||--o{ ABSENSI : "mencatat"
+    PERIODE_MAGANG ||--o{ DATA_KEGIATAN : "memiliki"
+    PERIODE_MAGANG ||--o| PENILAIAN : "dinilai"
+    PERIODE_MAGANG ||--o| SURAT_KETERANGAN_MAGANG : "menghasilkan"
+    PERIODE_MAGANG ||--o| SERTIFIKAT : "menghasilkan"
+    DATA_KEGIATAN ||--o{ FILE_KEGIATAN : "melampirkan"
+    MENTOR ||--o{ PENILAIAN : "memberikan"
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: Detail Tabel -->
+  <div id="tab-tables" class="tab-panel">
+    <div class="info-grid">
+
+      <div class="table-card">
+        <div class="table-card-header" style="background:#1a2744">
+          <div class="table-icon" style="background:#1e3a5f">👤</div>
+          <h3 style="color:#60a5fa">user</h3>
+        </div>
+        <div class="table-card-body">
+          <div class="col-row"><span class="col-name">id</span><span class="col-type">UUID</span><span class="col-tag tag-pk">PK</span></div>
+          <div class="col-row"><span class="col-name">email</span><span class="col-type">VARCHAR(255)</span><span class="col-tag tag-uniq">UNIQUE</span></div>
+          <div class="col-row"><span class="col-name">password</span><span class="col-type">VARCHAR(255)</span></div>
+          <div class="col-row"><span class="col-name">role</span><span class="col-type">VARCHAR(20)</span></div>
+          <div class="col-row"><span class="col-name">is_active</span><span class="col-type">BOOLEAN</span></div>
+          <div class="col-row"><span class="col-name">created_at</span><span class="col-type">TIMESTAMP</span></div>
+          <div class="col-row"><span class="col-name">updated_at</span><span class="col-type">TIMESTAMP</span></div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-card-header" style="background:#1a2f1a">
+          <div class="table-icon" style="background:#14532d">🏛️</div>
+          <h3 style="color:#4ade80">university</h3>
+        </div>
+        <div class="table-card-body">
+          <div class="col-row"><span class="col-name">id</span><span class="col-type">BIGSERIAL</span><span class="col-tag tag-pk">PK</span></div>
+          <div class="col-row"><span class="col-name">name_university</span><span class="col-type">TEXT</span></div>
+          <div class="col-row"><span class="col-name">created_at</span><span class="col-type">TIMESTAMP</span></div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-card-header" style="background:#1a2744">
+          <div class="table-icon" style="background:#1e3a5f">🎓</div>
+          <h3 style="color:#60a5fa">mahasiswa</h3>
+        </div>
+        <div class="table-card-body">
+          <div class="col-row"><span class="col-name">id</span><span class="col-type">UUID</span><span class="col-tag tag-pk">PK</span></div>
+          <div class="col-row"><span class="col-name">user_id</span><span class="col-type">UUID</span><span class="col-tag tag-fk">FK</span></div>
+          <div class="col-row"><span class="col-name">id_university</span><span class="col-type">BIGINT</span><span class="col-tag tag-fk">FK</span></div>
+          <div class="col-row"><span class="col-name">nim</span><span class="col-type">VARCHAR(20)</span><span class="col-tag tag-uniq">UNIQUE</span></div>
+          <div class="col-row"><span class="col-name">nama</span><span class="col-type">VARCHAR(255)</span></div>
+          <div class="col-row"><span class="col-name">no_hp</span><span class="col-type">VARCHAR(20)</span></div>
+          <div class="col-row"><span class="col-name">gender</span><span class="col-type">VARCHAR(20)</span></div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-card-header" style="background:#271e44">
+          <div class="table-icon" style="background:#3b0764">👨‍🏫</div>
+          <h3 style="color:#a78bfa">mentor</h3>
+        </div>
+        <div class="table-card-body">
+          <div class="col-row"><span class="col-name">id</span><span class="col-type">UUID</span><span class="col-tag tag-pk">PK</span></div>
+          <div class="col-row"><span class="col-name">user_id</span><span class="col-type">UUID</span><span class="col-tag tag-fk">FK</span></div>
+          <div class="col-row"><span class="col-name">nama</span><span class="col-type">VARCHAR(255)</span></div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-card-header" style="background:#27221a">
+          <div class="table-icon" style="background:#451a03">🔗</div>
+          <h3 style="color:#fb923c">mentor_mahasiswa</h3>
+        </div>
+        <div class="table-card-body">
+          <div class="col-row"><span class="col-name">id</span><span class="col-type">UUID</span><span class="col-tag tag-pk">PK</span></div>
+          <div class="col-row"><span class="col-name">mentor_id</span><span class="col-type">UUID</span><span class="col-tag tag-fk">FK</span></div>
+          <div class="col-row"><span class="col-name">mahasiswa_id</span><span class="col-type">UUID</span><span class="col-tag tag-fk">FK</span></div>
+          <div class="col-row"><span class="col-name">created_at</span><span class="col-type">TIMESTAMP</span></div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-card-header" style="background:#1a2744">
+          <div class="table-icon" style="background:#1e3a5f">📅</div>
+          <h3 style="color:#60a5fa">periode_magang</h3>
+        </div>
+        <div class="table-card-body">
+          <div class="col-row"><span class="col-name">id</span><span class="col-type">UUID</span><span class="col-tag tag-pk">PK</span></div>
+          <div class="col-row"><span class="col-name">mahasiswa_id</span><span class="col-type">UUID</span><span class="col-tag tag-fk">FK</span></div>
+          <div class="col-row"><span class="col-name">tanggal_mulai</span><span class="col-type">DATE</span></div>
+          <div class="col-row"><span class="col-name">tanggal_berakhir</span><span class="col-type">DATE</span></div>
+          <div class="col-row"><span class="col-name">status</span><span class="col-type">VARCHAR(10)</span></div>
+          <div class="col-row"><span class="col-name">created_at</span><span class="col-type">TIMESTAMP</span></div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-card-header" style="background:#1a1f2e">
+          <div class="table-icon" style="background:#0f172a">✅</div>
+          <h3 style="color:#94a3b8">absensi</h3>
+        </div>
+        <div class="table-card-body">
+          <div class="col-row"><span class="col-name">id</span><span class="col-type">UUID</span><span class="col-tag tag-pk">PK</span></div>
+          <div class="col-row"><span class="col-name">periode_magang_id</span><span class="col-type">UUID</span><span class="col-tag tag-fk">FK</span></div>
+          <div class="col-row"><span class="col-name">tanggal</span><span class="col-type">DATE</span></div>
+          <div class="col-row"><span class="col-name">status</span><span class="col-type">VARCHAR(10)</span></div>
+          <div class="col-row"><span class="col-name">attachment_url</span><span class="col-type">TEXT</span></div>
+          <div class="col-row"><span class="col-name">created_at</span><span class="col-type">TIMESTAMP</span></div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-card-header" style="background:#1a2744">
+          <div class="table-icon" style="background:#1e3a5f">📝</div>
+          <h3 style="color:#60a5fa">data_kegiatan</h3>
+        </div>
+        <div class="table-card-body">
+          <div class="col-row"><span class="col-name">id</span><span class="col-type">UUID</span><span class="col-tag tag-pk">PK</span></div>
+          <div class="col-row"><span class="col-name">periode_magang_id</span><span class="col-type">UUID</span><span class="col-tag tag-fk">FK</span></div>
+          <div class="col-row"><span class="col-name">judul</span><span class="col-type">VARCHAR(255)</span></div>
+          <div class="col-row"><span class="col-name">deskripsi</span><span class="col-type">TEXT</span></div>
+          <div class="col-row"><span class="col-name">waktu</span><span class="col-type">TIMESTAMPTZ</span></div>
+          <div class="col-row"><span class="col-name">status</span><span class="col-type">VARCHAR(20)</span></div>
+          <div class="col-row"><span class="col-name">created_at</span><span class="col-type">TIMESTAMP</span></div>
+          <div class="col-row"><span class="col-name">updated_at</span><span class="col-type">TIMESTAMP</span></div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-card-header" style="background:#1a2744">
+          <div class="table-icon" style="background:#1e3a5f">📎</div>
+          <h3 style="color:#60a5fa">file_kegiatan</h3>
+        </div>
+        <div class="table-card-body">
+          <div class="col-row"><span class="col-name">id</span><span class="col-type">UUID</span><span class="col-tag tag-pk">PK</span></div>
+          <div class="col-row"><span class="col-name">data_kegiatan_id</span><span class="col-type">UUID</span><span class="col-tag tag-fk">FK</span></div>
+          <div class="col-row"><span class="col-name">nama_file</span><span class="col-type">VARCHAR(255)</span></div>
+          <div class="col-row"><span class="col-name">url</span><span class="col-type">TEXT</span></div>
+          <div class="col-row"><span class="col-name">tipe_file</span><span class="col-type">VARCHAR(50)</span></div>
+          <div class="col-row"><span class="col-name">created_at</span><span class="col-type">TIMESTAMP</span></div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-card-header" style="background:#1a2f1a">
+          <div class="table-icon" style="background:#14532d">⭐</div>
+          <h3 style="color:#4ade80">penilaian</h3>
+        </div>
+        <div class="table-card-body">
+          <div class="col-row"><span class="col-name">id</span><span class="col-type">UUID</span><span class="col-tag tag-pk">PK</span></div>
+          <div class="col-row"><span class="col-name">periode_magang_id</span><span class="col-type">UUID</span><span class="col-tag tag-fk">FK</span></div>
+          <div class="col-row"><span class="col-name">mentor_id</span><span class="col-type">UUID</span><span class="col-tag tag-fk">FK</span></div>
+          <div class="col-row"><span class="col-name">kinerja</span><span class="col-type">NUMERIC(5,2)</span></div>
+          <div class="col-row"><span class="col-name">kedisiplinan</span><span class="col-type">NUMERIC(5,2)</span></div>
+          <div class="col-row"><span class="col-name">tanggung_jawab</span><span class="col-type">NUMERIC(5,2)</span></div>
+          <div class="col-row"><span class="col-name">komunikasi</span><span class="col-type">NUMERIC(5,2)</span></div>
+          <div class="col-row"><span class="col-name">sikap</span><span class="col-type">NUMERIC(5,2)</span></div>
+          <div class="col-row"><span class="col-name">kerapihan</span><span class="col-type">NUMERIC(5,2)</span></div>
+          <div class="col-row"><span class="col-name">absensi_nilai</span><span class="col-type">NUMERIC(5,2)</span></div>
+          <div class="col-row"><span class="col-name">kerjasama</span><span class="col-type">NUMERIC(5,2)</span></div>
+          <div class="col-row"><span class="col-name">nilai_total</span><span class="col-type">NUMERIC(5,2)</span><span class="col-tag" style="background:#1f1a2e;color:#f472b6;margin-left:auto">GEN</span></div>
+          <div class="col-row"><span class="col-name">catatan</span><span class="col-type">TEXT</span></div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-card-header" style="background:#27221a">
+          <div class="table-icon" style="background:#451a03">📄</div>
+          <h3 style="color:#fb923c">surat_keterangan_magang</h3>
+        </div>
+        <div class="table-card-body">
+          <div class="col-row"><span class="col-name">id</span><span class="col-type">UUID</span><span class="col-tag tag-pk">PK</span></div>
+          <div class="col-row"><span class="col-name">periode_magang_id</span><span class="col-type">UUID</span><span class="col-tag tag-fk">FK</span></div>
+          <div class="col-row"><span class="col-name">url</span><span class="col-type">TEXT</span></div>
+          <div class="col-row"><span class="col-name">created_at</span><span class="col-type">TIMESTAMP</span></div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-card-header" style="background:#27221a">
+          <div class="table-icon" style="background:#451a03">🏆</div>
+          <h3 style="color:#fb923c">sertifikat</h3>
+        </div>
+        <div class="table-card-body">
+          <div class="col-row"><span class="col-name">id</span><span class="col-type">UUID</span><span class="col-tag tag-pk">PK</span></div>
+          <div class="col-row"><span class="col-name">periode_magang_id</span><span class="col-type">UUID</span><span class="col-tag tag-fk">FK</span></div>
+          <div class="col-row"><span class="col-name">url</span><span class="col-type">TEXT</span></div>
+          <div class="col-row"><span class="col-name">created_at</span><span class="col-type">TIMESTAMP</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TAB: Migration History -->
+  <div id="tab-migration" class="tab-panel">
+    <div class="timeline">
+
+      <div class="tl-item">
+        <div class="tl-dot" style="background:#3b82f6"></div>
+        <div class="tl-card">
+          <span class="tl-tag" style="background:#1e3a5f;color:#60a5fa">V1</span>
+          <h4>create_table</h4>
+          <p>Buat semua tabel dasar: <code>user, mahasiswa, mentor, mentor_mahasiswa, periode_magang, absensi, data_kegiatan, file_kegiatan, penilaian, surat_keterangan_magang, sertifikat</code> + index.</p>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot" style="background:#6366f1"></div>
+        <div class="tl-card">
+          <span class="tl-tag" style="background:#2d1b69;color:#a78bfa">V2</span>
+          <h4>add_gender_and_universitas_to_mahasiswa</h4>
+          <p>Tambah kolom <code>gender VARCHAR(20)</code> dan <code>universitas VARCHAR(255)</code> ke tabel <code>mahasiswa</code>.</p>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot" style="background:#8b5cf6"></div>
+        <div class="tl-card">
+          <span class="tl-tag" style="background:#2d1b69;color:#a78bfa">V3</span>
+          <h4>add_status_verifikasi_to_absensi</h4>
+          <p>Tambah kolom <code>status_verifikasi VARCHAR(20)</code> ke tabel <code>absensi</code> dengan nilai: PENDING | DISETUJUI | DITOLAK.</p>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot" style="background:#a855f7"></div>
+        <div class="tl-card">
+          <span class="tl-tag" style="background:#2d1b69;color:#a78bfa">V4</span>
+          <h4>add_status_to_data_kegiatan</h4>
+          <p>Tambah kolom <code>status VARCHAR(20)</code> ke tabel <code>data_kegiatan</code> dengan nilai: disetujui | belum disetujui | ditolak.</p>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot" style="background:#ec4899"></div>
+        <div class="tl-card">
+          <span class="tl-tag" style="background:#500724;color:#f9a8d4">V5</span>
+          <h4>insert_seed_data</h4>
+          <p>Insert data awal (seed) untuk pengujian sistem.</p>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot" style="background:#f97316"></div>
+        <div class="tl-card">
+          <span class="tl-tag" style="background:#451a03;color:#fb923c">V6</span>
+          <h4>create_tabel_university</h4>
+          <p>Buat tabel <code>university</code>. Drop kolom <code>universitas</code> dari <code>mahasiswa</code>, ganti dengan <code>id_university BIGINT FK → university.id</code>.</p>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot" style="background:#eab308"></div>
+        <div class="tl-card">
+          <span class="tl-tag" style="background:#422006;color:#fbbf24">V7</span>
+          <h4>fix_seed_university_data</h4>
+          <p>Perbaikan data seed untuk tabel <code>university</code>.</p>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-dot" style="background:#ef4444"></div>
+        <div class="tl-card">
+          <span class="tl-tag" style="background:#450a0a;color:#f87171">V8</span>
+          <h4>drop_columns_from_absensi</h4>
+          <p>Drop kolom <code>waktu_masuk</code>, <code>waktu_keluar</code>, dan <code>status_verifikasi</code> dari tabel <code>absensi</code>.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  Sistem Manajemen Magang · PostgreSQL · Flyway V1–V8 · 12 Tabel
+</div>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'dark',
+    themeVariables: {
+      primaryColor: '#1e3a5f',
+      primaryTextColor: '#e2e8f0',
+      primaryBorderColor: '#3b82f6',
+      lineColor: '#60a5fa',
+      secondaryColor: '#1e293b',
+      tertiaryColor: '#0f172a',
+      edgeLabelBackground: '#1e293b',
+      fontFamily: 'Inter, sans-serif',
+      fontSize: '13px'
+    },
+    er: {
+      diagramPadding: 40,
+      layoutDirection: 'TB',
+      minEntityWidth: 100,
+      minEntityHeight: 75,
+      entityPadding: 15,
+      useMaxWidth: true
+    }
+  });
+
+  function switchTab(name) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    event.target.classList.add('active');
+  }
+</script>
+</body>
+</html>

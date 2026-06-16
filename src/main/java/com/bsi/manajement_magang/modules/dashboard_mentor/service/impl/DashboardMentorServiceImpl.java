@@ -1,5 +1,8 @@
 package com.bsi.manajement_magang.modules.dashboard_mentor.service.impl;
 
+import com.bsi.manajement_magang.enums.Gender;
+import com.bsi.manajement_magang.enums.StatusPeriode;
+
 import com.bsi.manajement_magang.modules.dashboard_mentor.repository.DashboardMentorRepository;
 import com.bsi.manajement_magang.modules.dashboard_mentor.schema.request.RegisterStudentRequest;
 import com.bsi.manajement_magang.modules.dashboard_mentor.schema.response.DashboardStatResponse;
@@ -47,7 +50,7 @@ public class DashboardMentorServiceImpl implements DashboardMentorService {
                 req.nim(),
                 req.nama(),
                 req.noHp(),
-                req.gender(),
+                req.gender() != null ? req.gender().getValue() : null,
                 req.universitas()
         );
 
@@ -75,12 +78,12 @@ public class DashboardMentorServiceImpl implements DashboardMentorService {
                     (String) row.get("nim"),
                     (String) row.get("nama"),
                     (String) row.get("no_hp"),
-                    (String) row.get("gender"),
+                    row.get("gender") != null ? Gender.fromString((String) row.get("gender")) : null,
                     (String) row.get("universitas"),
                     toUUID(row.get("periode_id")),
                     toLocalDate(row.get("tanggal_mulai")),
                     toLocalDate(row.get("tanggal_berakhir")),
-                    (String) row.get("status_periode")
+                    row.get("status_periode") != null ? StatusPeriode.fromString((String) row.get("status_periode")) : null
             ));
         }
 

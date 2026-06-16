@@ -1,5 +1,7 @@
 package com.bsi.manajement_magang.modules.data_mahasiswa.service.impl;
 
+import com.bsi.manajement_magang.enums.Gender;
+
 import com.bsi.manajement_magang.modules.data_mahasiswa.repository.DataMahasiswaRepository;
 import com.bsi.manajement_magang.modules.data_mahasiswa.schema.request.StudentRequest;
 import com.bsi.manajement_magang.modules.data_mahasiswa.schema.request.UpdateStudentRequest;
@@ -54,7 +56,7 @@ public class DataMahasiswaServiceImpl implements DataMahasiswaService {
                 req.nim(),
                 req.nama(),
                 req.noHp() != null ? req.noHp() : "-",
-                req.gender(),
+                req.gender() != null ? req.gender().getValue() : null,
                 idUniversity
         );
 
@@ -109,7 +111,8 @@ public class DataMahasiswaServiceImpl implements DataMahasiswaService {
         String resolvedNama = req.nama() != null ? req.nama() : student.nama();
         String resolvedNim = req.nim() != null ? req.nim() : student.nim();
         String resolvedNoHp = req.noHp() != null ? req.noHp() : student.noHp();
-        String resolvedGender = req.gender() != null ? req.gender() : student.gender();
+        Gender resolvedGenderEnum = req.gender() != null ? req.gender() : student.gender();
+        String resolvedGender = resolvedGenderEnum != null ? resolvedGenderEnum.getValue() : null;
 
         repository.updateMahasiswa(
                 student.id(),
@@ -126,7 +129,7 @@ public class DataMahasiswaServiceImpl implements DataMahasiswaService {
 
             LocalDate tanggalMulai = req.periode().tanggalMulai();
             LocalDate tanggalBerakhir = req.periode().tanggalBerakhir();
-            String status = req.periode().status();
+            String status = req.periode().status() != null ? req.periode().status().getValue() : null;
 
             if (latestPeriodOpt.isPresent()) {
                 Map<String, Object> latestPeriod = latestPeriodOpt.get();

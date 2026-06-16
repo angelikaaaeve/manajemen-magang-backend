@@ -1,5 +1,7 @@
 package com.bsi.manajement_magang.modules.data_kegiatan.repository;
 
+import com.bsi.manajement_magang.enums.StatusKegiatan;
+
 import com.bsi.manajement_magang.modules.data_kegiatan.schema.response.ActivityResponse;
 import com.bsi.manajement_magang.modules.data_kegiatan.schema.response.ActivityStatResponse;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -155,7 +157,7 @@ public class DataKegiatanRepository {
             deskripsi,
             waktu,
             rs.getString("file_url"),
-            rs.getString("status")
+            rs.getString("status") != null ? StatusKegiatan.fromString(rs.getString("status")) : null
         );
     }
 }

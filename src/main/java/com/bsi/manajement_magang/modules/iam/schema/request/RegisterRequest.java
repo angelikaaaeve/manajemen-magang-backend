@@ -1,5 +1,7 @@
 package com.bsi.manajement_magang.modules.iam.schema.request;
 
+import com.bsi.manajement_magang.enums.Gender;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -19,7 +21,7 @@ public record RegisterRequest(
     String nim,
     String nama,
     String noHp,
-    String gender,
+    Gender gender,
     String universitas,
 
     // Required when role is "mentor", validated against app.mentor.secret-key

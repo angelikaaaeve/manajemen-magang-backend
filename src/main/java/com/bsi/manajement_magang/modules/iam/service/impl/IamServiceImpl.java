@@ -1,5 +1,7 @@
 package com.bsi.manajement_magang.modules.iam.service.impl;
 
+import com.bsi.manajement_magang.enums.Gender;
+
 import com.bsi.manajement_magang.modules.iam.repository.UserRepository;
 import com.bsi.manajement_magang.modules.iam.schema.entity.MahasiswaEntity;
 import com.bsi.manajement_magang.modules.iam.schema.entity.MentorEntity;
@@ -77,7 +79,7 @@ public class IamServiceImpl implements IamService {
             case mahasiswa:
                 nim = req.nim();
                 noHp = req.noHp();
-                gender = req.gender();
+                gender = req.gender() != null ? req.gender().getValue() : null;
                 universitas = req.universitas();
 
                 // Resolve university FK if provided
@@ -118,7 +120,7 @@ public class IamServiceImpl implements IamService {
                 nim,
                 nama,
                 noHp,
-                gender,
+                gender != null ? Gender.fromString(gender) : null,
                 universitas
         );
     }
@@ -178,7 +180,7 @@ public class IamServiceImpl implements IamService {
                 nim,
                 nama,
                 noHp,
-                gender,
+                gender != null ? Gender.fromString(gender) : null,
                 universitas
         );
     }
@@ -211,7 +213,7 @@ public class IamServiceImpl implements IamService {
                 if (req.nim() != null) m.setNim(req.nim());
                 if (req.nama() != null) m.setNama(req.nama());
                 if (req.noHp() != null) m.setNoHp(req.noHp());
-                if (req.gender() != null) m.setGender(req.gender());
+                if (req.gender() != null) m.setGender(req.gender().getValue());
 
                 // Resolve university FK if universitas name is provided
                 if (req.universitas() != null && !req.universitas().trim().isEmpty()) {
@@ -249,7 +251,7 @@ public class IamServiceImpl implements IamService {
                 nim,
                 nama,
                 noHp,
-                gender,
+                gender != null ? Gender.fromString(gender) : null,
                 universitas
         );
     }

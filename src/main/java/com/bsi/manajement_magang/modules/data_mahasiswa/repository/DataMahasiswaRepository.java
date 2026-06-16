@@ -1,5 +1,8 @@
 package com.bsi.manajement_magang.modules.data_mahasiswa.repository;
 
+import com.bsi.manajement_magang.enums.Gender;
+import com.bsi.manajement_magang.enums.StatusPeriode;
+
 import com.bsi.manajement_magang.modules.data_mahasiswa.schema.response.StudentResponse;
 import com.bsi.manajement_magang.modules.data_mahasiswa.schema.response.StudentStatResponse;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -324,13 +327,13 @@ public class DataMahasiswaRepository {
             rs.getString("nim"),
             rs.getString("nama"),
             rs.getString("no_hp"),
-            rs.getString("gender"),
+            rs.getString("gender") != null ? Gender.fromString(rs.getString("gender")) : null,
             rs.getObject("id_university") != null ? rs.getLong("id_university") : null,
             rs.getString("universitas"),
             periodeId,
             tanggalMulai,
             tanggalBerakhir,
-            rs.getString("status_periode"),
+            rs.getString("status_periode") != null ? StatusPeriode.fromString(rs.getString("status_periode")) : null,
             mentorId,
             rs.getString("nama_mentor")
         );

@@ -1,5 +1,7 @@
 package com.bsi.manajement_magang.modules.data_kegiatan.schema.response;
 
+import com.bsi.manajement_magang.enums.StatusKegiatan;
+
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -11,5 +13,5 @@ public record ActivityResponse(
     String deskripsi,
     OffsetDateTime waktu,
     String fileUrl,
-    String status
+    StatusKegiatan status
 ) {}

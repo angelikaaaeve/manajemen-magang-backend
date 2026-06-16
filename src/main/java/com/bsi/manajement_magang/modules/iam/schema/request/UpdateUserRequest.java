@@ -1,10 +1,12 @@
 package com.bsi.manajement_magang.modules.iam.schema.request;
 
+import com.bsi.manajement_magang.enums.Gender;
+
 public record UpdateUserRequest(
     String email,
     String nim,
     String nama,
     String noHp,
-    String gender,
+    Gender gender,
     String universitas
 ) {}

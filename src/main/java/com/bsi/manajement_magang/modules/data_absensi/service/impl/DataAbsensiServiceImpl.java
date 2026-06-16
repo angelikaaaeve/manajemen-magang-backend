@@ -82,7 +82,7 @@ public class DataAbsensiServiceImpl implements DataAbsensiService {
                .append(record.tanggal()).append(";")
                .append(record.nim()).append(";")
                .append(escapeCsvField(record.namaMahasiswa())).append(";")
-               .append(record.status().toUpperCase()).append(";")
+               .append(record.status().getValue().toUpperCase()).append(";")
                .append(attachment).append("\n");
         }
 

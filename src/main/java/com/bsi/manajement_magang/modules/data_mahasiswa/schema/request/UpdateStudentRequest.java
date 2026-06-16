@@ -1,5 +1,8 @@
 package com.bsi.manajement_magang.modules.data_mahasiswa.schema.request;
 
+import com.bsi.manajement_magang.enums.Gender;
+import com.bsi.manajement_magang.enums.StatusPeriode;
+
 import java.time.LocalDate;
 
 public record UpdateStudentRequest(
@@ -7,13 +10,13 @@ public record UpdateStudentRequest(
     String nim,
     String nama,
     String noHp,
-    String gender,
+    Gender gender,
     Long idUniversity,
     UpdatePeriodRequest periode
 ) {
     public record UpdatePeriodRequest(
         LocalDate tanggalMulai,
         LocalDate tanggalBerakhir,
-        String status //aktif, selesai, batal
+        StatusPeriode status //aktif, selesai, batal
     ) {}
 }

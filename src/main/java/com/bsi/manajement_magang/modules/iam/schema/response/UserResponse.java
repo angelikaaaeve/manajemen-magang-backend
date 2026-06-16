@@ -1,5 +1,7 @@
 package com.bsi.manajement_magang.modules.iam.schema.response;
 
+import com.bsi.manajement_magang.enums.Gender;
+
 import java.util.UUID;
 
 public record UserResponse(
@@ -9,6 +11,6 @@ public record UserResponse(
     String nim,
     String nama,
     String noHp,
-    String gender,
+    Gender gender,
     String universitas
 ) {}

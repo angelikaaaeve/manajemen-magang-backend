@@ -1,0 +1,455 @@
+﻿@startuml Manajemen_Magang_Class_Diagram
+
+skinparam classAttributeIconSize 0
+skinparam classFontSize 11
+skinparam classFontStyle bold
+skinparam classHeaderBackgroundColor #1a1f6e
+skinparam classHeaderFontColor #ffffff
+skinparam classBorderColor #2F578A
+skinparam classBackgroundColor #F8FAFC
+skinparam arrowColor #36ADA3
+skinparam arrowThickness 1.5
+skinparam packageBackgroundColor #EEF2FF
+skinparam packageBorderColor #2F578A
+skinparam packageFontColor #121358
+skinparam packageFontStyle bold
+skinparam noteBackgroundColor #FFFDE7
+skinparam noteBorderColor #F59E0B
+skinparam shadowing false
+skinparam roundCorner 10
+hide empty members
+
+' ═══════════════════════════════════════════════════════════
+'  PACKAGE: iam
+' ═══════════════════════════════════════════════════════════
+package "modules.iam" #EEF2FF {
+
+    enum Role {
+        admin
+        mahasiswa
+        mentor
+        --
+        + fromString(role: String) : Role
+    }
+
+    class UserEntity {
+        - id : UUID
+        - email : String
+        - password : String
+        - role : Role
+        - isActive : boolean
+        - createdAt : LocalDateTime
+        - updatedAt : LocalDateTime
+        --
+        + getId() : UUID
+        + getEmail() : String
+        + getRole() : Role
+        + isActive() : boolean
+    }
+
+    class MahasiswaEntity {
+        - id : UUID
+        - userId : UUID
+        - nim : String
+        - nama : String
+        - noHp : String
+        - gender : String
+        - idUniversity : Long
+        - universitas : String <<transient>>
+        --
+        + getId() : UUID
+        + getUserId() : UUID
+        + getNim() : String
+        + getNama() : String
+        + getGender() : String
+        + getIdUniversity() : Long
+    }
+
+    class MentorEntity {
+        - id : UUID
+        - userId : UUID
+        - nama : String
+        --
+        + getId() : UUID
+        + getUserId() : UUID
+        + getNama() : String
+    }
+
+    class LoginRequest <<record>> {
+        + email : String
+        + password : String
+    }
+
+    class RegisterRequest <<record>> {
+        + email : String
+        + password : String
+        + role : String
+        + nim : String
+        + nama : String
+        + noHp : String
+        + gender : String
+        + universitas : String
+        + secretKey : String
+    }
+
+    class UpdateUserRequest <<record>> {
+        + nama : String
+        + noHp : String
+    }
+
+    class LoginResponse <<record>> {
+        + accessToken : String
+    }
+
+    class UserResponse <<record>> {
+        + id : UUID
+        + email : String
+        + role : String
+        + nim : String
+        + nama : String
+        + noHp : String
+        + gender : String
+        + universitas : String
+    }
+
+    interface IamService <<interface>> {
+        + register(req: RegisterRequest, clientIp: String) : UserResponse
+        + login(req: LoginRequest) : LoginResponse
+        + getMe(userId: UUID) : UserResponse
+        + update(userId: UUID, req: UpdateUserRequest) : UserResponse
+    }
+
+    class IamController {
+        - iamService : IamService
+        --
+        + register(req: RegisterRequest, request: HttpServletRequest) : ResponseEntity<UserResponse>
+        + login(req: LoginRequest, response: HttpServletResponse) : ResponseEntity<LoginResponse>
+        + logout(response: HttpServletResponse) : ResponseEntity<Void>
+        + me() : ResponseEntity<UserResponse>
+        + update(req: UpdateUserRequest) : ResponseEntity<UserResponse>
+    }
+
+    UserEntity --> Role
+    IamController --> IamService
+    IamService ..> LoginRequest : uses
+    IamService ..> RegisterRequest : uses
+    IamService ..> UpdateUserRequest : uses
+    IamService ..> LoginResponse : returns
+    IamService ..> UserResponse : returns
+    UserEntity "1" --> "0..1" MahasiswaEntity : memiliki
+    UserEntity "1" --> "0..1" MentorEntity    : memiliki
+}
+
+' ═══════════════════════════════════════════════════════════
+'  PACKAGE: universitas
+' ═══════════════════════════════════════════════════════════
+package "modules.universitas" #EEF2FF {
+
+    class UniversitasRequest <<record>> {
+        + nameUniversity : String
+    }
+
+    class UniversitasResponse <<record>> {
+        + id : Long
+        + nameUniversity : String
+        + createdAt : LocalDateTime
+    }
+
+    interface UniversitasService <<interface>> {
+        + addUniversitas(req: UniversitasRequest) : UniversitasResponse
+        + editUniversitas(id: Long, req: UniversitasRequest) : UniversitasResponse
+        + listUniversitas() : List<UniversitasResponse>
+        + deleteUniversitas(id: Long) : void
+    }
+
+    UniversitasService ..> UniversitasRequest : uses
+    UniversitasService ..> UniversitasResponse : returns
+}
+
+' ═══════════════════════════════════════════════════════════
+'  PACKAGE: data_mahasiswa
+' ═══════════════════════════════════════════════════════════
+package "modules.data_mahasiswa" #EEF2FF {
+
+    class StudentRequest <<record>> {
+        + email : String
+        + password : String
+        + nim : String
+        + nama : String
+        + noHp : String
+        + gender : String
+        + idUniversity : Long
+        + tanggalMulai : LocalDate
+        + tanggalBerakhir : LocalDate
+        + periodeStatus : String
+    }
+
+    class UpdateStudentRequest <<record>> {
+        + nim : String
+        + nama : String
+        + noHp : String
+        + gender : String
+        + idUniversity : Long
+    }
+
+    class StudentResponse <<record>> {
+        + id : UUID
+        + userId : UUID
+        + email : String
+        + nim : String
+        + nama : String
+        + noHp : String
+        + gender : String
+        + idUniversity : Long
+        + universitas : String
+        + periodeId : UUID
+        + tanggalMulai : LocalDate
+        + tanggalBerakhir : LocalDate
+        + statusPeriode : String
+        + mentorId : UUID
+        + namaMentor : String
+    }
+
+    class StudentStatResponse <<record>> {
+        + totalMahasiswa : Long
+        + totalAktif : Long
+        + totalSelesai : Long
+    }
+
+    interface DataMahasiswaService <<interface>> {
+        + addStudent(req: StudentRequest) : StudentResponse
+        + editStudent(id: UUID, req: UpdateStudentRequest) : StudentResponse
+        + listStudents(gender: String, universitas: String, status: String) : List<StudentResponse>
+        + getStudentDetail(id: UUID) : StudentResponse
+        + getStudentStatistics(gender: String, universitas: String) : StudentStatResponse
+        + getSisaWaktuMagang(userId: UUID) : Long
+    }
+
+    DataMahasiswaService ..> StudentRequest : uses
+    DataMahasiswaService ..> UpdateStudentRequest : uses
+    DataMahasiswaService ..> StudentResponse : returns
+    DataMahasiswaService ..> StudentStatResponse : returns
+}
+
+' ═══════════════════════════════════════════════════════════
+'  PACKAGE: data_absensi
+' ═══════════════════════════════════════════════════════════
+package "modules.data_absensi" #EEF2FF {
+
+    class SubmitAbsensiRequest <<record>> {
+        + status : String
+        + keterangan : String
+    }
+
+    class AbsensiResponse <<record>> {
+        + id : UUID
+        + periodeMagangId : UUID
+        + mahasiswaId : UUID
+        + nim : String
+        + namaMahasiswa : String
+        + tanggal : LocalDate
+        + status : String
+        + attachmentUrl : String
+    }
+
+    class AbsensiStatResponse <<record>> {
+        + totalHadir : Long
+        + totalIzin : Long
+        + totalSakit : Long
+    }
+
+    class AbsensiMahasiswaStatResponse <<record>> {
+        + totalHadir : Long
+        + totalIzin : Long
+        + totalSakit : Long
+        + totalAlfa : Long
+    }
+
+    interface DataAbsensiService <<interface>> {
+        + listAbsensi(status: String, namaMahasiswa: String) : List<AbsensiResponse>
+        + deleteAbsensi(id: UUID) : void
+        + getAbsensiStatistics(namaMahasiswa: String) : AbsensiStatResponse
+        + getAttachmentUrl(id: UUID) : String
+        + exportRekapAbsensi(status: String, namaMahasiswa: String) : String
+        + submitAbsensi(userId: UUID, status: String, keterangan: String, file: MultipartFile) : AbsensiResponse
+        + getRiwayatAbsensi(userId: UUID) : List<AbsensiResponse>
+        + getMahasiswaStat(userId: UUID) : AbsensiMahasiswaStatResponse
+        + getTotalKehadiran(userId: UUID) : Long
+    }
+
+    DataAbsensiService ..> SubmitAbsensiRequest : uses
+    DataAbsensiService ..> AbsensiResponse : returns
+    DataAbsensiService ..> AbsensiStatResponse : returns
+    DataAbsensiService ..> AbsensiMahasiswaStatResponse : returns
+}
+
+' ═══════════════════════════════════════════════════════════
+'  PACKAGE: data_kegiatan
+' ═══════════════════════════════════════════════════════════
+package "modules.data_kegiatan" #EEF2FF {
+
+    class ActivityResponse <<record>> {
+        + id : UUID
+        + periodeMagangId : UUID
+        + judul : String
+        + deskripsi : String
+        + waktu : OffsetDateTime
+        + status : String
+        + fileUrl : String
+    }
+
+    class ActivityStatResponse <<record>> {
+        + totalKegiatan : Long
+        + totalDisetujui : Long
+        + totalDitolak : Long
+    }
+
+    interface DataKegiatanService <<interface>> {
+        + listActivities(status: String, namaMahasiswa: String) : List<ActivityResponse>
+        + updateStatus(id: UUID, status: String) : ActivityResponse
+        + deleteActivity(id: UUID) : void
+        + getActivityStatistics(status: String, namaMahasiswa: String) : ActivityStatResponse
+        + getActivityFileUrl(id: UUID) : String
+    }
+
+    DataKegiatanService ..> ActivityResponse : returns
+    DataKegiatanService ..> ActivityStatResponse : returns
+}
+
+' ═══════════════════════════════════════════════════════════
+'  PACKAGE: penilaian
+' ═══════════════════════════════════════════════════════════
+package "modules.penilaian" #EEF2FF {
+
+    class PenilaianRequest <<record>> {
+        + periodeMagangId : UUID
+        + mentorId : UUID
+        + kinerja : BigDecimal
+        + kedisiplinan : BigDecimal
+        + tanggungJawab : BigDecimal
+        + komunikasi : BigDecimal
+        + sikap : BigDecimal
+        + kerapihan : BigDecimal
+        + absensi : BigDecimal
+        + kerjasama : BigDecimal
+        + catatan : String
+    }
+
+    class PenilaianResponse <<record>> {
+        + id : UUID
+        + periodeMagangId : UUID
+        + mentorId : UUID
+        + nilaiTotal : BigDecimal
+        + catatan : String
+        + createdAt : LocalDateTime
+    }
+
+    class PenilaianStatResponse <<record>> {
+        + totalPenilaian : Long
+        + rataRataNilai : BigDecimal
+    }
+
+    interface PenilaianService <<interface>> {
+        + listPenilaian(status: String, namaMahasiswa: String) : List<PenilaianResponse>
+        + editPenilaian(req: PenilaianRequest) : PenilaianResponse
+        + getPenilaianStatistics(namaMahasiswa: String) : PenilaianStatResponse
+    }
+
+    PenilaianService ..> PenilaianRequest : uses
+    PenilaianService ..> PenilaianResponse : returns
+    PenilaianService ..> PenilaianStatResponse : returns
+}
+
+' ═══════════════════════════════════════════════════════════
+'  PACKAGE: sertifikat
+' ═══════════════════════════════════════════════════════════
+package "modules.sertifikat" #EEF2FF {
+
+    class SertifikatRequest <<record>> {
+        + periodeMagangId : UUID
+        + url : String
+    }
+
+    class SertifikatResponse <<record>> {
+        + id : UUID
+        + periodeMagangId : UUID
+        + url : String
+        + createdAt : LocalDateTime
+    }
+
+    class SertifikatStatResponse <<record>> {
+        + totalSertifikat : Long
+    }
+
+    interface SertifikatService <<interface>> {
+        + listSertifikat(status: String, namaMahasiswa: String) : List<SertifikatResponse>
+        + uploadSertifikat(req: SertifikatRequest) : SertifikatResponse
+        + getSertifikatStatistics(namaMahasiswa: String) : SertifikatStatResponse
+    }
+
+    SertifikatService ..> SertifikatRequest : uses
+    SertifikatService ..> SertifikatResponse : returns
+    SertifikatService ..> SertifikatStatResponse : returns
+}
+
+' ═══════════════════════════════════════════════════════════
+'  PACKAGE: surat_keterangan
+' ═══════════════════════════════════════════════════════════
+package "modules.surat_keterangan" #EEF2FF {
+
+    class SuratKeteranganRequest <<record>> {
+        + periodeMagangId : UUID
+        + url : String
+    }
+
+    class SuratKeteranganResponse <<record>> {
+        + id : UUID
+        + periodeMagangId : UUID
+        + url : String
+        + createdAt : LocalDateTime
+    }
+
+    class SuratKeteranganStatResponse <<record>> {
+        + totalSuratKeterangan : Long
+    }
+
+    interface SuratKeteranganService <<interface>> {
+        + listSuratKeterangan(status: String, namaMahasiswa: String) : List<SuratKeteranganResponse>
+        + uploadSuratKeterangan(req: SuratKeteranganRequest) : SuratKeteranganResponse
+        + getSuratKeteranganStatistics(namaMahasiswa: String) : SuratKeteranganStatResponse
+    }
+
+    SuratKeteranganService ..> SuratKeteranganRequest : uses
+    SuratKeteranganService ..> SuratKeteranganResponse : returns
+    SuratKeteranganService ..> SuratKeteranganStatResponse : returns
+}
+
+' ═══════════════════════════════════════════════════════════
+'  CROSS-PACKAGE RELATIONS
+' ═══════════════════════════════════════════════════════════
+MahasiswaEntity ..> UniversitasResponse   : references university
+StudentResponse ..> UniversitasResponse   : includes universitas
+DataMahasiswaService ..> DataAbsensiService    : scoped by periode
+PenilaianService ..> DataMahasiswaService  : scoped to mahasiswa
+SertifikatService ..> DataMahasiswaService : scoped to mahasiswa
+SuratKeteranganService ..> DataMahasiswaService : scoped to mahasiswa
+
+note as ERD_NOTE
+  <b>Entity Relationships (ERD — Database Level)</b>
+  ─────────────────────────────────────────────────
+  USER              1 ──── 1     MAHASISWA
+  USER              1 ──── 1     MENTOR
+  UNIVERSITY        1 ──── 0..*  MAHASISWA
+  MENTOR            1 ──── 0..*  MENTOR_MAHASISWA
+  MAHASISWA         1 ──── 1     MENTOR_MAHASISWA
+  MAHASISWA         1 ──── 0..*  PERIODE_MAGANG
+  PERIODE_MAGANG    1 ──── 0..*  ABSENSI
+  PERIODE_MAGANG    1 ──── 0..*  DATA_KEGIATAN
+  DATA_KEGIATAN     1 ──── 0..*  FILE_KEGIATAN
+  PERIODE_MAGANG    1 ──── 0..1  PENILAIAN
+  MENTOR            1 ──── 0..*  PENILAIAN
+  PERIODE_MAGANG    1 ──── 0..1  SURAT_KETERANGAN_MAGANG
+  PERIODE_MAGANG    1 ──── 0..1  SERTIFIKAT
+end note
+
+@enduml

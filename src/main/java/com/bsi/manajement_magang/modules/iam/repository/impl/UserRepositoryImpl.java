@@ -7,7 +7,6 @@ import com.bsi.manajement_magang.modules.iam.repository.mapper.UserRowMapper;
 import com.bsi.manajement_magang.modules.iam.schema.entity.MahasiswaEntity;
 import com.bsi.manajement_magang.modules.iam.schema.entity.MentorEntity;
 import com.bsi.manajement_magang.modules.iam.schema.entity.UserEntity;
-import com.bsi.manajement_magang.util.SqlLoader;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -29,7 +28,8 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public void saveUser(UserEntity user) {
-        String sql = SqlLoader.load("iam/insert_user.sql");
+        String sql = "INSERT INTO \"user\" (id, email, password, role, is_active, created_at, updated_at) " +
+                     "VALUES (:id, :email, :password, :role, :is_active, NOW(), NOW())";
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("id", user.getId())
                 .addValue("email", user.getEmail())
@@ -41,7 +41,8 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public void saveMahasiswa(MahasiswaEntity mahasiswa) {
-        String sql = SqlLoader.load("iam/insert_mahasiswa.sql");
+        String sql = "INSERT INTO mahasiswa (id, user_id, nim, nama, no_hp, gender, id_university) " +
+                     "VALUES (:id, :user_id, :nim, :nama, :no_hp, :gender, :id_university)";
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("id", mahasiswa.getId())
                 .addValue("user_id", mahasiswa.getUserId())
@@ -55,7 +56,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public void saveMentor(MentorEntity mentor) {
-        String sql = SqlLoader.load("iam/insert_mentor.sql");
+        String sql = "INSERT INTO mentor (id, user_id, nama) VALUES (:id, :user_id, :nama)";
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("id", mentor.getId())
                 .addValue("user_id", mentor.getUserId())
@@ -65,35 +66,39 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public Optional<UserEntity> findByEmail(String email) {
-        String sql = SqlLoader.load("iam/find_user_by_email.sql");
+        String sql = "SELECT id, email, password, role, is_active, created_at, updated_at " +
+                     "FROM \"user\" WHERE email = :email";
         MapSqlParameterSource params = new MapSqlParameterSource("email", email);
         return jdbc.query(sql, params, userRowMapper).stream().findFirst();
     }
 
     @Override
     public Optional<UserEntity> findById(UUID id) {
-        String sql = SqlLoader.load("iam/find_user_by_id.sql");
+        String sql = "SELECT id, email, password, role, is_active, created_at, updated_at " +
+                     "FROM \"user\" WHERE id = :id";
         MapSqlParameterSource params = new MapSqlParameterSource("id", id);
         return jdbc.query(sql, params, userRowMapper).stream().findFirst();
     }
 
     @Override
     public Optional<MahasiswaEntity> findMahasiswaByUserId(UUID userId) {
-        String sql = SqlLoader.load("iam/find_mahasiswa_by_user_id.sql");
+        String sql = "SELECT m.id, m.user_id, m.nim, m.nama, m.no_hp, m.gender, m.id_university, univ.name_university AS universitas " +
+                     "FROM mahasiswa m LEFT JOIN university univ ON m.id_university = univ.id " +
+                     "WHERE m.user_id = :userId";
         MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
         return jdbc.query(sql, params, mahasiswaRowMapper).stream().findFirst();
     }
 
     @Override
     public Optional<MentorEntity> findMentorByUserId(UUID userId) {
-        String sql = SqlLoader.load("iam/find_mentor_by_user_id.sql");
+        String sql = "SELECT id, user_id, nama FROM mentor WHERE user_id = :userId";
         MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
         return jdbc.query(sql, params, mentorRowMapper).stream().findFirst();
     }
 
     @Override
     public void updateUser(UserEntity user) {
-        String sql = SqlLoader.load("iam/update_user.sql");
+        String sql = "UPDATE \"user\" SET email = :email, updated_at = NOW() WHERE id = :id";
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("id", user.getId())
                 .addValue("email", user.getEmail());
@@ -102,7 +107,8 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public void updateMahasiswa(MahasiswaEntity mahasiswa) {
-        String sql = SqlLoader.load("iam/update_mahasiswa.sql");
+        String sql = "UPDATE mahasiswa SET nim = :nim, nama = :nama, no_hp = :noHp, gender = :gender, id_university = :id_university " +
+                     "WHERE user_id = :userId";
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("userId", mahasiswa.getUserId())
                 .addValue("nim", mahasiswa.getNim())
@@ -115,7 +121,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public void updateMentor(MentorEntity mentor) {
-        String sql = SqlLoader.load("iam/update_mentor.sql");
+        String sql = "UPDATE mentor SET nama = :nama WHERE user_id = :userId";
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("userId", mentor.getUserId())
                 .addValue("nama", mentor.getNama());

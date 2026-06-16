@@ -1,5 +1,8 @@
 package com.bsi.manajement_magang.modules.dashboard_mentor.repository;
 
+import com.bsi.manajement_magang.enums.Gender;
+import com.bsi.manajement_magang.enums.StatusPeriode;
+
 import com.bsi.manajement_magang.modules.dashboard_mentor.schema.response.SearchStudentResponse;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -217,12 +220,12 @@ public class DashboardMentorRepository {
             rs.getString("nim"),
             rs.getString("nama"),
             rs.getString("no_hp"),
-            rs.getString("gender"),
+            rs.getString("gender") != null ? Gender.fromString(rs.getString("gender")) : null,
             rs.getString("universitas"),
             rs.getString("periode_id") != null ? UUID.fromString(rs.getString("periode_id")) : null,
             rs.getDate("tanggal_mulai") != null ? rs.getDate("tanggal_mulai").toLocalDate() : null,
             rs.getDate("tanggal_berakhir") != null ? rs.getDate("tanggal_berakhir").toLocalDate() : null,
-            rs.getString("status_periode")
+            rs.getString("status_periode") != null ? StatusPeriode.fromString(rs.getString("status_periode")) : null
         )).stream().findFirst();
     }
 }

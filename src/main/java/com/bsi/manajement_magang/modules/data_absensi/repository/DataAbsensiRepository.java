@@ -1,5 +1,7 @@
 package com.bsi.manajement_magang.modules.data_absensi.repository;
 
+import com.bsi.manajement_magang.enums.StatusAbsensi;
+
 import com.bsi.manajement_magang.modules.data_absensi.schema.response.AbsensiMahasiswaStatResponse;
 import com.bsi.manajement_magang.modules.data_absensi.schema.response.AbsensiResponse;
 import com.bsi.manajement_magang.modules.data_absensi.schema.response.AbsensiStatResponse;
@@ -257,7 +259,7 @@ public class DataAbsensiRepository {
             nim,
             namaMahasiswa,
             tanggal,
-            rs.getString("status"),
+            rs.getString("status") != null ? StatusAbsensi.fromString(rs.getString("status")) : null,
             rs.getString("attachment_url")
         );
     }

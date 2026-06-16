@@ -30,12 +30,22 @@ public class PenilaianServiceImpl implements PenilaianService {
     @Override
     @Transactional
     public PenilaianResponse editPenilaian(PenilaianRequest req) {
+        UUID actualMentorId;
+        // Check if the provided ID is already a valid mentor ID (from existing assessment)
+        if (repository.existsMentor(req.mentorId())) {
+            actualMentorId = req.mentorId();
+        } else {
+            // Otherwise, it might be a user_id from the frontend JWT session, so we map it
+            actualMentorId = repository.findMentorIdByUserId(req.mentorId())
+                .orElseThrow(() -> new IllegalArgumentException("Mentor not found for user ID '" + req.mentorId() + "'"));
+        }
+
         // Validate existence of relational entities
         if (!repository.existsPeriod(req.periodeMagangId())) {
             throw new IllegalArgumentException("Periode Magang with ID '" + req.periodeMagangId() + "' was not found");
         }
-        if (!repository.existsMentor(req.mentorId())) {
-            throw new IllegalArgumentException("Mentor with ID '" + req.mentorId() + "' was not found");
+        if (!repository.existsMentor(actualMentorId)) {
+            throw new IllegalArgumentException("Mentor with ID '" + actualMentorId + "' was not found");
         }
 
         // Check if an assessment already exists for the given period
@@ -44,11 +54,11 @@ public class PenilaianServiceImpl implements PenilaianService {
         if (existingPenilaian.isPresent() && existingPenilaian.get().id() != null) {
             // Update existing assessment
             UUID penilaianId = existingPenilaian.get().id();
-            repository.update(penilaianId, req);
+            repository.update(penilaianId, actualMentorId, req);
         } else {
             // Create a new assessment
             UUID newPenilaianId = UUID.randomUUID();
-            repository.save(newPenilaianId, req);
+            repository.save(newPenilaianId, actualMentorId, req);
         }
 
         return repository.findByPeriodeMagangId(req.periodeMagangId())

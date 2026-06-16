@@ -1,5 +1,7 @@
 package com.bsi.manajement_magang.modules.data_absensi.schema.response;
 
+import com.bsi.manajement_magang.enums.StatusAbsensi;
+
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -11,6 +13,6 @@ public record AbsensiResponse(
     String nim,
     String namaMahasiswa,
     LocalDate tanggal,
-    String status,
+    StatusAbsensi status,
     String attachmentUrl
 ) {}

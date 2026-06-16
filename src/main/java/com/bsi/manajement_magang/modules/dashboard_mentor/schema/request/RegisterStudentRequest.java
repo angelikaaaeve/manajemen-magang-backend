@@ -1,5 +1,7 @@
 package com.bsi.manajement_magang.modules.dashboard_mentor.schema.request;
 
+import com.bsi.manajement_magang.enums.Gender;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -23,7 +25,7 @@ public record RegisterStudentRequest(
 
     @NotBlank(message = "Gender is required")
     @Pattern(regexp = "Laki-laki|Perempuan", message = "Gender must be 'Laki-laki' or 'Perempuan'")
-    String gender,
+    Gender gender,
 
     @NotBlank(message = "Universitas is required")
     String universitas,

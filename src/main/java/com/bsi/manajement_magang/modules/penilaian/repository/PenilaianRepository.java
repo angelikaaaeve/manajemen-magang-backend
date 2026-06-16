@@ -89,7 +89,7 @@ public class PenilaianRepository {
     }
 
     // Save/Insert new assessment (nilai_total is generated automatically by PostgreSQL!)
-    public void save(UUID id, PenilaianRequest req) {
+    public void save(UUID id, UUID actualMentorId, PenilaianRequest req) {
         String sql = "INSERT INTO penilaian (id, periode_magang_id, mentor_id, kinerja, kedisiplinan, " +
                      "                      tanggung_jawab, komunikasi, sikap, kerapihan, absensi, kerjasama, catatan, created_at) " +
                      "VALUES (:id, :periodeMagangId, :mentorId, :kinerja, :kedisiplinan, " +
@@ -98,7 +98,7 @@ public class PenilaianRepository {
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("id", id)
                 .addValue("periodeMagangId", req.periodeMagangId())
-                .addValue("mentorId", req.mentorId())
+                .addValue("mentorId", actualMentorId)
                 .addValue("kinerja", req.kinerja())
                 .addValue("kedisiplinan", req.kedisiplinan())
                 .addValue("tanggungJawab", req.tanggungJawab())
@@ -113,7 +113,7 @@ public class PenilaianRepository {
     }
 
     // Update existing assessment
-    public void update(UUID id, PenilaianRequest req) {
+    public void update(UUID id, UUID actualMentorId, PenilaianRequest req) {
         String sql = "UPDATE penilaian " +
                      "SET mentor_id = :mentorId, kinerja = :kinerja, kedisiplinan = :kedisiplinan, " +
                      "    tanggung_jawab = :tanggungJawab, komunikasi = :komunikasi, sikap = :sikap, " +
@@ -122,7 +122,7 @@ public class PenilaianRepository {
 
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("id", id)
-                .addValue("mentorId", req.mentorId())
+                .addValue("mentorId", actualMentorId)
                 .addValue("kinerja", req.kinerja())
                 .addValue("kedisiplinan", req.kedisiplinan())
                 .addValue("tanggungJawab", req.tanggungJawab())
@@ -190,6 +190,17 @@ public class PenilaianRepository {
         MapSqlParameterSource params = new MapSqlParameterSource("mentorId", mentorId);
         Integer count = jdbc.queryForObject(sql, params, Integer.class);
         return count != null && count > 0;
+    }
+
+    // Get mentor id by user id
+    public Optional<UUID> findMentorIdByUserId(UUID userId) {
+        String sql = "SELECT id FROM mentor WHERE user_id = :userId LIMIT 1";
+        MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
+        List<UUID> results = jdbc.queryForList(sql, params, UUID.class);
+        if (!results.isEmpty()) {
+            return Optional.of(results.get(0));
+        }
+        return Optional.empty();
     }
 
     // Row mapper helper

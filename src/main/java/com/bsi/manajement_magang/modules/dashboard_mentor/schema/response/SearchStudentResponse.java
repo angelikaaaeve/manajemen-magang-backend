@@ -1,5 +1,8 @@
 package com.bsi.manajement_magang.modules.dashboard_mentor.schema.response;
 
+import com.bsi.manajement_magang.enums.Gender;
+import com.bsi.manajement_magang.enums.StatusPeriode;
+
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -10,10 +13,10 @@ public record SearchStudentResponse(
     String nim,
     String nama,
     String noHp,
-    String gender,
+    Gender gender,
     String universitas,
     UUID periodeId,
     LocalDate tanggalMulai,
     LocalDate tanggalBerakhir,
-    String statusPeriode
+    StatusPeriode statusPeriode
 ) {}
