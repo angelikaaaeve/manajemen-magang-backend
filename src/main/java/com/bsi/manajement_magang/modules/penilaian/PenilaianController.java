@@ -21,10 +21,12 @@ public class PenilaianController {
     }
 
     @GetMapping
-    public ResponseEntity<APIResponse<List<PenilaianResponse>>> listPenilaian(
+    public ResponseEntity<com.bsi.manajement_magang.shared.PaginatedResponse<PenilaianResponse>> listPenilaian(
             @RequestParam(required = false) String status,
-            @RequestParam(required = false) String namaMahasiswa) {
-        return ResponseEntity.ok(APIResponse.success(penilaianService.listPenilaian(status, namaMahasiswa)));
+            @RequestParam(required = false) String namaMahasiswa,
+            @RequestParam(defaultValue = "1") int index,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(penilaianService.listPenilaian(status, namaMahasiswa, index, size));
     }
 
     @PostMapping

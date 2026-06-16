@@ -21,10 +21,12 @@ public class DataKegiatanController {
     }
 
     @GetMapping
-    public ResponseEntity<APIResponse<List<ActivityResponse>>> listActivities(
+    public ResponseEntity<com.bsi.manajement_magang.shared.PaginatedResponse<ActivityResponse>> listActivities(
             @RequestParam(required = false) String status,
-            @RequestParam(required = false) String namaMahasiswa) {
-        return ResponseEntity.ok(APIResponse.success(dataKegiatanService.listActivities(status, namaMahasiswa)));
+            @RequestParam(required = false) String namaMahasiswa,
+            @RequestParam(defaultValue = "1") int index,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(dataKegiatanService.listActivities(status, namaMahasiswa, index, size));
     }
 
     @PutMapping("/{id}/status")

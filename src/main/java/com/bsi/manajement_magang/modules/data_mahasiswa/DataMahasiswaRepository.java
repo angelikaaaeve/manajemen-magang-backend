@@ -161,8 +161,7 @@ public class DataMahasiswaRepository {
         jdbc.update(sql, params);
     }
 
-    // Read list of students with filters
-    public List<StudentResponse> listStudents(String gender, String universitas, String status) {
+    public List<StudentResponse> listStudents(String gender, String universitas, String status, int limit, int offset) {
         StringBuilder sql = new StringBuilder(
             "SELECT m.id, m.user_id, u.email, m.nim, m.nama, m.no_hp, m.gender, " +
             "       m.id_university, univ.name_university AS universitas, " +
@@ -202,9 +201,52 @@ public class DataMahasiswaRepository {
             }
         }
 
-        sql.append("ORDER BY m.nama ASC");
+        sql.append("ORDER BY m.nama ASC LIMIT :limit OFFSET :offset");
+        params.addValue("limit", limit);
+        params.addValue("offset", offset);
 
         return jdbc.query(sql.toString(), params, this::mapStudentResponse);
+    }
+
+    public long countStudents(String gender, String universitas, String status) {
+        StringBuilder sql = new StringBuilder(
+            "SELECT COUNT(1) " +
+            "FROM mahasiswa m " +
+            "JOIN \"user\" u ON m.user_id = u.id " +
+            "LEFT JOIN university univ ON m.id_university = univ.id " +
+            "LEFT JOIN ( " +
+            "    SELECT DISTINCT ON (mahasiswa_id) id, mahasiswa_id, tanggal_mulai, tanggal_berakhir, status " +
+            "    FROM periode_magang " +
+            "    ORDER BY mahasiswa_id, created_at DESC " +
+            ") pm ON m.id = pm.mahasiswa_id " +
+            "LEFT JOIN mentor_mahasiswa mm ON m.id = mm.mahasiswa_id " +
+            "LEFT JOIN mentor men ON mm.mentor_id = men.id " +
+            "WHERE 1=1 "
+        );
+
+        MapSqlParameterSource params = new MapSqlParameterSource();
+
+        if (gender != null && !gender.trim().isEmpty()) {
+            sql.append("AND m.gender = :gender ");
+            params.addValue("gender", gender);
+        }
+
+        if (universitas != null && !universitas.trim().isEmpty()) {
+            sql.append("AND LOWER(univ.name_university) = LOWER(:universitas) ");
+            params.addValue("universitas", universitas);
+        }
+
+        if (status != null && !status.trim().isEmpty()) {
+            if (status.equalsIgnoreCase("Belum Penempatan")) {
+                sql.append("AND pm.status IS NULL ");
+            } else {
+                sql.append("AND pm.status = :status ");
+                params.addValue("status", status.toLowerCase());
+            }
+        }
+
+        Long count = jdbc.queryForObject(sql.toString(), params, Long.class);
+        return count != null ? count : 0L;
     }
 
     // Detail student profile

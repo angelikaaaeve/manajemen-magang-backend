@@ -21,10 +21,12 @@ public class SuratKeteranganController {
     }
 
     @GetMapping
-    public ResponseEntity<APIResponse<List<SuratKeteranganResponse>>> listSuratKeterangan(
+    public ResponseEntity<com.bsi.manajement_magang.shared.PaginatedResponse<SuratKeteranganResponse>> listSuratKeterangan(
             @RequestParam(required = false) String status,
-            @RequestParam(required = false) String namaMahasiswa) {
-        return ResponseEntity.ok(APIResponse.success(suratKeteranganService.listSuratKeterangan(status, namaMahasiswa)));
+            @RequestParam(required = false) String namaMahasiswa,
+            @RequestParam(defaultValue = "1") int index,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(suratKeteranganService.listSuratKeterangan(status, namaMahasiswa, index, size));
     }
 
     @PostMapping

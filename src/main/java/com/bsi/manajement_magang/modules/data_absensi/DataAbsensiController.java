@@ -58,10 +58,12 @@ public class DataAbsensiController {
     }
 
     @GetMapping
-    public ResponseEntity<APIResponse<List<AbsensiResponse>>> listAbsensi(
+    public ResponseEntity<com.bsi.manajement_magang.shared.PaginatedResponse<AbsensiResponse>> listAbsensi(
             @RequestParam(required = false) String status,
-            @RequestParam(required = false) String namaMahasiswa) {
-        return ResponseEntity.ok(APIResponse.success(dataAbsensiService.listAbsensi(status, namaMahasiswa)));
+            @RequestParam(required = false) String namaMahasiswa,
+            @RequestParam(defaultValue = "1") int index,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(dataAbsensiService.listAbsensi(status, namaMahasiswa, index, size));
     }
 
     @DeleteMapping("/{id}")
@@ -105,8 +107,11 @@ public class DataAbsensiController {
     }
 
     @GetMapping("/mahasiswa/riwayat")
-    public ResponseEntity<APIResponse<List<AbsensiResponse>>> getRiwayatAbsensi(@RequestParam UUID userId) {
-        return ResponseEntity.ok(APIResponse.success(dataAbsensiService.getRiwayatAbsensi(userId)));
+    public ResponseEntity<com.bsi.manajement_magang.shared.PaginatedResponse<AbsensiResponse>> getRiwayatAbsensi(
+            @RequestParam UUID userId,
+            @RequestParam(defaultValue = "1") int index,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(dataAbsensiService.getRiwayatAbsensi(userId, index, size));
     }
 
     @GetMapping("/mahasiswa/statistik")

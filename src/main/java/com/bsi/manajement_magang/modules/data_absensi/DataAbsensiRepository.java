@@ -24,7 +24,7 @@ public class DataAbsensiRepository {
     }
 
     // List all attendance records with filters
-    public List<AbsensiResponse> listAbsensi(String status, String namaMahasiswa) {
+    public List<AbsensiResponse> listAbsensi(String status, String namaMahasiswa, int limit, int offset) {
         StringBuilder sql = new StringBuilder(
             "SELECT a.id, a.periode_magang_id, pm.mahasiswa_id, m.nim, m.nama as nama_mahasiswa, " +
             "       a.tanggal, a.status, a.attachment_url " +
@@ -46,9 +46,35 @@ public class DataAbsensiRepository {
             params.addValue("namaMahasiswa", "%" + namaMahasiswa.trim() + "%");
         }
 
-        sql.append("ORDER BY a.tanggal DESC, m.nama ASC");
+        sql.append("ORDER BY a.tanggal DESC, m.nama ASC LIMIT :limit OFFSET :offset");
+        params.addValue("limit", limit);
+        params.addValue("offset", offset);
 
         return jdbc.query(sql.toString(), params, this::mapAbsensiResponse);
+    }
+
+    public long countAbsensi(String status, String namaMahasiswa) {
+        StringBuilder sql = new StringBuilder(
+            "SELECT COUNT(1) FROM absensi a " +
+            "JOIN periode_magang pm ON a.periode_magang_id = pm.id " +
+            "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
+            "WHERE 1=1 "
+        );
+
+        MapSqlParameterSource params = new MapSqlParameterSource();
+
+        if (status != null && !status.trim().isEmpty() && !status.equalsIgnoreCase("semua")) {
+            sql.append("AND a.status = :status ");
+            params.addValue("status", status.toLowerCase().trim());
+        }
+
+        if (namaMahasiswa != null && !namaMahasiswa.trim().isEmpty()) {
+            sql.append("AND m.nama ILIKE :namaMahasiswa ");
+            params.addValue("namaMahasiswa", "%" + namaMahasiswa.trim() + "%");
+        }
+
+        Long count = jdbc.queryForObject(sql.toString(), params, Long.class);
+        return count != null ? count : 0L;
     }
 
     // Find attendance record by ID
@@ -165,7 +191,7 @@ public class DataAbsensiRepository {
     /**
      * List riwayat absensi milik mahasiswa (berdasarkan user_id), urut terbaru.
      */
-    public List<AbsensiResponse> listAbsensiByUserId(UUID userId) {
+    public List<AbsensiResponse> listAbsensiByUserId(UUID userId, int limit, int offset) {
         String sql =
             "SELECT a.id, a.periode_magang_id, pm.mahasiswa_id, m.nim, m.nama as nama_mahasiswa, " +
             "       a.tanggal, a.status, a.attachment_url " +
@@ -174,9 +200,22 @@ public class DataAbsensiRepository {
             "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
             "WHERE m.user_id = :userId " +
             "ORDER BY a.tanggal DESC " +
-            "LIMIT 30";
-        MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
+            "LIMIT :limit OFFSET :offset";
+        MapSqlParameterSource params = new MapSqlParameterSource("userId", userId)
+            .addValue("limit", limit)
+            .addValue("offset", offset);
         return jdbc.query(sql, params, this::mapAbsensiResponse);
+    }
+
+    public long countAbsensiByUserId(UUID userId) {
+        String sql =
+            "SELECT COUNT(1) FROM absensi a " +
+            "JOIN periode_magang pm ON a.periode_magang_id = pm.id " +
+            "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
+            "WHERE m.user_id = :userId";
+        MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
+        Long count = jdbc.queryForObject(sql, params, Long.class);
+        return count != null ? count : 0L;
     }
 
     /**

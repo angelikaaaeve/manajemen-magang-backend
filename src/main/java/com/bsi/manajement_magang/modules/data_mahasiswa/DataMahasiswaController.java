@@ -39,11 +39,13 @@ public class DataMahasiswaController {
     }
 
     @GetMapping
-    public ResponseEntity<APIResponse<List<StudentResponse>>> listStudents(
+    public ResponseEntity<com.bsi.manajement_magang.shared.PaginatedResponse<StudentResponse>> listStudents(
             @RequestParam(required = false) String gender,
             @RequestParam(required = false) String universitas,
-            @RequestParam(required = false) String status) {
-        return ResponseEntity.ok(APIResponse.success(dataMahasiswaService.listStudents(gender, universitas, status)));
+            @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "1") int index,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(dataMahasiswaService.listStudents(gender, universitas, status, index, size));
     }
 
     @GetMapping("/statistik")

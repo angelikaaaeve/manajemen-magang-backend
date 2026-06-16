@@ -21,10 +21,12 @@ public class SertifikatController {
     }
 
     @GetMapping
-    public ResponseEntity<APIResponse<List<SertifikatResponse>>> listSertifikat(
+    public ResponseEntity<com.bsi.manajement_magang.shared.PaginatedResponse<SertifikatResponse>> listSertifikat(
             @RequestParam(required = false) String status,
-            @RequestParam(required = false) String namaMahasiswa) {
-        return ResponseEntity.ok(APIResponse.success(sertifikatService.listSertifikat(status, namaMahasiswa)));
+            @RequestParam(required = false) String namaMahasiswa,
+            @RequestParam(defaultValue = "1") int index,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(sertifikatService.listSertifikat(status, namaMahasiswa, index, size));
     }
 
     @PostMapping

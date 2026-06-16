@@ -22,7 +22,7 @@ public class DataKegiatanRepository {
     }
 
     // List all activities with filters
-    public List<ActivityResponse> listActivities(String status, String namaMahasiswa) {
+    public List<ActivityResponse> listActivities(String status, String namaMahasiswa, int limit, int offset) {
         StringBuilder sql = new StringBuilder(
             "SELECT dk.id, pm.mahasiswa_id, m.nama as nama_mahasiswa, dk.judul, dk.deskripsi, " +
             "       dk.waktu, fk.url as file_url, dk.status " +
@@ -49,9 +49,35 @@ public class DataKegiatanRepository {
             params.addValue("namaMahasiswa", "%" + namaMahasiswa.trim() + "%");
         }
 
-        sql.append("ORDER BY dk.waktu DESC, m.nama ASC");
+        sql.append("ORDER BY dk.waktu DESC, m.nama ASC LIMIT :limit OFFSET :offset");
+        params.addValue("limit", limit);
+        params.addValue("offset", offset);
 
         return jdbc.query(sql.toString(), params, this::mapActivityResponse);
+    }
+
+    public long countActivities(String status, String namaMahasiswa) {
+        StringBuilder sql = new StringBuilder(
+            "SELECT COUNT(1) FROM data_kegiatan dk " +
+            "JOIN periode_magang pm ON dk.periode_magang_id = pm.id " +
+            "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
+            "WHERE 1=1 "
+        );
+
+        MapSqlParameterSource params = new MapSqlParameterSource();
+
+        if (status != null && !status.trim().isEmpty()) {
+            sql.append("AND dk.status = :status ");
+            params.addValue("status", status.toLowerCase().trim());
+        }
+
+        if (namaMahasiswa != null && !namaMahasiswa.trim().isEmpty()) {
+            sql.append("AND m.nama ILIKE :namaMahasiswa ");
+            params.addValue("namaMahasiswa", "%" + namaMahasiswa.trim() + "%");
+        }
+
+        Long count = jdbc.queryForObject(sql.toString(), params, Long.class);
+        return count != null ? count : 0L;
     }
 
     // Find activity record by ID

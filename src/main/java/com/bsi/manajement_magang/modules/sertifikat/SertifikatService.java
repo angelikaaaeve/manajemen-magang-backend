@@ -21,8 +21,12 @@ public class SertifikatService {
         this.repository = repository;
     }
 
-    public List<SertifikatResponse> listSertifikat(String status, String namaMahasiswa) {
-        return repository.listSertifikat(status, namaMahasiswa);
+    public com.bsi.manajement_magang.shared.PaginatedResponse<SertifikatResponse> listSertifikat(String status, String namaMahasiswa, int index, int size) {
+        int limit = size;
+        int offset = (index - 1) * size;
+        List<SertifikatResponse> data = repository.listSertifikat(status, namaMahasiswa, limit, offset);
+        long total = repository.countSertifikat(status, namaMahasiswa);
+        return com.bsi.manajement_magang.shared.PaginatedResponse.success(data, total, index, size);
     }
 
     @Transactional

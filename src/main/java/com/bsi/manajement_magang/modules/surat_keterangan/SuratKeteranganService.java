@@ -21,8 +21,12 @@ public class SuratKeteranganService {
         this.repository = repository;
     }
 
-    public List<SuratKeteranganResponse> listSuratKeterangan(String status, String namaMahasiswa) {
-        return repository.listSuratKeterangan(status, namaMahasiswa);
+    public com.bsi.manajement_magang.shared.PaginatedResponse<SuratKeteranganResponse> listSuratKeterangan(String status, String namaMahasiswa, int index, int size) {
+        int limit = size;
+        int offset = (index - 1) * size;
+        List<SuratKeteranganResponse> data = repository.listSuratKeterangan(status, namaMahasiswa, limit, offset);
+        long total = repository.countSuratKeterangan(status, namaMahasiswa);
+        return com.bsi.manajement_magang.shared.PaginatedResponse.success(data, total, index, size);
     }
 
     @Transactional

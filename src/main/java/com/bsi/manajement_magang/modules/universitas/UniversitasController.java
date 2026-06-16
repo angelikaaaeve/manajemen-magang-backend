@@ -27,8 +27,11 @@ public class UniversitasController {
     }
 
     @GetMapping
-    public ResponseEntity<APIResponse<List<UniversitasResponse>>> listUniversitas() {
-        return ResponseEntity.ok(APIResponse.success(service.listUniversitas()));
+    public ResponseEntity<com.bsi.manajement_magang.shared.PaginatedResponse<UniversitasResponse>> listUniversitas(
+            @RequestParam(defaultValue = "1") int index,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity.ok(service.listUniversitas(index, size));
     }
 
     @PutMapping("/{id}")

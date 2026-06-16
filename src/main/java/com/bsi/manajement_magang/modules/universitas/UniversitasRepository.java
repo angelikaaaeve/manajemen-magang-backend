@@ -18,9 +18,17 @@ public class UniversitasRepository {
         this.jdbc = jdbc;
     }
 
-    public List<UniversitasResponse> findAll() {
-        String sql = "SELECT id, name_university, created_at FROM university ORDER BY name_university ASC";
-        return jdbc.query(sql, this::mapRow);
+    public List<UniversitasResponse> findAll(int limit, int offset) {
+        String sql = "SELECT id, name_university, created_at FROM university ORDER BY name_university ASC LIMIT :limit OFFSET :offset";
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("limit", limit)
+                .addValue("offset", offset);
+        return jdbc.query(sql, params, this::mapRow);
+    }
+
+    public long countAll() {
+        String sql = "SELECT COUNT(1) FROM university";
+        return jdbc.queryForObject(sql, new MapSqlParameterSource(), Long.class);
     }
 
     public Optional<UniversitasResponse> findById(Long id) {

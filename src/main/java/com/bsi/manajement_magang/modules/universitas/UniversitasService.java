@@ -46,8 +46,12 @@ public class UniversitasService {
                 .orElseThrow(() -> DomainException.internalError("Failed to retrieve updated university"));
     }
 
-    public List<UniversitasResponse> listUniversitas() {
-        return repository.findAll();
+    public com.bsi.manajement_magang.shared.PaginatedResponse<UniversitasResponse> listUniversitas(int index, int size) {
+        int limit = size;
+        int offset = (index - 1) * size;
+        List<UniversitasResponse> data = repository.findAll(limit, offset);
+        long total = repository.countAll();
+        return com.bsi.manajement_magang.shared.PaginatedResponse.success(data, total, index, size);
     }
 
     @Transactional

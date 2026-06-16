@@ -138,8 +138,12 @@ public class DataMahasiswaService {
                 .orElseThrow(() -> DomainException.internalError("Failed to retrieve updated student details"));
     }
 
-    public List<StudentResponse> listStudents(String gender, String universitas, String status) {
-        return repository.listStudents(gender, universitas, status);
+    public com.bsi.manajement_magang.shared.PaginatedResponse<StudentResponse> listStudents(String gender, String universitas, String status, int index, int size) {
+        int limit = size;
+        int offset = (index - 1) * size;
+        List<StudentResponse> data = repository.listStudents(gender, universitas, status, limit, offset);
+        long total = repository.countStudents(gender, universitas, status);
+        return com.bsi.manajement_magang.shared.PaginatedResponse.success(data, total, index, size);
     }
 
     public StudentResponse getStudentDetail(UUID id) {

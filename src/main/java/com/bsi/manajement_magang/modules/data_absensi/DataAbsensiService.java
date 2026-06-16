@@ -22,8 +22,12 @@ public class DataAbsensiService {
         this.repository = repository;
     }
 
-    public List<AbsensiResponse> listAbsensi(String status, String namaMahasiswa) {
-        return repository.listAbsensi(status, namaMahasiswa);
+    public com.bsi.manajement_magang.shared.PaginatedResponse<AbsensiResponse> listAbsensi(String status, String namaMahasiswa, int index, int size) {
+        int limit = size;
+        int offset = (index - 1) * size;
+        List<AbsensiResponse> data = repository.listAbsensi(status, namaMahasiswa, limit, offset);
+        long total = repository.countAbsensi(status, namaMahasiswa);
+        return com.bsi.manajement_magang.shared.PaginatedResponse.success(data, total, index, size);
     }
 
     @Transactional
@@ -49,7 +53,7 @@ public class DataAbsensiService {
     }
 
     public String exportRekapAbsensi(String status, String namaMahasiswa) {
-        List<AbsensiResponse> records = repository.listAbsensi(status, namaMahasiswa);
+        List<AbsensiResponse> records = repository.listAbsensi(status, namaMahasiswa, Integer.MAX_VALUE, 0);
 
         StringBuilder csv = new StringBuilder();
         csv.append('﻿');
@@ -94,8 +98,12 @@ public class DataAbsensiService {
                 .orElseThrow(() -> DomainException.internalError("Gagal mengambil record absensi setelah insert."));
     }
 
-    public List<AbsensiResponse> getRiwayatAbsensi(UUID userId) {
-        return repository.listAbsensiByUserId(userId);
+    public com.bsi.manajement_magang.shared.PaginatedResponse<AbsensiResponse> getRiwayatAbsensi(UUID userId, int index, int size) {
+        int limit = size;
+        int offset = (index - 1) * size;
+        List<AbsensiResponse> data = repository.listAbsensiByUserId(userId, limit, offset);
+        long total = repository.countAbsensiByUserId(userId);
+        return com.bsi.manajement_magang.shared.PaginatedResponse.success(data, total, index, size);
     }
 
     public AbsensiMahasiswaStatResponse getMahasiswaStat(UUID userId) {

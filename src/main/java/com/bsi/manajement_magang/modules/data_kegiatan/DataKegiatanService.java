@@ -19,8 +19,12 @@ public class DataKegiatanService {
         this.repository = repository;
     }
 
-    public List<ActivityResponse> listActivities(String status, String namaMahasiswa) {
-        return repository.listActivities(status, namaMahasiswa);
+    public com.bsi.manajement_magang.shared.PaginatedResponse<ActivityResponse> listActivities(String status, String namaMahasiswa, int index, int size) {
+        int limit = size;
+        int offset = (index - 1) * size;
+        List<ActivityResponse> data = repository.listActivities(status, namaMahasiswa, limit, offset);
+        long total = repository.countActivities(status, namaMahasiswa);
+        return com.bsi.manajement_magang.shared.PaginatedResponse.success(data, total, index, size);
     }
 
     @Transactional

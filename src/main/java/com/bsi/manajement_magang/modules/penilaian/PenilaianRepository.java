@@ -21,7 +21,7 @@ public class PenilaianRepository {
     }
 
     // List all students and their assessments with filters
-    public List<PenilaianResponse> listPenilaian(String status, String namaMahasiswa) {
+    public List<PenilaianResponse> listPenilaian(String status, String namaMahasiswa, int limit, int offset) {
         StringBuilder sql = new StringBuilder(
             "SELECT pm.id as periode_id, pm.mahasiswa_id, m.nim, m.nama as nama_mahasiswa, " +
             "       p.id as penilaian_id, p.mentor_id, men.nama as nama_mentor, " +
@@ -49,9 +49,38 @@ public class PenilaianRepository {
             params.addValue("namaMahasiswa", "%" + namaMahasiswa.trim() + "%");
         }
 
-        sql.append("ORDER BY m.nama ASC");
+        sql.append("ORDER BY m.nama ASC LIMIT :limit OFFSET :offset");
+        params.addValue("limit", limit);
+        params.addValue("offset", offset);
 
         return jdbc.query(sql.toString(), params, this::mapPenilaianResponse);
+    }
+
+    public long countPenilaian(String status, String namaMahasiswa) {
+        StringBuilder sql = new StringBuilder(
+            "SELECT COUNT(1) FROM periode_magang pm " +
+            "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
+            "LEFT JOIN penilaian p ON pm.id = p.periode_magang_id " +
+            "WHERE pm.status = 'aktif' "
+        );
+
+        MapSqlParameterSource params = new MapSqlParameterSource();
+
+        if (status != null && !status.trim().isEmpty() && !status.equalsIgnoreCase("semua status")) {
+            if (status.equalsIgnoreCase("sudah dinilai")) {
+                sql.append("AND p.id IS NOT NULL ");
+            } else if (status.equalsIgnoreCase("belum dinilai")) {
+                sql.append("AND p.id IS NULL ");
+            }
+        }
+
+        if (namaMahasiswa != null && !namaMahasiswa.trim().isEmpty()) {
+            sql.append("AND m.nama ILIKE :namaMahasiswa ");
+            params.addValue("namaMahasiswa", "%" + namaMahasiswa.trim() + "%");
+        }
+
+        Long count = jdbc.queryForObject(sql.toString(), params, Long.class);
+        return count != null ? count : 0L;
     }
 
     // Find assessment detail by ID
