@@ -1,29 +1,17 @@
-#mentor#
+# Daftar Fitur Modul Data Kegiatan
 
-# Query
-1. status:  ("disetujui", "belum disetujui". "ditolak") 
-2. nama mahasiswa: string
+## Mentor
+- Filter kegiatan berdasarkan status (Disetujui, Belum Disetujui, Ditolak).
+- Filter kegiatan berdasarkan nama mahasiswa.
+- Mengubah status kegiatan mahasiswa (Setujui / Tolak).
+- Menghapus data kegiatan mahasiswa tertentu.
+- Membaca daftar (list) kegiatan dengan kolom: Nama Mahasiswa, ID, Nama Kegiatan, Waktu, File Kegiatan, Aksi, Status.
+- Melihat file lampiran kegiatan yang diunggah mahasiswa.
+- Melihat statistik kegiatan dengan filter (Total Kegiatan, Total Disetujui, Total Ditolak).
 
-# Endpoint
-1. data-kegiatan
-a. mengubah "status" kegiatan ("disetujui", "belum disetujui". "ditolak") 
-b. menghapus kegiatan mahasiswa tertentu Qu
-c. membaca list kegiatan:
-    kolom: nama mahasiswa, id mahasiswa,Nama Kegiatan,	Waktu,File Kegiatan,AKSI,Status
-d. lihat file kegiatan (yang di upload mahasiswa)pada kolom "file kegiatan"
-d. statistikk kegiatan (support filter/query)
- - total kegiatan
- - Disetujui
- - Ditolak
-
-
-#mahasiswa#
-# Query
-1. status ("semua status", "sudah diunggah", "belum diunggah")
-2. nama kegiatan: string 
-
-# Endpoint 
-1. kegiatan
-a. catat/tambah kegiatan baru (mahasiswa bisa mencantumkan "nama kegiatan", "tanggal kegiatan", "waktu")
-b. unggah file tugas dikolom upload file (mahasiswa bisa mengupload file pdf dan image maX.10MB)
-c. fitur "hapus" di kolom aksi (mahasiswa bisa menghapus kegiatan yg sudah diupload)
+## Mahasiswa
+- Filter kegiatan pribadi berdasarkan status (Semua Status, Sudah Diunggah, Belum Diunggah).
+- Filter kegiatan berdasarkan pencarian nama kegiatan.
+- Menambah/mencatat kegiatan baru (Nama Kegiatan, Tanggal, Waktu).
+- Mengunggah file laporan/tugas (PDF/Image maks 10MB).
+- Menghapus log kegiatan yang sudah dicatat/diunggah.

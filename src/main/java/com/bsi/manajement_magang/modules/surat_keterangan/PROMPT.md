@@ -1,25 +1,16 @@
-#MENTOR#
+# Daftar Fitur Modul Surat Keterangan
 
-#Query
- 1. status:  ("semua status", "Sudah Diunggah". "belum diunggah") 
-2. nama mahasiswa: string
+## Mentor
+- Filter surat keterangan berdasarkan status (Sudah Diunggah, Belum Diunggah, Semua Status).
+- Filter surat berdasarkan pencarian nama mahasiswa.
+- Mengunggah file surat keterangan (selesai magang/rekomendasi) untuk mahasiswa.
+- Update status otomatis ("Sudah Diunggah" / "Belum Diunggah").
+- Melihat statistik surat keterangan dengan filter:
+  - Total Surat Diunggah.
+  - Total Surat Belum Diunggah.
+  - Total Keseluruhan Surat.
 
-# Endpoint
-1. surat keterangan
-a. mengunggah surat 
-b.jika sudah di upload(status berkas)
-statusnya akan menjadi "sudah diunggah"  
-c. jika belum di upload(status berkas)
-statusnya akan menjadi"belum diunggah"
-2.Statistik penilaian (support filter) 
-a. total surat keterangan diunggah
-b. total surat keteangan belum diunggah
-c. total jumlah surat keterangan 
-
-#MAHASISWA#
-
- # Endpoint
-1. Surat Keterangan 
-a. melihat/review (mahasiswa dapat melihat surat keterangan yg tertera) 
-b. unduh surat keterangan (mahasiswa dapat mengunduh surat keterangan yang telah di unggah oleh mentor)
-c. Spesifikasi Surat Keterangan (di dalam kolom ini mahasiswa dapat melihat "tanggal terbit", "format berkas" ) 
+## Mahasiswa
+- Melihat atau mereview surat keterangan yang sudah diterbitkan.
+- Mengunduh (download) file surat keterangan.
+- Melihat detail spesifikasi surat (Tanggal Terbit, Format Berkas).

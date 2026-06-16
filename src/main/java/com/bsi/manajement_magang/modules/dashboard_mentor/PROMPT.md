@@ -1,10 +1,9 @@
-1. #query
- a. nama mahasiswa (String)
+# Daftar Fitur Modul Dashboard Mentor
 
-2. Endpoint
- a. daftarkan mahasiswa baru
-3. statistik dashboard
- a.jumlah mahasiswa aktif
- b. jumlah mahasiswa selesai 
- c. Diagram Rekap Absensi
-(Akumulasi Presensi Keseluruhan Mahasiswa) yang terdiri dari (hadir, izin, sakit) 
+## Mentor
+- Filter berdasarkan nama mahasiswa.
+- Mendaftarkan mahasiswa baru.
+- Menampilkan statistik dashboard:
+  - Jumlah Mahasiswa Aktif.
+  - Jumlah Mahasiswa Selesai.
+- Menampilkan Diagram Rekap Absensi (akumulasi seluruh kehadiran mahasiswa yang mencakup Hadir, Izin, Sakit).
