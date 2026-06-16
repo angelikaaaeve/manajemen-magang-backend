@@ -5,9 +5,12 @@ import com.bsi.manajement_magang.modules.data_mahasiswa.schemas.request.UpdateSt
 import com.bsi.manajement_magang.modules.data_mahasiswa.schemas.response.StudentResponse;
 import com.bsi.manajement_magang.modules.data_mahasiswa.schemas.response.StudentStatResponse;
 import com.bsi.manajement_magang.modules.data_mahasiswa.DataMahasiswaService;
+import com.bsi.manajement_magang.shared.APIResponse;
+import com.bsi.manajement_magang.shared.DomainException;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,62 +25,47 @@ public class DataMahasiswaController {
         this.dataMahasiswaService = dataMahasiswaService;
     }
 
-    // 1. Tambah Mahasiswa
     @PostMapping
-    public ResponseEntity<StudentResponse> addStudent(@RequestBody @Valid StudentRequest req) {
-        StudentResponse response = dataMahasiswaService.addStudent(req);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    public ResponseEntity<APIResponse<StudentResponse>> addStudent(@RequestBody @Valid StudentRequest req) {
+        StudentResponse data = dataMahasiswaService.addStudent(req);
+        return ResponseEntity.status(HttpStatus.CREATED).body(APIResponse.success(data, "Student registered successfully"));
     }
 
-    // 2. Edit Mahasiswa (Data Mahasiswa & Periode)
     @PutMapping("/edit-by-mentor/{id}")
-    public ResponseEntity<StudentResponse> editStudent(
+    public ResponseEntity<APIResponse<StudentResponse>> editStudent(
             @PathVariable UUID id,
             @RequestBody @Valid UpdateStudentRequest req) {
-        StudentResponse response = dataMahasiswaService.editStudent(id, req);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(APIResponse.success(dataMahasiswaService.editStudent(id, req), "Student updated successfully"));
     }
 
-    // 3. Baca/List Mahasiswa (with filters)
     @GetMapping
-    public ResponseEntity<List<StudentResponse>> listStudents(
+    public ResponseEntity<APIResponse<List<StudentResponse>>> listStudents(
             @RequestParam(required = false) String gender,
             @RequestParam(required = false) String universitas,
             @RequestParam(required = false) String status) {
-        List<StudentResponse> response = dataMahasiswaService.listStudents(gender, universitas, status);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(APIResponse.success(dataMahasiswaService.listStudents(gender, universitas, status)));
     }
 
-    // 4. Statistik Mahasiswa (following filters)
     @GetMapping("/statistik")
-    public ResponseEntity<StudentStatResponse> getStudentStatistics(
+    public ResponseEntity<APIResponse<StudentStatResponse>> getStudentStatistics(
             @RequestParam(required = false) String gender,
             @RequestParam(required = false) String universitas) {
-        StudentStatResponse response = dataMahasiswaService.getStudentStatistics(gender, universitas);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(APIResponse.success(dataMahasiswaService.getStudentStatistics(gender, universitas)));
     }
 
-    // 5. Detail Mahasiswa (mahasiswa.id)
     @GetMapping("/{id}")
-    public ResponseEntity<StudentResponse> getStudentDetail(@PathVariable UUID id) {
-        StudentResponse response = dataMahasiswaService.getStudentDetail(id);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<APIResponse<StudentResponse>> getStudentDetail(@PathVariable UUID id) {
+        return ResponseEntity.ok(APIResponse.success(dataMahasiswaService.getStudentDetail(id)));
     }
 
-    // 6. Sisa Waktu Magang (berdasarkan sesi mahasiswa login)
     @GetMapping("/sisa-waktu-magang")
-    public ResponseEntity<Long> getSisaWaktuMagang() {
-        var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_MAHASISWA"))) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    public ResponseEntity<APIResponse<Long>> getSisaWaktuMagang() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getPrincipal() == null ||
+                auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_MAHASISWA"))) {
+            throw DomainException.unauthorized("Access restricted to mahasiswa");
         }
-
-        try {
-            UUID userId = (UUID) auth.getPrincipal();
-            Long sisaHari = dataMahasiswaService.getSisaWaktuMagang(userId);
-            return ResponseEntity.ok(sisaHari);
-        } catch (ClassCastException e) {
-            return ResponseEntity.ok(0L);
-        }
+        UUID userId = (UUID) auth.getPrincipal();
+        return ResponseEntity.ok(APIResponse.success(dataMahasiswaService.getSisaWaktuMagang(userId)));
     }
 }

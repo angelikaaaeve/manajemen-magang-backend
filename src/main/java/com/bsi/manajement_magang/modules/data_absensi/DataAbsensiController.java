@@ -5,10 +5,13 @@ import com.bsi.manajement_magang.modules.data_absensi.schemas.response.AbsensiMa
 import com.bsi.manajement_magang.modules.data_absensi.schemas.response.AbsensiResponse;
 import com.bsi.manajement_magang.modules.data_absensi.schemas.response.AbsensiStatResponse;
 import com.bsi.manajement_magang.modules.data_absensi.DataAbsensiService;
+import com.bsi.manajement_magang.shared.APIResponse;
+import com.bsi.manajement_magang.shared.DomainException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
@@ -25,78 +28,60 @@ public class DataAbsensiController {
         this.dataAbsensiService = dataAbsensiService;
     }
 
-    // return jumlah count(absensi) mahasiswa 
     @GetMapping("/total-kehadiran")
-    public ResponseEntity<Long> getTotalKehadiran() {
-        var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || auth.getPrincipal() == null || !auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_MAHASISWA"))) {
-            return ResponseEntity.ok(0L);
+    public ResponseEntity<APIResponse<Long>> getTotalKehadiran() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getPrincipal() == null ||
+                auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_MAHASISWA"))) {
+            throw DomainException.unauthorized("Access restricted to mahasiswa");
         }
-        try {
-            UUID userId = (UUID) auth.getPrincipal();
-            Long total = dataAbsensiService.getTotalKehadiran(userId);
-            return ResponseEntity.ok(total != null ? total : 0L);
-        } catch (Exception e) {
-            return ResponseEntity.ok(0L);
-        }
+        UUID userId = (UUID) auth.getPrincipal();
+        Long total = dataAbsensiService.getTotalKehadiran(userId);
+        return ResponseEntity.ok(APIResponse.success(total != null ? total : 0L));
     }
 
-    // Endpoint statistik harian kehadiran mahasiswa (mengambil data diri sendiri)
     @GetMapping("/statistik-kehadiran")
-    public ResponseEntity<Map<String, Long>> getStatistikKehadiran() {
-        var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
-        // Validasi harus ada session dan rolenya Mahasiswa
-        if (auth == null || auth.getPrincipal() == null || !auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_MAHASISWA"))) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    public ResponseEntity<APIResponse<Map<String, Long>>> getStatistikKehadiran() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getPrincipal() == null ||
+                auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_MAHASISWA"))) {
+            throw DomainException.unauthorized("Access restricted to mahasiswa");
         }
-        try {
-            UUID userId = (UUID) auth.getPrincipal(); // Ekstrak ID si peminta
-            AbsensiMahasiswaStatResponse stat = dataAbsensiService.getMahasiswaStat(userId);
-            
-            // Format response sesuai permintaan
-            Map<String, Long> response = Map.of(
+        UUID userId = (UUID) auth.getPrincipal();
+        AbsensiMahasiswaStatResponse stat = dataAbsensiService.getMahasiswaStat(userId);
+        Map<String, Long> data = Map.of(
                 "totalHadir", stat.totalHadir(),
                 "totalIzin", stat.totalIzin(),
                 "totalSakit", stat.totalSakit()
-            );
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        );
+        return ResponseEntity.ok(APIResponse.success(data));
     }
 
-    // 1. Baca / List Absensi Mahasiswa (with filters)
     @GetMapping
-    public ResponseEntity<List<AbsensiResponse>> listAbsensi(
+    public ResponseEntity<APIResponse<List<AbsensiResponse>>> listAbsensi(
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String namaMahasiswa) {
-        List<AbsensiResponse> response = dataAbsensiService.listAbsensi(status, namaMahasiswa);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(APIResponse.success(dataAbsensiService.listAbsensi(status, namaMahasiswa)));
     }
 
-    // 2. Hapus Absensi (DELETE /api/absensi/{id})
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAbsensi(@PathVariable UUID id) {
+    public ResponseEntity<APIResponse<Void>> deleteAbsensi(@PathVariable UUID id) {
         dataAbsensiService.deleteAbsensi(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(APIResponse.success(null, "Attendance record deleted successfully"));
     }
 
-    // 3. Statistik Absensi (following filters)
     @GetMapping("/statistik")
-    public ResponseEntity<AbsensiStatResponse> getAbsensiStatistics(
+    public ResponseEntity<APIResponse<AbsensiStatResponse>> getAbsensiStatistics(
             @RequestParam(required = false) String namaMahasiswa) {
-        AbsensiStatResponse response = dataAbsensiService.getAbsensiStatistics(namaMahasiswa);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(APIResponse.success(dataAbsensiService.getAbsensiStatistics(namaMahasiswa)));
     }
 
-    // 4. Lihat Surat Keterangan (Attachment URL)
     @GetMapping("/{id}/surat-keterangan")
-    public ResponseEntity<Map<String, String>> getSuratKeterangan(@PathVariable UUID id) {
+    public ResponseEntity<APIResponse<Map<String, String>>> getSuratKeterangan(@PathVariable UUID id) {
         String url = dataAbsensiService.getAttachmentUrl(id);
-        return ResponseEntity.ok(Map.of("url", url));
+        return ResponseEntity.ok(APIResponse.success(Map.of("url", url)));
     }
 
-    // 5. Ekspor Rekap Absensi to Excel CSV
     @GetMapping("/ekspor")
     public ResponseEntity<byte[]> exportAbsensi(
             @RequestParam(required = false) String status,
@@ -108,50 +93,24 @@ public class DataAbsensiController {
         headers.setContentType(new MediaType("text", "csv", StandardCharsets.UTF_8));
         headers.setContentDispositionFormData("attachment", "rekap-absensi.csv");
 
-        return ResponseEntity.ok()
-                .headers(headers)
-                .body(body);
+        return ResponseEntity.ok().headers(headers).body(body);
     }
 
-    // ================================================================
-    // MAHASISWA-SIDE ENDPOINTS
-    // ================================================================
-
-    /**
-     * [MAHASISWA] Submit absensi harian.
-     * - status : hadir | izin | sakit
-     * - keterangan : alasan (untuk izin & sakit)
-     * - attachmentUrl : key media dokumen pendukung (optional, hasil upload via /api/media/upload)
-     * userId dikirim sebagai query param (dari JWT di FE, atau dikirim langsung).
-     * POST /api/absensi/mahasiswa/submit?userId=...
-     */
     @PostMapping("/mahasiswa/submit")
-    public ResponseEntity<AbsensiResponse> submitAbsensi(
+    public ResponseEntity<APIResponse<AbsensiResponse>> submitAbsensi(
             @RequestParam UUID userId,
             @RequestBody SubmitAbsensiRequest req) {
-        AbsensiResponse response = dataAbsensiService.submitAbsensi(userId, req.status(), req.keterangan(), req.attachmentUrl());
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        AbsensiResponse data = dataAbsensiService.submitAbsensi(userId, req.status(), req.keterangan(), req.attachmentUrl());
+        return ResponseEntity.status(HttpStatus.CREATED).body(APIResponse.success(data, "Absensi submitted successfully"));
     }
 
-    /**
-     * [MAHASISWA] Riwayat absensi 30 hari terakhir milik mahasiswa.
-     * GET /api/absensi/mahasiswa/riwayat?userId=...
-     */
     @GetMapping("/mahasiswa/riwayat")
-    public ResponseEntity<List<AbsensiResponse>> getRiwayatAbsensi(
-            @RequestParam UUID userId) {
-        List<AbsensiResponse> response = dataAbsensiService.getRiwayatAbsensi(userId);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<APIResponse<List<AbsensiResponse>>> getRiwayatAbsensi(@RequestParam UUID userId) {
+        return ResponseEntity.ok(APIResponse.success(dataAbsensiService.getRiwayatAbsensi(userId)));
     }
 
-    /**
-     * [MAHASISWA] Statistik absensi pribadi (hadir, izin, sakit, alfa).
-     * GET /api/absensi/mahasiswa/statistik?userId=...
-     */
     @GetMapping("/mahasiswa/statistik")
-    public ResponseEntity<AbsensiMahasiswaStatResponse> getMahasiswaStat(
-            @RequestParam UUID userId) {
-        AbsensiMahasiswaStatResponse response = dataAbsensiService.getMahasiswaStat(userId);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<APIResponse<AbsensiMahasiswaStatResponse>> getMahasiswaStat(@RequestParam UUID userId) {
+        return ResponseEntity.ok(APIResponse.success(dataAbsensiService.getMahasiswaStat(userId)));
     }
 }

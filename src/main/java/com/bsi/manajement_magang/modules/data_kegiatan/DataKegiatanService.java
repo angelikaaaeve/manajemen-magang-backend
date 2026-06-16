@@ -4,6 +4,7 @@ import com.bsi.manajement_magang.modules.data_kegiatan.DataKegiatanRepository;
 import com.bsi.manajement_magang.modules.data_kegiatan.schemas.response.ActivityResponse;
 import com.bsi.manajement_magang.modules.data_kegiatan.schemas.response.ActivityStatResponse;
 import com.bsi.manajement_magang.modules.data_kegiatan.DataKegiatanService;
+import com.bsi.manajement_magang.shared.DomainException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,56 +19,49 @@ public class DataKegiatanService {
         this.repository = repository;
     }
 
-    // List all activities with filters
     public List<ActivityResponse> listActivities(String status, String namaMahasiswa) {
         return repository.listActivities(status, namaMahasiswa);
     }
 
-    // Update activity status
-
     @Transactional
     public ActivityResponse updateStatus(UUID id, String status) {
-        ActivityResponse record = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Activity record with ID '" + id + "' was not found"));
+        repository.findById(id)
+                .orElseThrow(() -> DomainException.notFound("Activity record with ID '" + id + "' was not found"));
 
         if (status == null || status.trim().isEmpty()) {
-            throw new IllegalArgumentException("Status cannot be empty");
+            throw DomainException.emptyField("status");
         }
 
         String normalizedStatus = status.toLowerCase().trim();
         if (!normalizedStatus.equals("disetujui") && !normalizedStatus.equals("belum disetujui") && !normalizedStatus.equals("ditolak")) {
-            throw new IllegalArgumentException("Invalid status: '" + status + "'. Supported: 'disetujui', 'belum disetujui', 'ditolak'");
+            throw DomainException.invalidValue("status",
+                    "'" + status + "' tidak valid. Pilihan: disetujui, belum disetujui, ditolak");
         }
 
         repository.updateStatus(id, normalizedStatus);
 
         return repository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Failed to retrieve updated activity record"));
+                .orElseThrow(() -> DomainException.internalError("Failed to retrieve updated activity record"));
     }
-
-    // Delete activity record
 
     @Transactional
     public void deleteActivity(UUID id) {
-        ActivityResponse record = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Activity record with ID '" + id + "' was not found"));
-
+        repository.findById(id)
+                .orElseThrow(() -> DomainException.notFound("Activity record with ID '" + id + "' was not found"));
         repository.deleteActivity(id);
     }
 
-    // Get statistics
     public ActivityStatResponse getActivityStatistics(String status, String namaMahasiswa) {
         return repository.getActivityStatistics(status, namaMahasiswa);
     }
 
-    // Get activity file URL (lihat file kegiatan)
     public String getActivityFileUrl(UUID id) {
         ActivityResponse record = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Activity record with ID '" + id + "' was not found"));
+                .orElseThrow(() -> DomainException.notFound("Activity record with ID '" + id + "' was not found"));
 
         String url = record.fileUrl();
         if (url == null || url.trim().isEmpty() || url.equalsIgnoreCase("-")) {
-            throw new IllegalArgumentException("No file attachment is uploaded for this activity");
+            throw DomainException.notFound("No file attachment is uploaded for this activity");
         }
         return url;
     }

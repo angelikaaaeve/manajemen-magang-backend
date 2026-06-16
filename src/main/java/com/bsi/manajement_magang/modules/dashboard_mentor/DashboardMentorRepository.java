@@ -3,6 +3,7 @@ package com.bsi.manajement_magang.modules.dashboard_mentor;
 import com.bsi.manajement_magang.enums.Gender;
 import com.bsi.manajement_magang.enums.StatusPeriode;
 import com.bsi.manajement_magang.modules.dashboard_mentor.schemas.response.SearchStudentResponse;
+import com.bsi.manajement_magang.shared.DomainException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -60,7 +61,7 @@ public class DashboardMentorRepository {
             MapSqlParameterSource params = new MapSqlParameterSource("name", name);
             Long id = jdbc.queryForObject(sql, params, Long.class);
             if (id == null) {
-                throw new IllegalStateException("Failed to create university: " + name);
+                throw DomainException.databaseError("Failed to create university: " + name);
             }
             return id;
         });

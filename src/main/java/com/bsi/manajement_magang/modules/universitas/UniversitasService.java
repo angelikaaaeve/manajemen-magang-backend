@@ -4,6 +4,7 @@ import com.bsi.manajement_magang.modules.universitas.UniversitasRepository;
 import com.bsi.manajement_magang.modules.universitas.schemas.request.UniversitasRequest;
 import com.bsi.manajement_magang.modules.universitas.schemas.response.UniversitasResponse;
 import com.bsi.manajement_magang.modules.universitas.UniversitasService;
+import com.bsi.manajement_magang.shared.DomainException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,21 +21,21 @@ public class UniversitasService {
     @Transactional
     public UniversitasResponse addUniversitas(UniversitasRequest req) {
         if (repository.existsByName(req.nameUniversity())) {
-            throw new IllegalArgumentException("University '" + req.nameUniversity() + "' is already registered");
+            throw DomainException.conflict("University '" + req.nameUniversity() + "' is already registered");
         }
         Long id = repository.save(req.nameUniversity());
         return repository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Failed to retrieve created university"));
+                .orElseThrow(() -> DomainException.internalError("Failed to retrieve created university"));
     }
 
     @Transactional
     public UniversitasResponse editUniversitas(Long id, UniversitasRequest req) {
         UniversitasResponse university = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("University with ID '" + id + "' was not found"));
+                .orElseThrow(() -> DomainException.notFound("University with ID '" + id + "' was not found"));
 
         if (req.nameUniversity() != null && !req.nameUniversity().equalsIgnoreCase(university.nameUniversity())) {
             if (repository.existsByNameAndIdNot(req.nameUniversity(), id)) {
-                throw new IllegalArgumentException("University '" + req.nameUniversity() + "' is already registered");
+                throw DomainException.conflict("University '" + req.nameUniversity() + "' is already registered");
             }
         }
 
@@ -42,7 +43,7 @@ public class UniversitasService {
         repository.update(id, resolvedName);
 
         return repository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Failed to retrieve updated university"));
+                .orElseThrow(() -> DomainException.internalError("Failed to retrieve updated university"));
     }
 
     public List<UniversitasResponse> listUniversitas() {
@@ -52,7 +53,7 @@ public class UniversitasService {
     @Transactional
     public void deleteUniversitas(Long id) {
         if (repository.findById(id).isEmpty()) {
-            throw new IllegalArgumentException("University with ID '" + id + "' was not found");
+            throw DomainException.notFound("University with ID '" + id + "' was not found");
         }
         repository.delete(id);
     }

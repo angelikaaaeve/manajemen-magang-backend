@@ -3,6 +3,7 @@ package com.bsi.manajement_magang.modules.data_mahasiswa;
 import com.bsi.manajement_magang.enums.Gender;
 import com.bsi.manajement_magang.enums.StatusPeriode;
 import com.bsi.manajement_magang.modules.data_mahasiswa.schemas.response.StudentResponse;
+import com.bsi.manajement_magang.shared.DomainException;
 import com.bsi.manajement_magang.modules.data_mahasiswa.schemas.response.StudentStatResponse;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -72,7 +73,7 @@ public class DataMahasiswaRepository {
             MapSqlParameterSource params = new MapSqlParameterSource("name", name);
             Long id = jdbc.queryForObject(sql, params, Long.class);
             if (id == null) {
-                throw new IllegalStateException("Failed to create university: " + name);
+                throw DomainException.databaseError("Failed to create university: " + name);
             }
             return id;
         });

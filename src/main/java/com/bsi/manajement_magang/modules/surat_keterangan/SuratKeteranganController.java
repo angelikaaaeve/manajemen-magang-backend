@@ -4,6 +4,7 @@ import com.bsi.manajement_magang.modules.surat_keterangan.schemas.request.SuratK
 import com.bsi.manajement_magang.modules.surat_keterangan.schemas.response.SuratKeteranganResponse;
 import com.bsi.manajement_magang.modules.surat_keterangan.schemas.response.SuratKeteranganStatResponse;
 import com.bsi.manajement_magang.modules.surat_keterangan.SuratKeteranganService;
+import com.bsi.manajement_magang.shared.APIResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,27 +20,23 @@ public class SuratKeteranganController {
         this.suratKeteranganService = suratKeteranganService;
     }
 
-    // 1. Baca / List Surat Keterangan Mahasiswa (with filters)
     @GetMapping
-    public ResponseEntity<List<SuratKeteranganResponse>> listSuratKeterangan(
+    public ResponseEntity<APIResponse<List<SuratKeteranganResponse>>> listSuratKeterangan(
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String namaMahasiswa) {
-        List<SuratKeteranganResponse> response = suratKeteranganService.listSuratKeterangan(status, namaMahasiswa);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(APIResponse.success(suratKeteranganService.listSuratKeterangan(status, namaMahasiswa)));
     }
 
-    // 2. Mengunggah file surat keterangan (save & update)
     @PostMapping
-    public ResponseEntity<SuratKeteranganResponse> uploadSuratKeterangan(@RequestBody @Valid SuratKeteranganRequest req) {
-        SuratKeteranganResponse response = suratKeteranganService.uploadSuratKeterangan(req);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<APIResponse<SuratKeteranganResponse>> uploadSuratKeterangan(
+            @RequestBody @Valid SuratKeteranganRequest req) {
+        return ResponseEntity.ok(APIResponse.success(
+                suratKeteranganService.uploadSuratKeterangan(req), "Reference letter saved successfully"));
     }
 
-    // 3. Statistik Surat Keterangan (support filters)
     @GetMapping("/statistik")
-    public ResponseEntity<SuratKeteranganStatResponse> getSuratKeteranganStatistics(
+    public ResponseEntity<APIResponse<SuratKeteranganStatResponse>> getSuratKeteranganStatistics(
             @RequestParam(required = false) String namaMahasiswa) {
-        SuratKeteranganStatResponse response = suratKeteranganService.getSuratKeteranganStatistics(namaMahasiswa);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(APIResponse.success(suratKeteranganService.getSuratKeteranganStatistics(namaMahasiswa)));
     }
 }

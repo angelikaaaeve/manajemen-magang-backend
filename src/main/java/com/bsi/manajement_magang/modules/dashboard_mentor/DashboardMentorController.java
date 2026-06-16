@@ -4,6 +4,7 @@ import com.bsi.manajement_magang.modules.dashboard_mentor.schemas.request.Regist
 import com.bsi.manajement_magang.modules.dashboard_mentor.schemas.response.DashboardStatResponse;
 import com.bsi.manajement_magang.modules.dashboard_mentor.schemas.response.SearchStudentResponse;
 import com.bsi.manajement_magang.modules.dashboard_mentor.DashboardMentorService;
+import com.bsi.manajement_magang.shared.APIResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,27 +22,22 @@ public class DashboardMentorController {
         this.service = service;
     }
 
-    // 1. Query / Search students by name
     @GetMapping("/mahasiswa")
-    public ResponseEntity<List<SearchStudentResponse>> searchStudents(
+    public ResponseEntity<APIResponse<List<SearchStudentResponse>>> searchStudents(
             @RequestParam(value = "nama", required = false) String name) {
-        List<SearchStudentResponse> response = service.searchStudentsByName(name);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(APIResponse.success(service.searchStudentsByName(name)));
     }
 
-    // 2. Register new student (daftarkan mahasiswa baru) - Tanpa Auth
     @PostMapping("/mahasiswa")
-    public ResponseEntity<SearchStudentResponse> registerStudent(
+    public ResponseEntity<APIResponse<SearchStudentResponse>> registerStudent(
             @RequestBody @Valid RegisterStudentRequest req) {
-        SearchStudentResponse response = service.addStudent(req);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        SearchStudentResponse data = service.addStudent(req);
+        return ResponseEntity.status(HttpStatus.CREATED).body(APIResponse.success(data, "Student registered successfully"));
     }
 
-    // 3. Dashboard Statistics (Statistik Dashboard) - Tanpa Auth
     @GetMapping("/statistik")
-    public ResponseEntity<DashboardStatResponse> getDashboardStatistics(
+    public ResponseEntity<APIResponse<DashboardStatResponse>> getDashboardStatistics(
             @RequestParam(value = "mentorId", required = false) UUID mentorId) {
-        DashboardStatResponse response = service.getDashboardStats(mentorId);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(APIResponse.success(service.getDashboardStats(mentorId)));
     }
 }

@@ -11,6 +11,7 @@ import com.bsi.manajement_magang.modules.iam.schemas.request.RegisterRequest;
 import com.bsi.manajement_magang.modules.iam.schemas.request.UpdateUserRequest;
 import com.bsi.manajement_magang.modules.iam.schemas.response.LoginResponse;
 import com.bsi.manajement_magang.modules.iam.schemas.response.UserResponse;
+import com.bsi.manajement_magang.shared.DomainException;
 import com.bsi.manajement_magang.util.TokenProvider;
 import com.bsi.manajement_magang.shared.Argon2Hasher;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,12 +45,12 @@ public class IamService {
 
             if (mentorSecretKey == null || mentorSecretKey.isBlank() || !mentorSecretKey.equals(req.secretKey())) {
                 mentorRegistrationGuard.recordFailure(clientIp);
-                throw new IllegalArgumentException("Secret key mentor tidak valid");
+                throw DomainException.unauthorized("Secret key mentor tidak valid");
             }
         }
 
         if (userRepository.findByEmail(req.email()).isPresent()) {
-            throw new IllegalArgumentException("Email is already registered");
+            throw DomainException.conflict("Email is already registered");
         }
 
         UUID userId = UUID.randomUUID();
@@ -79,7 +80,6 @@ public class IamService {
                 gender = req.gender() != null ? req.gender().getValue() : null;
                 universitas = req.universitas();
 
-                // Resolve university FK if provided
                 Long idUniversity = null;
                 if (universitas != null && !universitas.trim().isEmpty()) {
                     idUniversity = userRepository.findOrCreateUniversityByName(universitas);
@@ -124,14 +124,14 @@ public class IamService {
 
     public LoginResponse login(LoginRequest req) {
         UserEntity user = userRepository.findByEmail(req.email())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
+                .orElseThrow(() -> DomainException.unauthorized("Invalid email or password"));
 
         if (!argon2Hasher.matches(req.password(), user.getPassword())) {
-            throw new IllegalArgumentException("Invalid email or password");
+            throw DomainException.unauthorized("Invalid email or password");
         }
 
         if (!user.isActive()) {
-            throw new IllegalArgumentException("User account is inactive");
+            throw DomainException.unauthorized("User account is inactive");
         }
 
         String token = TokenProvider.generateToken(user.getId(), user.getRole().name());
@@ -140,7 +140,7 @@ public class IamService {
 
     public UserResponse getMe(UUID userId) {
         UserEntity user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> DomainException.notFound("User not found"));
 
         String nim = null;
         String nama = null;
@@ -151,7 +151,7 @@ public class IamService {
         switch (user.getRole()) {
             case mahasiswa:
                 MahasiswaEntity m = userRepository.findMahasiswaByUserId(userId)
-                        .orElseThrow(() -> new IllegalArgumentException("Mahasiswa profile not found"));
+                        .orElseThrow(() -> DomainException.notFound("Mahasiswa profile not found"));
                 nim = m.getNim();
                 nama = m.getNama();
                 noHp = m.getNoHp();
@@ -160,7 +160,7 @@ public class IamService {
                 break;
             case mentor:
                 MentorEntity mentor = userRepository.findMentorByUserId(userId)
-                        .orElseThrow(() -> new IllegalArgumentException("Mentor profile not found"));
+                        .orElseThrow(() -> DomainException.notFound("Mentor profile not found"));
                 nama = mentor.getNama();
                 break;
             default:
@@ -183,11 +183,11 @@ public class IamService {
     @Transactional
     public UserResponse update(UUID userId, UpdateUserRequest req) {
         UserEntity user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> DomainException.notFound("User not found"));
 
         if (req.email() != null && !req.email().equals(user.getEmail())) {
             if (userRepository.findByEmail(req.email()).isPresent()) {
-                throw new IllegalArgumentException("Email is already taken");
+                throw DomainException.conflict("Email is already taken");
             }
             user.setEmail(req.email());
             userRepository.updateUser(user);
@@ -202,14 +202,13 @@ public class IamService {
         switch (user.getRole()) {
             case mahasiswa:
                 MahasiswaEntity m = userRepository.findMahasiswaByUserId(userId)
-                        .orElseThrow(() -> new IllegalArgumentException("Mahasiswa profile not found"));
+                        .orElseThrow(() -> DomainException.notFound("Mahasiswa profile not found"));
 
                 if (req.nim() != null) m.setNim(req.nim());
                 if (req.nama() != null) m.setNama(req.nama());
                 if (req.noHp() != null) m.setNoHp(req.noHp());
                 if (req.gender() != null) m.setGender(req.gender().getValue());
 
-                // Resolve university FK if universitas name is provided
                 if (req.universitas() != null && !req.universitas().trim().isEmpty()) {
                     Long idUniversity = userRepository.findOrCreateUniversityByName(req.universitas());
                     m.setIdUniversity(idUniversity);
@@ -226,7 +225,7 @@ public class IamService {
 
             case mentor:
                 MentorEntity mentor = userRepository.findMentorByUserId(userId)
-                        .orElseThrow(() -> new IllegalArgumentException("Mentor profile not found"));
+                        .orElseThrow(() -> DomainException.notFound("Mentor profile not found"));
 
                 if (req.nama() != null) mentor.setNama(req.nama());
 

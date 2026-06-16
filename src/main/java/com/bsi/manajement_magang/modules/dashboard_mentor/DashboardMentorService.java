@@ -7,6 +7,7 @@ import com.bsi.manajement_magang.modules.dashboard_mentor.schemas.request.Regist
 import com.bsi.manajement_magang.modules.dashboard_mentor.schemas.response.DashboardStatResponse;
 import com.bsi.manajement_magang.modules.dashboard_mentor.schemas.response.SearchStudentResponse;
 import com.bsi.manajement_magang.shared.Argon2Hasher;
+import com.bsi.manajement_magang.shared.DomainException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,10 +29,10 @@ public class DashboardMentorService {
     @Transactional
     public SearchStudentResponse addStudent(RegisterStudentRequest req) {
         if (repository.existsByEmail(req.email())) {
-            throw new IllegalArgumentException("Email '" + req.email() + "' is already registered");
+            throw DomainException.conflict("Email '" + req.email() + "' is already registered");
         }
         if (repository.existsByNim(req.nim())) {
-            throw new IllegalArgumentException("NIM '" + req.nim() + "' is already registered");
+            throw DomainException.conflict("NIM '" + req.nim() + "' is already registered");
         }
 
         UUID userId = UUID.randomUUID();
@@ -59,7 +60,7 @@ public class DashboardMentorService {
 
         // Return the created student details
         return repository.findStudentById(studentId)
-                .orElseThrow(() -> new IllegalStateException("Failed to retrieve newly registered student details"));
+                .orElseThrow(() -> DomainException.internalError("Failed to retrieve newly registered student details"));
     }
 
     // 2. Query / Search students by name

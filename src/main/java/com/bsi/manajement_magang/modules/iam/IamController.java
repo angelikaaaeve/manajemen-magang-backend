@@ -6,6 +6,8 @@ import com.bsi.manajement_magang.modules.iam.schemas.request.UpdateUserRequest;
 import com.bsi.manajement_magang.modules.iam.schemas.response.LoginResponse;
 import com.bsi.manajement_magang.modules.iam.schemas.response.UserResponse;
 import com.bsi.manajement_magang.modules.iam.IamService;
+import com.bsi.manajement_magang.shared.APIResponse;
+import com.bsi.manajement_magang.shared.DomainException;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,8 +28,56 @@ public class IamController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserResponse> register(@RequestBody @Valid RegisterRequest req, HttpServletRequest request) {
-        return ResponseEntity.ok(iamService.register(req, resolveClientIp(request)));
+    public ResponseEntity<APIResponse<UserResponse>> register(
+            @RequestBody @Valid RegisterRequest req, HttpServletRequest request) {
+        UserResponse data = iamService.register(req, resolveClientIp(request));
+        return ResponseEntity.ok(APIResponse.success(data, "Registration successful"));
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<APIResponse<LoginResponse>> login(
+            @RequestBody @Valid LoginRequest req, HttpServletResponse response) {
+        LoginResponse data = iamService.login(req);
+
+        Cookie cookie = new Cookie("internflow_token", data.accessToken());
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(3 * 24 * 60 * 60);
+        response.addCookie(cookie);
+
+        return ResponseEntity.ok(APIResponse.success(data, "Login successful"));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<APIResponse<Void>> logout(HttpServletResponse response) {
+        Cookie cookie = new Cookie("internflow_token", null);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+        return ResponseEntity.ok(APIResponse.success(null, "Logout successful"));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<APIResponse<UserResponse>> me() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getPrincipal() == null) {
+            throw DomainException.unauthorized("Not authenticated");
+        }
+        UUID userId = (UUID) auth.getPrincipal();
+        return ResponseEntity.ok(APIResponse.success(iamService.getMe(userId)));
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<APIResponse<UserResponse>> update(@RequestBody UpdateUserRequest req) {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getPrincipal() == null) {
+            throw DomainException.unauthorized("Not authenticated");
+        }
+        UUID userId = (UUID) auth.getPrincipal();
+        return ResponseEntity.ok(APIResponse.success(iamService.update(userId, req), "Profile updated successfully"));
     }
 
     private String resolveClientIp(HttpServletRequest request) {
@@ -36,50 +86,5 @@ public class IamController {
             return forwardedFor.split(",")[0].trim();
         }
         return request.getRemoteAddr();
-    }
-
-    @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest req, HttpServletResponse response) {
-        LoginResponse res = iamService.login(req);
-
-        Cookie cookie = new Cookie("internflow_token", res.accessToken());
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true); // Works on localhost and HTTPS
-        cookie.setPath("/");
-        cookie.setMaxAge(3 * 24 * 60 * 60); // 3 days
-        response.addCookie(cookie);
-
-        return ResponseEntity.ok(res);
-    }
-
-    @PostMapping("/logout")
-    public ResponseEntity<Void> logout(HttpServletResponse response) {
-        Cookie cookie = new Cookie("internflow_token", null);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
-        cookie.setPath("/");
-        cookie.setMaxAge(0);
-        response.addCookie(cookie);
-        return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/me")
-    public ResponseEntity<UserResponse> me() {
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || auth.getPrincipal() == null) {
-            return ResponseEntity.status(401).build();
-        }
-        UUID userId = (UUID) auth.getPrincipal();
-        return ResponseEntity.ok(iamService.getMe(userId));
-    }
-
-    @PutMapping("/update")
-    public ResponseEntity<UserResponse> update(@RequestBody UpdateUserRequest req) {
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || auth.getPrincipal() == null) {
-            return ResponseEntity.status(401).build();
-        }
-        UUID userId = (UUID) auth.getPrincipal();
-        return ResponseEntity.ok(iamService.update(userId, req));
     }
 }

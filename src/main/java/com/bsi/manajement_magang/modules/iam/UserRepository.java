@@ -3,6 +3,7 @@ package com.bsi.manajement_magang.modules.iam;
 import com.bsi.manajement_magang.modules.iam.schemas.entity.MahasiswaEntity;
 import com.bsi.manajement_magang.modules.iam.schemas.entity.MentorEntity;
 import com.bsi.manajement_magang.modules.iam.schemas.entity.UserEntity;
+import com.bsi.manajement_magang.shared.DomainException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -126,7 +127,7 @@ public class UserRepository {
         String insertSql = "INSERT INTO university (name_university, created_at) VALUES (:name, NOW()) RETURNING id";
         Long id = jdbc.queryForObject(insertSql, params, Long.class);
         if (id == null) {
-            throw new IllegalStateException("Failed to create university: " + name);
+            throw DomainException.databaseError("Failed to create university: " + name);
         }
         return id;
     }

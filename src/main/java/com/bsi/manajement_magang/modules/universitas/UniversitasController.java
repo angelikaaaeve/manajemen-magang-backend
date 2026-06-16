@@ -3,6 +3,7 @@ package com.bsi.manajement_magang.modules.universitas;
 import com.bsi.manajement_magang.modules.universitas.schemas.request.UniversitasRequest;
 import com.bsi.manajement_magang.modules.universitas.schemas.response.UniversitasResponse;
 import com.bsi.manajement_magang.modules.universitas.UniversitasService;
+import com.bsi.manajement_magang.shared.APIResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,33 +20,27 @@ public class UniversitasController {
         this.service = service;
     }
 
-    // 1. Tambah Universitas
     @PostMapping
-    public ResponseEntity<UniversitasResponse> addUniversitas(@RequestBody @Valid UniversitasRequest req) {
-        UniversitasResponse response = service.addUniversitas(req);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    public ResponseEntity<APIResponse<UniversitasResponse>> addUniversitas(@RequestBody @Valid UniversitasRequest req) {
+        UniversitasResponse data = service.addUniversitas(req);
+        return ResponseEntity.status(HttpStatus.CREATED).body(APIResponse.success(data, "University registered successfully"));
     }
 
-    // 2. Baca/List Universitas
     @GetMapping
-    public ResponseEntity<List<UniversitasResponse>> listUniversitas() {
-        List<UniversitasResponse> response = service.listUniversitas();
-        return ResponseEntity.ok(response);
+    public ResponseEntity<APIResponse<List<UniversitasResponse>>> listUniversitas() {
+        return ResponseEntity.ok(APIResponse.success(service.listUniversitas()));
     }
 
-    // 3. Edit Universitas
     @PutMapping("/{id}")
-    public ResponseEntity<UniversitasResponse> editUniversitas(
+    public ResponseEntity<APIResponse<UniversitasResponse>> editUniversitas(
             @PathVariable Long id,
             @RequestBody @Valid UniversitasRequest req) {
-        UniversitasResponse response = service.editUniversitas(id, req);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(APIResponse.success(service.editUniversitas(id, req), "University updated successfully"));
     }
 
-    // 4. Hapus Universitas
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUniversitas(@PathVariable Long id) {
+    public ResponseEntity<APIResponse<Void>> deleteUniversitas(@PathVariable Long id) {
         service.deleteUniversitas(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(APIResponse.success(null, "University deleted successfully"));
     }
 }

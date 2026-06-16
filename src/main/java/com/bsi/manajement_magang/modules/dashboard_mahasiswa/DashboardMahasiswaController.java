@@ -2,6 +2,7 @@ package com.bsi.manajement_magang.modules.dashboard_mahasiswa;
 
 import com.bsi.manajement_magang.modules.dashboard_mahasiswa.schemas.response.DashboardMahasiswaStatResponse;
 import com.bsi.manajement_magang.modules.dashboard_mahasiswa.DashboardMahasiswaService;
+import com.bsi.manajement_magang.shared.APIResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,11 +17,9 @@ public class DashboardMahasiswaController {
         this.service = service;
     }
 
-    // Get statistics for the student dashboard - Tanpa Auth
     @GetMapping("/statistik")
-    public ResponseEntity<DashboardMahasiswaStatResponse> getDashboardStatistics(
+    public ResponseEntity<APIResponse<DashboardMahasiswaStatResponse>> getDashboardStatistics(
             @RequestParam("mahasiswaId") UUID mahasiswaId) {
-        DashboardMahasiswaStatResponse response = service.getDashboardStats(mahasiswaId);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(APIResponse.success(service.getDashboardStats(mahasiswaId)));
     }
 }

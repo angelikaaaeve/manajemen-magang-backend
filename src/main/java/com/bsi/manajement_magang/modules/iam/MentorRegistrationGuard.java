@@ -1,5 +1,6 @@
 package com.bsi.manajement_magang.modules.iam;
 
+import com.bsi.manajement_magang.shared.DomainException;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -21,7 +22,7 @@ public class MentorRegistrationGuard {
     public void assertNotBlocked(String clientIp) {
         Attempt attempt = attemptsByIp.get(clientIp);
         if (attempt != null && attempt.blockedUntil != null && Instant.now().isBefore(attempt.blockedUntil)) {
-            throw new IllegalStateException(
+            throw DomainException.unauthorized(
                     "Terlalu banyak percobaan gagal. IP Anda diblokir untuk registrasi mentor hingga " + attempt.blockedUntil);
         }
     }

@@ -4,6 +4,7 @@ import com.bsi.manajement_magang.modules.sertifikat.schemas.request.SertifikatRe
 import com.bsi.manajement_magang.modules.sertifikat.schemas.response.SertifikatResponse;
 import com.bsi.manajement_magang.modules.sertifikat.schemas.response.SertifikatStatResponse;
 import com.bsi.manajement_magang.modules.sertifikat.SertifikatService;
+import com.bsi.manajement_magang.shared.APIResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,27 +20,21 @@ public class SertifikatController {
         this.sertifikatService = sertifikatService;
     }
 
-    // 1. Baca / List Sertifikat Mahasiswa (with filters)
     @GetMapping
-    public ResponseEntity<List<SertifikatResponse>> listSertifikat(
+    public ResponseEntity<APIResponse<List<SertifikatResponse>>> listSertifikat(
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String namaMahasiswa) {
-        List<SertifikatResponse> response = sertifikatService.listSertifikat(status, namaMahasiswa);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(APIResponse.success(sertifikatService.listSertifikat(status, namaMahasiswa)));
     }
 
-    // 2. Mengunggah file sertifikat (save & update)
     @PostMapping
-    public ResponseEntity<SertifikatResponse> uploadSertifikat(@RequestBody @Valid SertifikatRequest req) {
-        SertifikatResponse response = sertifikatService.uploadSertifikat(req);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<APIResponse<SertifikatResponse>> uploadSertifikat(@RequestBody @Valid SertifikatRequest req) {
+        return ResponseEntity.ok(APIResponse.success(sertifikatService.uploadSertifikat(req), "Certificate saved successfully"));
     }
 
-    // 3. Statistik Sertifikat (support filters)
     @GetMapping("/statistik")
-    public ResponseEntity<SertifikatStatResponse> getSertifikatStatistics(
+    public ResponseEntity<APIResponse<SertifikatStatResponse>> getSertifikatStatistics(
             @RequestParam(required = false) String namaMahasiswa) {
-        SertifikatStatResponse response = sertifikatService.getSertifikatStatistics(namaMahasiswa);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(APIResponse.success(sertifikatService.getSertifikatStatistics(namaMahasiswa)));
     }
 }

@@ -3,6 +3,7 @@ package com.bsi.manajement_magang.modules.data_kegiatan;
 import com.bsi.manajement_magang.modules.data_kegiatan.schemas.response.ActivityResponse;
 import com.bsi.manajement_magang.modules.data_kegiatan.schemas.response.ActivityStatResponse;
 import com.bsi.manajement_magang.modules.data_kegiatan.DataKegiatanService;
+import com.bsi.manajement_magang.shared.APIResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,44 +20,36 @@ public class DataKegiatanController {
         this.dataKegiatanService = dataKegiatanService;
     }
 
-    // 1. Baca / List Kegiatan Mahasiswa (with filters)
     @GetMapping
-    public ResponseEntity<List<ActivityResponse>> listActivities(
+    public ResponseEntity<APIResponse<List<ActivityResponse>>> listActivities(
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String namaMahasiswa) {
-        List<ActivityResponse> response = dataKegiatanService.listActivities(status, namaMahasiswa);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(APIResponse.success(dataKegiatanService.listActivities(status, namaMahasiswa)));
     }
 
-    // 2. Mengubah "status" kegiatan
     @PutMapping("/{id}/status")
-    public ResponseEntity<ActivityResponse> updateStatus(
+    public ResponseEntity<APIResponse<ActivityResponse>> updateStatus(
             @PathVariable UUID id,
             @RequestParam String status) {
-        ActivityResponse response = dataKegiatanService.updateStatus(id, status);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(APIResponse.success(dataKegiatanService.updateStatus(id, status), "Status updated successfully"));
     }
 
-    // 3. Menghapus kegiatan mahasiswa tertentu
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteActivity(@PathVariable UUID id) {
+    public ResponseEntity<APIResponse<Void>> deleteActivity(@PathVariable UUID id) {
         dataKegiatanService.deleteActivity(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(APIResponse.success(null, "Activity deleted successfully"));
     }
 
-    // 4. Lihat File Kegiatan (yang diupload mahasiswa)
     @GetMapping("/{id}/file")
-    public ResponseEntity<Map<String, String>> getActivityFile(@PathVariable UUID id) {
+    public ResponseEntity<APIResponse<Map<String, String>>> getActivityFile(@PathVariable UUID id) {
         String url = dataKegiatanService.getActivityFileUrl(id);
-        return ResponseEntity.ok(Map.of("url", url));
+        return ResponseEntity.ok(APIResponse.success(Map.of("url", url)));
     }
 
-    // 5. Statistik Kegiatan (support filters)
     @GetMapping("/statistik")
-    public ResponseEntity<ActivityStatResponse> getActivityStatistics(
+    public ResponseEntity<APIResponse<ActivityStatResponse>> getActivityStatistics(
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String namaMahasiswa) {
-        ActivityStatResponse response = dataKegiatanService.getActivityStatistics(status, namaMahasiswa);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(APIResponse.success(dataKegiatanService.getActivityStatistics(status, namaMahasiswa)));
     }
 }
