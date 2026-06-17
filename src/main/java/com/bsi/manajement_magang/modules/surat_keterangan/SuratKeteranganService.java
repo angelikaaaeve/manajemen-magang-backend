@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+
 @Service
 public class SuratKeteranganService {
     private final SuratKeteranganRepository repository;
@@ -51,5 +52,9 @@ public class SuratKeteranganService {
 
     public SuratKeteranganStatResponse getSuratKeteranganStatistics(String namaMahasiswa) {
         return repository.getSuratKeteranganStatistics(namaMahasiswa);
+    }
+
+    public Optional<SuratKeteranganResponse> getMahasiswaSuratKeterangan(UUID userId) {
+        return repository.findByUserId(userId);
     }
 }

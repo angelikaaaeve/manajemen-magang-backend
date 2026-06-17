@@ -4,7 +4,9 @@ import com.bsi.manajement_magang.modules.data_kegiatan.schemas.response.Activity
 import com.bsi.manajement_magang.modules.data_kegiatan.schemas.response.ActivityStatResponse;
 import com.bsi.manajement_magang.modules.data_kegiatan.DataKegiatanService;
 import com.bsi.manajement_magang.shared.APIResponse;
+import com.bsi.manajement_magang.shared.DomainException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -53,5 +55,32 @@ public class DataKegiatanController {
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String namaMahasiswa) {
         return ResponseEntity.ok(APIResponse.success(dataKegiatanService.getActivityStatistics(status, namaMahasiswa)));
+    }
+
+    @GetMapping("/mahasiswa")
+    public ResponseEntity<APIResponse<List<ActivityResponse>>> getMahasiswaActivities() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getPrincipal() == null ||
+                auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_MAHASISWA"))) {
+            throw DomainException.unauthorized("Access restricted to mahasiswa");
+        }
+        UUID userId = (UUID) auth.getPrincipal();
+        return ResponseEntity.ok(APIResponse.success(dataKegiatanService.listMahasiswaActivities(userId)));
+    }
+
+    @PostMapping("/mahasiswa")
+    public ResponseEntity<APIResponse<ActivityResponse>> createMahasiswaActivity(
+            @RequestBody Map<String, String> body) {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getPrincipal() == null ||
+                auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_MAHASISWA"))) {
+            throw DomainException.unauthorized("Access restricted to mahasiswa");
+        }
+        UUID userId = (UUID) auth.getPrincipal();
+        String judul = body.get("judul");
+        String deskripsi = body.getOrDefault("deskripsi", "");
+        return ResponseEntity.ok(APIResponse.success(
+                dataKegiatanService.createMahasiswaActivity(userId, judul, deskripsi),
+                "Kegiatan berhasil ditambahkan"));
     }
 }

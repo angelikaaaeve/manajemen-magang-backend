@@ -5,11 +5,14 @@ import com.bsi.manajement_magang.modules.penilaian.schemas.response.PenilaianRes
 import com.bsi.manajement_magang.modules.penilaian.schemas.response.PenilaianStatResponse;
 import com.bsi.manajement_magang.modules.penilaian.PenilaianService;
 import com.bsi.manajement_magang.shared.APIResponse;
+import com.bsi.manajement_magang.shared.DomainException;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/penilaian")
@@ -38,5 +41,18 @@ public class PenilaianController {
     public ResponseEntity<APIResponse<PenilaianStatResponse>> getPenilaianStatistics(
             @RequestParam(required = false) String namaMahasiswa) {
         return ResponseEntity.ok(APIResponse.success(penilaianService.getPenilaianStatistics(namaMahasiswa)));
+    }
+
+    @GetMapping("/mahasiswa/nilai")
+    public ResponseEntity<APIResponse<PenilaianResponse>> getMahasiswaNilai() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getPrincipal() == null ||
+                auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_MAHASISWA"))) {
+            throw DomainException.unauthorized("Access restricted to mahasiswa");
+        }
+        UUID userId = (UUID) auth.getPrincipal();
+        PenilaianResponse result = penilaianService.getMahasiswaNilai(userId)
+                .orElseThrow(() -> DomainException.notFound("Tidak ada data penilaian ditemukan untuk mahasiswa ini"));
+        return ResponseEntity.ok(APIResponse.success(result));
     }
 }

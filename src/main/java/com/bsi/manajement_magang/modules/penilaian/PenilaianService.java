@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+
 @Service
 public class PenilaianService {
     private final PenilaianRepository repository;
@@ -62,5 +63,9 @@ public class PenilaianService {
 
     public PenilaianStatResponse getPenilaianStatistics(String namaMahasiswa) {
         return repository.getPenilaianStatistics(namaMahasiswa);
+    }
+
+    public Optional<PenilaianResponse> getMahasiswaNilai(UUID userId) {
+        return repository.findByUserId(userId);
     }
 }

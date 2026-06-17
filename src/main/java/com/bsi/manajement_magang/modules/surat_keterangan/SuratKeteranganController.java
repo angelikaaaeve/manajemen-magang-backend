@@ -5,11 +5,14 @@ import com.bsi.manajement_magang.modules.surat_keterangan.schemas.response.Surat
 import com.bsi.manajement_magang.modules.surat_keterangan.schemas.response.SuratKeteranganStatResponse;
 import com.bsi.manajement_magang.modules.surat_keterangan.SuratKeteranganService;
 import com.bsi.manajement_magang.shared.APIResponse;
+import com.bsi.manajement_magang.shared.DomainException;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/surat-keterangan")
@@ -40,5 +43,18 @@ public class SuratKeteranganController {
     public ResponseEntity<APIResponse<SuratKeteranganStatResponse>> getSuratKeteranganStatistics(
             @RequestParam(required = false) String namaMahasiswa) {
         return ResponseEntity.ok(APIResponse.success(suratKeteranganService.getSuratKeteranganStatistics(namaMahasiswa)));
+    }
+
+    @GetMapping("/mahasiswa")
+    public ResponseEntity<APIResponse<SuratKeteranganResponse>> getMahasiswaSuratKeterangan() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getPrincipal() == null ||
+                auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_MAHASISWA"))) {
+            throw DomainException.unauthorized("Access restricted to mahasiswa");
+        }
+        UUID userId = (UUID) auth.getPrincipal();
+        SuratKeteranganResponse result = suratKeteranganService.getMahasiswaSuratKeterangan(userId)
+                .orElseThrow(() -> DomainException.notFound("Tidak ada data surat keterangan ditemukan untuk mahasiswa ini"));
+        return ResponseEntity.ok(APIResponse.success(result));
     }
 }

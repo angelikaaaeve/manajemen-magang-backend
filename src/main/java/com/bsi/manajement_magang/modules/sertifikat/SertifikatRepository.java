@@ -170,6 +170,22 @@ public class SertifikatRepository {
         );
     }
 
+    // Find certificate for a specific mahasiswa by their user ID
+    public Optional<SertifikatResponse> findByUserId(UUID userId) {
+        String sql =
+            "SELECT pm.id as periode_id, pm.mahasiswa_id, m.nim, m.nama as nama_mahasiswa, " +
+            "       s.id as sertifikat_id, s.url, s.created_at " +
+            "FROM periode_magang pm " +
+            "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
+            "JOIN \"user\" u ON m.user_id = u.id " +
+            "LEFT JOIN sertifikat s ON pm.id = s.periode_magang_id " +
+            "WHERE u.id = :userId AND pm.status = 'aktif' " +
+            "LIMIT 1";
+
+        MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
+        return jdbc.query(sql, params, this::mapSertifikatResponse).stream().findFirst();
+    }
+
     // Check if period exists
     public boolean existsPeriod(UUID periodId) {
         String sql = "SELECT COUNT(1) FROM periode_magang WHERE id = :periodId";

@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+
 @Service
 public class SertifikatService {
     private final SertifikatRepository repository;
@@ -51,5 +52,9 @@ public class SertifikatService {
 
     public SertifikatStatResponse getSertifikatStatistics(String namaMahasiswa) {
         return repository.getSertifikatStatistics(namaMahasiswa);
+    }
+
+    public Optional<SertifikatResponse> getMahasiswaSertifikat(UUID userId) {
+        return repository.findByUserId(userId);
     }
 }

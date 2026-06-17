@@ -163,6 +163,59 @@ public class DataKegiatanRepository {
         );
     }
 
+    // List activities for a specific mahasiswa by user ID
+    public List<ActivityResponse> listActivitiesByUserId(UUID userId) {
+        String sql =
+            "SELECT dk.id, pm.mahasiswa_id, m.nama as nama_mahasiswa, dk.judul, dk.deskripsi, " +
+            "       dk.waktu, fk.url as file_url, dk.status " +
+            "FROM data_kegiatan dk " +
+            "JOIN periode_magang pm ON dk.periode_magang_id = pm.id " +
+            "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
+            "JOIN \"user\" u ON m.user_id = u.id " +
+            "LEFT JOIN ( " +
+            "    SELECT DISTINCT ON (data_kegiatan_id) data_kegiatan_id, url " +
+            "    FROM file_kegiatan " +
+            "    ORDER BY data_kegiatan_id, created_at DESC " +
+            ") fk ON dk.id = fk.data_kegiatan_id " +
+            "WHERE u.id = :userId " +
+            "ORDER BY dk.waktu DESC";
+
+        MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
+        return jdbc.query(sql, params, this::mapActivityResponse);
+    }
+
+    // Get active periode_magang ID for a specific mahasiswa by user ID
+    public Optional<UUID> findActivePeriodIdByUserId(UUID userId) {
+        String sql =
+            "SELECT pm.id FROM periode_magang pm " +
+            "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
+            "JOIN \"user\" u ON m.user_id = u.id " +
+            "WHERE u.id = :userId AND pm.status = 'aktif' " +
+            "LIMIT 1";
+
+        MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
+        List<UUID> result = jdbc.queryForList(sql, params, UUID.class);
+        return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
+    }
+
+    // Create a new activity for a mahasiswa
+    public ActivityResponse createActivity(UUID periodeId, String judul, String deskripsi) {
+        UUID newId = UUID.randomUUID();
+        String sql =
+            "INSERT INTO data_kegiatan (id, periode_magang_id, judul, deskripsi, waktu, status, created_at, updated_at) " +
+            "VALUES (:id, :periodeId, :judul, :deskripsi, NOW(), 'belum disetujui', NOW(), NOW())";
+
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("id", newId)
+                .addValue("periodeId", periodeId)
+                .addValue("judul", judul)
+                .addValue("deskripsi", deskripsi);
+        jdbc.update(sql, params);
+
+        return findById(newId)
+                .orElseThrow(() -> new RuntimeException("Failed to retrieve created activity"));
+    }
+
     // Row mapper helper
     private ActivityResponse mapActivityResponse(ResultSet rs, int rowNum) throws SQLException {
         UUID id = UUID.fromString(rs.getString("id"));

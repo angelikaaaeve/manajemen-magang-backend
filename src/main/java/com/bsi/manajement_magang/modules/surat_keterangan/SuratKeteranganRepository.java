@@ -170,6 +170,22 @@ public class SuratKeteranganRepository {
         );
     }
 
+    // Find reference letter for a specific mahasiswa by their user ID
+    public Optional<SuratKeteranganResponse> findByUserId(UUID userId) {
+        String sql =
+            "SELECT pm.id as periode_id, pm.mahasiswa_id, m.nim, m.nama as nama_mahasiswa, " +
+            "       sk.id as surat_id, sk.url, sk.created_at " +
+            "FROM periode_magang pm " +
+            "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
+            "JOIN \"user\" u ON m.user_id = u.id " +
+            "LEFT JOIN surat_keterangan_magang sk ON pm.id = sk.periode_magang_id " +
+            "WHERE u.id = :userId AND pm.status = 'aktif' " +
+            "LIMIT 1";
+
+        MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
+        return jdbc.query(sql, params, this::mapSuratKeteranganResponse).stream().findFirst();
+    }
+
     // Check if period exists
     public boolean existsPeriod(UUID periodId) {
         String sql = "SELECT COUNT(1) FROM periode_magang WHERE id = :periodId";

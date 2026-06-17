@@ -59,6 +59,20 @@ public class DataKegiatanService {
         return repository.getActivityStatistics(status, namaMahasiswa);
     }
 
+    public List<ActivityResponse> listMahasiswaActivities(UUID userId) {
+        return repository.listActivitiesByUserId(userId);
+    }
+
+    @Transactional
+    public ActivityResponse createMahasiswaActivity(UUID userId, String judul, String deskripsi) {
+        if (judul == null || judul.isBlank()) {
+            throw DomainException.emptyField("judul");
+        }
+        UUID periodeId = repository.findActivePeriodIdByUserId(userId)
+                .orElseThrow(() -> DomainException.notFound("Tidak ada periode magang aktif untuk mahasiswa ini"));
+        return repository.createActivity(periodeId, judul.trim(), deskripsi != null ? deskripsi.trim() : "");
+    }
+
     public String getActivityFileUrl(UUID id) {
         ActivityResponse record = repository.findById(id)
                 .orElseThrow(() -> DomainException.notFound("Activity record with ID '" + id + "' was not found"));

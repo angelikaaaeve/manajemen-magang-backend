@@ -5,11 +5,14 @@ import com.bsi.manajement_magang.modules.sertifikat.schemas.response.SertifikatR
 import com.bsi.manajement_magang.modules.sertifikat.schemas.response.SertifikatStatResponse;
 import com.bsi.manajement_magang.modules.sertifikat.SertifikatService;
 import com.bsi.manajement_magang.shared.APIResponse;
+import com.bsi.manajement_magang.shared.DomainException;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/sertifikat")
@@ -38,5 +41,18 @@ public class SertifikatController {
     public ResponseEntity<APIResponse<SertifikatStatResponse>> getSertifikatStatistics(
             @RequestParam(required = false) String namaMahasiswa) {
         return ResponseEntity.ok(APIResponse.success(sertifikatService.getSertifikatStatistics(namaMahasiswa)));
+    }
+
+    @GetMapping("/mahasiswa")
+    public ResponseEntity<APIResponse<SertifikatResponse>> getMahasiswaSertifikat() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getPrincipal() == null ||
+                auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_MAHASISWA"))) {
+            throw DomainException.unauthorized("Access restricted to mahasiswa");
+        }
+        UUID userId = (UUID) auth.getPrincipal();
+        SertifikatResponse result = sertifikatService.getMahasiswaSertifikat(userId)
+                .orElseThrow(() -> DomainException.notFound("Tidak ada data sertifikat ditemukan untuk mahasiswa ini"));
+        return ResponseEntity.ok(APIResponse.success(result));
     }
 }

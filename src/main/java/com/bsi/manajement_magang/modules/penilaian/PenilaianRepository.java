@@ -205,6 +205,25 @@ public class PenilaianRepository {
         );
     }
 
+    // Find assessment for a specific mahasiswa by their user ID
+    public Optional<PenilaianResponse> findByUserId(UUID userId) {
+        String sql =
+            "SELECT pm.id as periode_id, pm.mahasiswa_id, m.nim, m.nama as nama_mahasiswa, " +
+            "       p.id as penilaian_id, p.mentor_id, men.nama as nama_mentor, " +
+            "       p.kinerja, p.kedisiplinan, p.tanggung_jawab, p.komunikasi, " +
+            "       p.sikap, p.kerapihan, p.absensi, p.kerjasama, p.nilai_total, p.catatan " +
+            "FROM periode_magang pm " +
+            "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
+            "JOIN \"user\" u ON m.user_id = u.id " +
+            "LEFT JOIN penilaian p ON pm.id = p.periode_magang_id " +
+            "LEFT JOIN mentor men ON p.mentor_id = men.id " +
+            "WHERE u.id = :userId AND pm.status = 'aktif' " +
+            "LIMIT 1";
+
+        MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
+        return jdbc.query(sql, params, this::mapPenilaianResponse).stream().findFirst();
+    }
+
     // Check if period exists
     public boolean existsPeriod(UUID periodId) {
         String sql = "SELECT COUNT(1) FROM periode_magang WHERE id = :periodId";
