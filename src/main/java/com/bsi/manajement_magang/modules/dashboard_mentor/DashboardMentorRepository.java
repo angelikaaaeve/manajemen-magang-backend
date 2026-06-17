@@ -127,58 +127,27 @@ public class DashboardMentorRepository {
         return jdbc.queryForList(sql.toString(), params);
     }
 
-    // 7. Count active students (global or by mentor)
-    public long countActiveStudents(UUID mentorId) {
-        String sql;
-        MapSqlParameterSource params = new MapSqlParameterSource();
-        if (mentorId != null) {
-            sql = "SELECT COUNT(DISTINCT mm.mahasiswa_id) " +
-                  "FROM mentor_mahasiswa mm " +
-                  "JOIN periode_magang pm ON mm.mahasiswa_id = pm.mahasiswa_id " +
-                  "WHERE mm.mentor_id = :mentorId AND pm.status = 'aktif'";
-            params.addValue("mentorId", mentorId);
-        } else {
-            sql = "SELECT COUNT(DISTINCT mahasiswa_id) FROM periode_magang WHERE status = 'aktif'";
-        }
-        Long count = jdbc.queryForObject(sql, params, Long.class);
+    // 7. Count active students
+    public long countActiveStudents() {
+        String sql = "SELECT COUNT(DISTINCT mahasiswa_id) FROM periode_magang WHERE status = 'aktif'";
+        Long count = jdbc.queryForObject(sql, new MapSqlParameterSource(), Long.class);
         return count != null ? count : 0L;
     }
 
-    // 8. Count completed students (global or by mentor)
-    public long countCompletedStudents(UUID mentorId) {
-        String sql;
-        MapSqlParameterSource params = new MapSqlParameterSource();
-        if (mentorId != null) {
-            sql = "SELECT COUNT(DISTINCT mm.mahasiswa_id) " +
-                  "FROM mentor_mahasiswa mm " +
-                  "JOIN periode_magang pm ON mm.mahasiswa_id = pm.mahasiswa_id " +
-                  "WHERE mm.mentor_id = :mentorId AND pm.status = 'selesai'";
-            params.addValue("mentorId", mentorId);
-        } else {
-            sql = "SELECT COUNT(DISTINCT mahasiswa_id) FROM periode_magang WHERE status = 'selesai'";
-        }
-        Long count = jdbc.queryForObject(sql, params, Long.class);
+    // 8. Count completed students
+    public long countCompletedStudents() {
+        String sql = "SELECT COUNT(DISTINCT mahasiswa_id) FROM periode_magang WHERE status = 'selesai'";
+        Long count = jdbc.queryForObject(sql, new MapSqlParameterSource(), Long.class);
         return count != null ? count : 0L;
     }
 
-    // 9. Accumulation of attendance (global or by mentor)
-    public Map<String, Long> getAttendanceAccumulation(UUID mentorId) {
-        String sql;
+    // 9. Accumulation of attendance
+    public Map<String, Long> getAttendanceAccumulation() {
+        String sql = "SELECT status, COUNT(*) as status_count " +
+                     "FROM absensi " +
+                     "WHERE status IN ('hadir', 'izin', 'sakit') " +
+                     "GROUP BY status";
         MapSqlParameterSource params = new MapSqlParameterSource();
-        if (mentorId != null) {
-            sql = "SELECT a.status, COUNT(*) as status_count " +
-                  "FROM absensi a " +
-                  "JOIN periode_magang pm ON a.periode_magang_id = pm.id " +
-                  "JOIN mentor_mahasiswa mm ON pm.mahasiswa_id = mm.mahasiswa_id " +
-                  "WHERE mm.mentor_id = :mentorId AND a.status IN ('hadir', 'izin', 'sakit') " +
-                  "GROUP BY a.status";
-            params.addValue("mentorId", mentorId);
-        } else {
-            sql = "SELECT status, COUNT(*) as status_count " +
-                  "FROM absensi " +
-                  "WHERE status IN ('hadir', 'izin', 'sakit') " +
-                  "GROUP BY status";
-        }
 
         List<Map<String, Object>> rows = jdbc.queryForList(sql, params);
         Map<String, Long> result = new HashMap<>();

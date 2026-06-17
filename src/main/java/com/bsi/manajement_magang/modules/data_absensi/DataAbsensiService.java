@@ -1,33 +1,87 @@
 package com.bsi.manajement_magang.modules.data_absensi;
 
-import com.bsi.manajement_magang.modules.data_absensi.DataAbsensiRepository;
 import com.bsi.manajement_magang.modules.data_absensi.schemas.response.AbsensiMahasiswaStatResponse;
 import com.bsi.manajement_magang.modules.data_absensi.schemas.response.AbsensiResponse;
 import com.bsi.manajement_magang.modules.data_absensi.schemas.response.AbsensiStatResponse;
+import com.bsi.manajement_magang.modules.data_absensi.schemas.response.AbsensiHarianMentorResponse;
 import com.bsi.manajement_magang.shared.DomainException;
+import com.bsi.manajement_magang.shared.PaginatedResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 
 @Service
 public class DataAbsensiService {
     private final DataAbsensiRepository repository;
-    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss");
 
     public DataAbsensiService(DataAbsensiRepository repository) {
         this.repository = repository;
     }
 
-    public com.bsi.manajement_magang.shared.PaginatedResponse<AbsensiResponse> listAbsensi(String status, String namaMahasiswa, int index, int size) {
+    // ========================================================
+    // MENTOR-SIDE FEATURES
+    // ========================================================
+
+    /**
+     * Paginated list SEMUA mahasiswa bimbingan yang periode magangnya mencakup tanggal tertentu.
+     * Status: hadir/izin/sakit jika sudah ada record, "alpha" jika belum.
+     */
+    public PaginatedResponse<AbsensiHarianMentorResponse> listAbsensiHarianMentor(
+            LocalDate tanggal, int index, int size) {
+        int limit = size;
+        int offset = (index - 1) * size;
+        List<AbsensiHarianMentorResponse> data =
+            repository.listAbsensiHarianMentor(tanggal, limit, offset);
+        long total = repository.countAbsensiHarianMentor(tanggal);
+        return PaginatedResponse.success(data, total, index, size);
+    }
+
+    /**
+     * Mentor mencatat absensi untuk mahasiswa. Semua mentor bisa catat absensi semua mahasiswa.
+     */
+    @Transactional
+    public AbsensiResponse submitAbsensiByMentor(UUID mentorUserId, UUID mahasiswaId,
+                                                 String status, LocalDate tanggal,
+                                                 String attachmentUrl) {
+        String statusLower = status != null ? status.toLowerCase().trim() : "";
+        if (!List.of("hadir", "izin", "sakit").contains(statusLower)) {
+            throw DomainException.invalidValue("status",
+                "'" + status + "' tidak valid. Pilihan: hadir, izin, sakit");
+        }
+
+        UUID mentorId = repository.findMentorIdByUserId(mentorUserId)
+            .orElseThrow(() -> DomainException.notFound("Data mentor tidak ditemukan"));
+
+        UUID periodeMagangId = repository.findActivePeriodeByMahasiswaId(mahasiswaId)
+            .orElseThrow(() -> DomainException.conflict(
+                "Mahasiswa tidak memiliki periode magang aktif. Absensi tidak dapat dilakukan."));
+
+        if (repository.existsByPeriodeAndTanggal(periodeMagangId, tanggal)) {
+            throw DomainException.conflict(
+                "Absensi untuk tanggal " + tanggal + " sudah tercatat.");
+        }
+
+        UUID newId = repository.insertAbsensi(periodeMagangId, mahasiswaId, mentorId,
+                                              tanggal, statusLower, attachmentUrl);
+
+        return repository.findById(newId)
+            .orElseThrow(() -> DomainException.internalError("Gagal mengambil record absensi setelah insert."));
+    }
+
+    // ========================================================
+    // SHARED / ADMIN FEATURES
+    // ========================================================
+
+    public PaginatedResponse<AbsensiResponse> listAbsensi(String status, String namaMahasiswa,
+                                                          int index, int size) {
         int limit = size;
         int offset = (index - 1) * size;
         List<AbsensiResponse> data = repository.listAbsensi(status, namaMahasiswa, limit, offset);
         long total = repository.countAbsensi(status, namaMahasiswa);
-        return com.bsi.manajement_magang.shared.PaginatedResponse.success(data, total, index, size);
+        return PaginatedResponse.success(data, total, index, size);
     }
 
     @Transactional
@@ -73,6 +127,10 @@ public class DataAbsensiService {
         return csv.toString();
     }
 
+    // ========================================================
+    // MAHASISWA-SIDE FEATURES
+    // ========================================================
+
     @Transactional
     public AbsensiResponse submitAbsensi(UUID userId, String status,
                                          String keterangan, String attachmentUrl) {
@@ -81,6 +139,9 @@ public class DataAbsensiService {
             throw DomainException.invalidValue("status",
                     "'" + status + "' tidak valid. Pilihan: hadir, izin, sakit");
         }
+
+        UUID mahasiswaId = repository.findMahasiswaIdByUserId(userId)
+            .orElseThrow(() -> DomainException.notFound("Data mahasiswa tidak ditemukan"));
 
         UUID periodeMagangId = repository.findActivePeriodeByUserId(userId)
                 .orElseThrow(() -> DomainException.conflict(
@@ -92,18 +153,19 @@ public class DataAbsensiService {
                     "Absensi untuk hari ini (" + today + ") sudah tercatat.");
         }
 
-        UUID newId = repository.insertAbsensi(periodeMagangId, today, statusLower, keterangan, attachmentUrl);
+        UUID newId = repository.insertAbsensi(periodeMagangId, mahasiswaId, null,
+                                              today, statusLower, attachmentUrl);
 
         return repository.findById(newId)
                 .orElseThrow(() -> DomainException.internalError("Gagal mengambil record absensi setelah insert."));
     }
 
-    public com.bsi.manajement_magang.shared.PaginatedResponse<AbsensiResponse> getRiwayatAbsensi(UUID userId, int index, int size) {
+    public PaginatedResponse<AbsensiResponse> getRiwayatAbsensi(UUID userId, int index, int size) {
         int limit = size;
         int offset = (index - 1) * size;
         List<AbsensiResponse> data = repository.listAbsensiByUserId(userId, limit, offset);
         long total = repository.countAbsensiByUserId(userId);
-        return com.bsi.manajement_magang.shared.PaginatedResponse.success(data, total, index, size);
+        return PaginatedResponse.success(data, total, index, size);
     }
 
     public AbsensiMahasiswaStatResponse getMahasiswaStat(UUID userId) {
@@ -114,11 +176,14 @@ public class DataAbsensiService {
         return repository.getTotalKehadiran(userId);
     }
 
+    // ========================================================
+    // Helpers
+    // ========================================================
+
     private String escapeCsvField(String field) {
-        if (field == null) {
-            return "";
-        }
-        if (field.contains(";") || field.contains(",") || field.contains("\"") || field.contains("\n") || field.contains("\r")) {
+        if (field == null) return "";
+        if (field.contains(";") || field.contains(",") || field.contains("\"")
+                || field.contains("\n") || field.contains("\r")) {
             return "\"" + field.replace("\"", "\"\"") + "\"";
         }
         return field;

@@ -33,7 +33,7 @@ public class DataMahasiswaService {
             throw DomainException.conflict("NIM '" + req.nim() + "' is already registered");
         }
 
-        UUID userId = UUID.randomUUID();
+        UUID userId    = UUID.randomUUID();
         UUID studentId = UUID.randomUUID();
         String hashedPassword = argon2Hasher.hash(req.password());
         Long idUniversity = req.idUniversity();
@@ -50,9 +50,8 @@ public class DataMahasiswaService {
         );
 
         if (req.tanggalMulai() != null && req.tanggalBerakhir() != null) {
-            UUID periodId = UUID.randomUUID();
             repository.savePeriod(
-                    periodId,
+                    UUID.randomUUID(),
                     studentId,
                     req.tanggalMulai(),
                     req.tanggalBerakhir(),

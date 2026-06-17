@@ -165,8 +165,7 @@ public class DataMahasiswaRepository {
         StringBuilder sql = new StringBuilder(
             "SELECT m.id, m.user_id, u.email, m.nim, m.nama, m.no_hp, m.gender, " +
             "       m.id_university, univ.name_university AS universitas, " +
-            "       pm.id as periode_id, pm.tanggal_mulai, pm.tanggal_berakhir, pm.status as status_periode, " +
-            "       men.id as mentor_id, men.nama as nama_mentor " +
+            "       pm.id as periode_id, pm.tanggal_mulai, pm.tanggal_berakhir, pm.status as status_periode " +
             "FROM mahasiswa m " +
             "JOIN \"user\" u ON m.user_id = u.id " +
             "LEFT JOIN university univ ON m.id_university = univ.id " +
@@ -175,8 +174,6 @@ public class DataMahasiswaRepository {
             "    FROM periode_magang " +
             "    ORDER BY mahasiswa_id, created_at DESC " +
             ") pm ON m.id = pm.mahasiswa_id " +
-            "LEFT JOIN mentor_mahasiswa mm ON m.id = mm.mahasiswa_id " +
-            "LEFT JOIN mentor men ON mm.mentor_id = men.id " +
             "WHERE 1=1 "
         );
 
@@ -219,8 +216,6 @@ public class DataMahasiswaRepository {
             "    FROM periode_magang " +
             "    ORDER BY mahasiswa_id, created_at DESC " +
             ") pm ON m.id = pm.mahasiswa_id " +
-            "LEFT JOIN mentor_mahasiswa mm ON m.id = mm.mahasiswa_id " +
-            "LEFT JOIN mentor men ON mm.mentor_id = men.id " +
             "WHERE 1=1 "
         );
 
@@ -254,8 +249,7 @@ public class DataMahasiswaRepository {
         String sql =
             "SELECT m.id, m.user_id, u.email, m.nim, m.nama, m.no_hp, m.gender, " +
             "       m.id_university, univ.name_university AS universitas, " +
-            "       pm.id as periode_id, pm.tanggal_mulai, pm.tanggal_berakhir, pm.status as status_periode, " +
-            "       men.id as mentor_id, men.nama as nama_mentor " +
+            "       pm.id as periode_id, pm.tanggal_mulai, pm.tanggal_berakhir, pm.status as status_periode " +
             "FROM mahasiswa m " +
             "JOIN \"user\" u ON m.user_id = u.id " +
             "LEFT JOIN university univ ON m.id_university = univ.id " +
@@ -264,8 +258,6 @@ public class DataMahasiswaRepository {
             "    FROM periode_magang " +
             "    ORDER BY mahasiswa_id, created_at DESC " +
             ") pm ON m.id = pm.mahasiswa_id " +
-            "LEFT JOIN mentor_mahasiswa mm ON m.id = mm.mahasiswa_id " +
-            "LEFT JOIN mentor men ON mm.mentor_id = men.id " +
             "WHERE m.id = :id OR m.user_id = :id";
 
         MapSqlParameterSource params = new MapSqlParameterSource("id", id);
@@ -355,12 +347,9 @@ public class DataMahasiswaRepository {
     // Row mapper helper
     private StudentResponse mapStudentResponse(ResultSet rs, int rowNum) throws SQLException {
         String pId = rs.getString("periode_id");
-        String mId = rs.getString("mentor_id");
-
         UUID periodeId = pId != null ? UUID.fromString(pId) : null;
         LocalDate tanggalMulai = rs.getDate("tanggal_mulai") != null ? rs.getDate("tanggal_mulai").toLocalDate() : null;
         LocalDate tanggalBerakhir = rs.getDate("tanggal_berakhir") != null ? rs.getDate("tanggal_berakhir").toLocalDate() : null;
-        UUID mentorId = mId != null ? UUID.fromString(mId) : null;
 
         return new StudentResponse(
             UUID.fromString(rs.getString("id")),
@@ -376,8 +365,8 @@ public class DataMahasiswaRepository {
             tanggalMulai,
             tanggalBerakhir,
             rs.getString("status_periode") != null ? StatusPeriode.fromString(rs.getString("status_periode")) : null,
-            mentorId,
-            rs.getString("nama_mentor")
+            null,
+            null
         );
     }
 }

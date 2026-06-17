@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/dashboard-mentor")
@@ -36,8 +35,7 @@ public class DashboardMentorController {
     }
 
     @GetMapping("/statistik")
-    public ResponseEntity<APIResponse<DashboardStatResponse>> getDashboardStatistics(
-            @RequestParam(value = "mentorId", required = false) UUID mentorId) {
-        return ResponseEntity.ok(APIResponse.success(service.getDashboardStats(mentorId)));
+    public ResponseEntity<APIResponse<DashboardStatResponse>> getDashboardStatistics() {
+        return ResponseEntity.ok(APIResponse.success(service.getDashboardStats()));
     }
 }

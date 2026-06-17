@@ -89,10 +89,10 @@ public class DashboardMentorService {
     }
 
     // 3. Get Dashboard Statistics (Active Count, Completed Count, and Attendance Breakdown)
-    public DashboardStatResponse getDashboardStats(UUID mentorId) {
-        long activeCount = repository.countActiveStudents(mentorId);
-        long completedCount = repository.countCompletedStudents(mentorId);
-        Map<String, Long> attendanceMap = repository.getAttendanceAccumulation(mentorId);
+    public DashboardStatResponse getDashboardStats() {
+        long activeCount = repository.countActiveStudents();
+        long completedCount = repository.countCompletedStudents();
+        Map<String, Long> attendanceMap = repository.getAttendanceAccumulation();
 
         return new DashboardStatResponse(activeCount, completedCount, attendanceMap);
     }
