@@ -2,9 +2,10 @@ package com.bsi.manajement_magang.modules.data_kegiatan;
 
 import com.bsi.manajement_magang.modules.data_kegiatan.schemas.response.ActivityResponse;
 import com.bsi.manajement_magang.modules.data_kegiatan.schemas.response.ActivityStatResponse;
-import com.bsi.manajement_magang.modules.data_kegiatan.DataKegiatanService;
 import com.bsi.manajement_magang.shared.APIResponse;
 import com.bsi.manajement_magang.shared.DomainException;
+import com.bsi.manajement_magang.shared.PaginatedResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +24,7 @@ public class DataKegiatanController {
     }
 
     @GetMapping
-    public ResponseEntity<com.bsi.manajement_magang.shared.PaginatedResponse<ActivityResponse>> listActivities(
+    public ResponseEntity<PaginatedResponse<ActivityResponse>> listActivities(
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String namaMahasiswa,
             @RequestParam(defaultValue = "1") int index,
@@ -45,9 +46,24 @@ public class DataKegiatanController {
     }
 
     @GetMapping("/{id}/file")
-    public ResponseEntity<APIResponse<Map<String, String>>> getActivityFile(@PathVariable UUID id) {
-        String url = dataKegiatanService.getActivityFileUrl(id);
-        return ResponseEntity.ok(APIResponse.success(Map.of("url", url)));
+    public ResponseEntity<APIResponse<Map<String, List<String>>>> getActivityFiles(@PathVariable UUID id) {
+        List<String> urls = dataKegiatanService.getActivityFiles(id);
+        return ResponseEntity.ok(APIResponse.success(Map.of("urls", urls)));
+    }
+
+    @PostMapping("/{id}/file")
+    public ResponseEntity<APIResponse<Void>> addFilesToActivity(
+            @PathVariable UUID id,
+            @RequestBody Map<String, Object> body) {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getPrincipal() == null ||
+                auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_MAHASISWA"))) {
+            throw DomainException.unauthorized("Access restricted to mahasiswa");
+        }
+        @SuppressWarnings("unchecked")
+        List<String> fileUrls = body.containsKey("fileUrls") ? (List<String>) body.get("fileUrls") : List.of();
+        dataKegiatanService.addFilesToKegiatan(id, fileUrls);
+        return ResponseEntity.ok(APIResponse.success(null, "File berhasil ditambahkan"));
     }
 
     @GetMapping("/statistik")
@@ -70,17 +86,19 @@ public class DataKegiatanController {
 
     @PostMapping("/mahasiswa")
     public ResponseEntity<APIResponse<ActivityResponse>> createMahasiswaActivity(
-            @RequestBody Map<String, String> body) {
+            @RequestBody Map<String, Object> body) {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || auth.getPrincipal() == null ||
                 auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_MAHASISWA"))) {
             throw DomainException.unauthorized("Access restricted to mahasiswa");
         }
         UUID userId = (UUID) auth.getPrincipal();
-        String judul = body.get("judul");
-        String deskripsi = body.getOrDefault("deskripsi", "");
-        return ResponseEntity.ok(APIResponse.success(
-                dataKegiatanService.createMahasiswaActivity(userId, judul, deskripsi),
+        String judul = (String) body.get("judul");
+        String deskripsi = body.containsKey("deskripsi") ? (String) body.get("deskripsi") : "";
+        @SuppressWarnings("unchecked")
+        List<String> fileUrls = body.containsKey("fileUrls") ? (List<String>) body.get("fileUrls") : List.of();
+        return ResponseEntity.status(HttpStatus.CREATED).body(APIResponse.success(
+                dataKegiatanService.createMahasiswaActivity(userId, judul, deskripsi, fileUrls),
                 "Kegiatan berhasil ditambahkan"));
     }
 }

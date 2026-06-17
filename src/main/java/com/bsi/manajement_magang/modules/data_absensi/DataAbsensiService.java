@@ -85,6 +85,22 @@ public class DataAbsensiService {
     }
 
     @Transactional
+    public AbsensiResponse verifikasiAbsensi(UUID id, String action, UUID mentorUserId) {
+        repository.findById(id)
+            .orElseThrow(() -> DomainException.notFound("Absensi dengan ID '" + id + "' tidak ditemukan"));
+        if ("setujui".equalsIgnoreCase(action)) {
+            UUID mentorId = repository.findMentorIdByUserId(mentorUserId)
+                .orElseThrow(() -> DomainException.notFound("Data mentor tidak ditemukan"));
+            repository.updateMentorId(id, mentorId);
+        } else if ("tolak".equalsIgnoreCase(action)) {
+            repository.deleteAbsensi(id);
+            return null;
+        }
+        return repository.findById(id)
+            .orElseThrow(() -> DomainException.internalError("Gagal mengambil record setelah verifikasi"));
+    }
+
+    @Transactional
     public void deleteAbsensi(UUID id) {
         repository.findById(id)
                 .orElseThrow(() -> DomainException.notFound("Attendance record with ID '" + id + "' was not found"));
@@ -132,8 +148,7 @@ public class DataAbsensiService {
     // ========================================================
 
     @Transactional
-    public AbsensiResponse submitAbsensi(UUID userId, String status,
-                                         String keterangan, String attachmentUrl) {
+    public AbsensiResponse submitAbsensi(UUID userId, String status, String attachmentUrl) {
         String statusLower = status != null ? status.toLowerCase().trim() : "";
         if (!List.of("hadir", "izin", "sakit").contains(statusLower)) {
             throw DomainException.invalidValue("status",

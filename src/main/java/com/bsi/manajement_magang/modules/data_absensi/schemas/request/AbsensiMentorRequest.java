@@ -9,6 +9,5 @@ public record AbsensiMentorRequest(
     UUID mahasiswaId,
     String status,
     @JsonFormat(pattern = "yyyy-MM-dd") LocalDate tanggal,
-    String keterangan,
     String attachmentUrl
 ) {}

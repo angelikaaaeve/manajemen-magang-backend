@@ -10,6 +10,7 @@ public record AbsensiResponse(
     UUID id,
     UUID periodeMagangId,
     UUID mahasiswaId,
+    UUID mentorId,
     String nim,
     String namaMahasiswa,
     LocalDate tanggal,

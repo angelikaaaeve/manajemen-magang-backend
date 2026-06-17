@@ -87,7 +87,7 @@ public class DataAbsensiRepository {
 
     public List<AbsensiResponse> listAbsensi(String status, String namaMahasiswa, int limit, int offset) {
         StringBuilder sql = new StringBuilder(
-            "SELECT a.id, a.periode_magang_id, pm.mahasiswa_id, m.nim, m.nama as nama_mahasiswa, " +
+            "SELECT a.id, a.periode_magang_id, pm.mahasiswa_id, a.mentor_id, m.nim, m.nama as nama_mahasiswa, " +
             "       a.tanggal, a.status, a.attachment_url " +
             "FROM absensi a " +
             "JOIN periode_magang pm ON a.periode_magang_id = pm.id " +
@@ -140,7 +140,7 @@ public class DataAbsensiRepository {
 
     public Optional<AbsensiResponse> findById(UUID id) {
         String sql =
-            "SELECT a.id, a.periode_magang_id, pm.mahasiswa_id, m.nim, m.nama as nama_mahasiswa, " +
+            "SELECT a.id, a.periode_magang_id, pm.mahasiswa_id, a.mentor_id, m.nim, m.nama as nama_mahasiswa, " +
             "       a.tanggal, a.status, a.attachment_url " +
             "FROM absensi a " +
             "JOIN periode_magang pm ON a.periode_magang_id = pm.id " +
@@ -149,6 +149,13 @@ public class DataAbsensiRepository {
 
         MapSqlParameterSource params = new MapSqlParameterSource("id", id);
         return jdbc.query(sql, params, this::mapAbsensiResponse).stream().findFirst();
+    }
+
+    public void updateMentorId(UUID absensiId, UUID mentorId) {
+        String sql = "UPDATE absensi SET mentor_id = :mentorId WHERE id = :id";
+        jdbc.update(sql, new MapSqlParameterSource()
+            .addValue("mentorId", mentorId)
+            .addValue("id", absensiId));
     }
 
     public void deleteAbsensi(UUID id) {
@@ -244,7 +251,7 @@ public class DataAbsensiRepository {
 
     public List<AbsensiResponse> listAbsensiByUserId(UUID userId, int limit, int offset) {
         String sql =
-            "SELECT a.id, a.periode_magang_id, pm.mahasiswa_id, m.nim, m.nama as nama_mahasiswa, " +
+            "SELECT a.id, a.periode_magang_id, pm.mahasiswa_id, a.mentor_id, m.nim, m.nama as nama_mahasiswa, " +
             "       a.tanggal, a.status, a.attachment_url " +
             "FROM absensi a " +
             "JOIN periode_magang pm ON a.periode_magang_id = pm.id " +
@@ -327,10 +334,12 @@ public class DataAbsensiRepository {
     // ========================================================
 
     private AbsensiResponse mapAbsensiResponse(ResultSet rs, int rowNum) throws SQLException {
+        String mentorIdStr = rs.getString("mentor_id");
         return new AbsensiResponse(
             UUID.fromString(rs.getString("id")),
             UUID.fromString(rs.getString("periode_magang_id")),
             UUID.fromString(rs.getString("mahasiswa_id")),
+            mentorIdStr != null ? UUID.fromString(mentorIdStr) : null,
             rs.getString("nim"),
             rs.getString("nama_mahasiswa"),
             rs.getDate("tanggal").toLocalDate(),

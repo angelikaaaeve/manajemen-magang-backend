@@ -31,7 +31,10 @@ dependencies {
 	implementation("org.flywaydb:flyway-core")
 	implementation("org.flywaydb:flyway-database-postgresql")
 	implementation("org.bouncycastle:bcprov-jdk18on:1.78")
-	implementation("software.amazon.awssdk:s3:2.25.27")
+	implementation("software.amazon.awssdk:s3:2.25.27") {
+		exclude(group = "software.amazon.awssdk", module = "apache-client")
+	}
+	implementation("software.amazon.awssdk:url-connection-client:2.25.27")
 }
 
 tasks.withType<Test> {

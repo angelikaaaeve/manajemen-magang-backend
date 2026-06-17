@@ -116,7 +116,7 @@ public class DataAbsensiController {
     public ResponseEntity<APIResponse<AbsensiResponse>> submitAbsensi(
             @RequestParam UUID userId,
             @RequestBody SubmitAbsensiRequest req) {
-        AbsensiResponse data = dataAbsensiService.submitAbsensi(userId, req.status(), req.keterangan(), req.attachmentUrl());
+        AbsensiResponse data = dataAbsensiService.submitAbsensi(userId, req.status(), req.attachmentUrl());
         return ResponseEntity.status(HttpStatus.CREATED).body(APIResponse.success(data, "Absensi submitted successfully"));
     }
 
@@ -156,6 +156,21 @@ public class DataAbsensiController {
     public ResponseEntity<APIResponse<AbsensiStatResponse>> getAbsensiStatistics(
             @RequestParam(required = false) String namaMahasiswa) {
         return ResponseEntity.ok(APIResponse.success(dataAbsensiService.getAbsensiStatistics(namaMahasiswa)));
+    }
+
+    @PostMapping("/{id}/verifikasi")
+    public ResponseEntity<APIResponse<AbsensiResponse>> verifikasiAbsensi(
+            @PathVariable UUID id,
+            @RequestParam String action) {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getAuthorities().stream()
+                .noneMatch(a -> a.getAuthority().equals("ROLE_MENTOR"))) {
+            throw DomainException.unauthorized("Access restricted to mentor");
+        }
+        UUID mentorUserId = (UUID) auth.getPrincipal();
+        AbsensiResponse result = dataAbsensiService.verifikasiAbsensi(id, action, mentorUserId);
+        String msg = "setujui".equalsIgnoreCase(action) ? "Absensi berhasil disetujui" : "Absensi berhasil ditolak";
+        return ResponseEntity.ok(APIResponse.success(result, msg));
     }
 
     @GetMapping("/{id}/surat-keterangan")

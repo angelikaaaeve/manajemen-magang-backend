@@ -3,6 +3,7 @@ package com.bsi.manajement_magang.modules.data_kegiatan.schemas.response;
 import com.bsi.manajement_magang.enums.StatusKegiatan;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 
 public record ActivityResponse(
@@ -12,6 +13,6 @@ public record ActivityResponse(
     String judul,
     String deskripsi,
     OffsetDateTime waktu,
-    String fileUrl,
+    List<String> fileUrls,
     StatusKegiatan status
 ) {}

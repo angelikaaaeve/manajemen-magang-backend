@@ -10,6 +10,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 
 import jakarta.annotation.PostConstruct;
+import software.amazon.awssdk.http.urlconnection.UrlConnectionHttpClient;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
@@ -43,6 +44,8 @@ public class CloudflareR2 {
                 .endpointOverride(URI.create(endpoint))
                 .credentialsProvider(StaticCredentialsProvider.create(credentials))
                 .region(Region.of(region))
+                .forcePathStyle(true)
+                .httpClientBuilder(UrlConnectionHttpClient.builder())
                 .build();
     }
 

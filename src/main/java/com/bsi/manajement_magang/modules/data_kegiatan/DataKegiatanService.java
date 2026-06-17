@@ -1,10 +1,9 @@
 package com.bsi.manajement_magang.modules.data_kegiatan;
 
-import com.bsi.manajement_magang.modules.data_kegiatan.DataKegiatanRepository;
 import com.bsi.manajement_magang.modules.data_kegiatan.schemas.response.ActivityResponse;
 import com.bsi.manajement_magang.modules.data_kegiatan.schemas.response.ActivityStatResponse;
-import com.bsi.manajement_magang.modules.data_kegiatan.DataKegiatanService;
 import com.bsi.manajement_magang.shared.DomainException;
+import com.bsi.manajement_magang.shared.PaginatedResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,31 +18,22 @@ public class DataKegiatanService {
         this.repository = repository;
     }
 
-    public com.bsi.manajement_magang.shared.PaginatedResponse<ActivityResponse> listActivities(String status, String namaMahasiswa, int index, int size) {
-        int limit = size;
+    public PaginatedResponse<ActivityResponse> listActivities(String status, String namaMahasiswa, int index, int size) {
         int offset = (index - 1) * size;
-        List<ActivityResponse> data = repository.listActivities(status, namaMahasiswa, limit, offset);
+        List<ActivityResponse> data = repository.listActivities(status, namaMahasiswa, size, offset);
         long total = repository.countActivities(status, namaMahasiswa);
-        return com.bsi.manajement_magang.shared.PaginatedResponse.success(data, total, index, size);
+        return PaginatedResponse.success(data, total, index, size);
     }
 
     @Transactional
     public ActivityResponse updateStatus(UUID id, String status) {
         repository.findById(id)
                 .orElseThrow(() -> DomainException.notFound("Activity record with ID '" + id + "' was not found"));
-
-        if (status == null || status.trim().isEmpty()) {
-            throw DomainException.emptyField("status");
-        }
-
-        String normalizedStatus = status.toLowerCase().trim();
-        if (!normalizedStatus.equals("disetujui") && !normalizedStatus.equals("belum disetujui") && !normalizedStatus.equals("ditolak")) {
-            throw DomainException.invalidValue("status",
-                    "'" + status + "' tidak valid. Pilihan: disetujui, belum disetujui, ditolak");
-        }
-
-        repository.updateStatus(id, normalizedStatus);
-
+        if (status == null || status.trim().isEmpty()) throw DomainException.emptyField("status");
+        String s = status.toLowerCase().trim();
+        if (!s.equals("disetujui") && !s.equals("belum disetujui") && !s.equals("ditolak"))
+            throw DomainException.invalidValue("status", "'" + status + "' tidak valid. Pilihan: disetujui, belum disetujui, ditolak");
+        repository.updateStatus(id, s);
         return repository.findById(id)
                 .orElseThrow(() -> DomainException.internalError("Failed to retrieve updated activity record"));
     }
@@ -64,23 +54,30 @@ public class DataKegiatanService {
     }
 
     @Transactional
-    public ActivityResponse createMahasiswaActivity(UUID userId, String judul, String deskripsi) {
-        if (judul == null || judul.isBlank()) {
-            throw DomainException.emptyField("judul");
-        }
+    public ActivityResponse createMahasiswaActivity(UUID userId, String judul, String deskripsi, List<String> fileUrls) {
+        if (judul == null || judul.isBlank()) throw DomainException.emptyField("judul");
         UUID periodeId = repository.findActivePeriodIdByUserId(userId)
                 .orElseThrow(() -> DomainException.notFound("Tidak ada periode magang aktif untuk mahasiswa ini"));
-        return repository.createActivity(periodeId, judul.trim(), deskripsi != null ? deskripsi.trim() : "");
+        ActivityResponse activity = repository.createActivity(periodeId, judul.trim(), deskripsi != null ? deskripsi.trim() : "");
+        if (fileUrls != null && !fileUrls.isEmpty()) {
+            repository.insertFilesKegiatan(activity.id(), fileUrls);
+        }
+        return repository.findById(activity.id())
+                .orElseThrow(() -> DomainException.internalError("Gagal mengambil kegiatan setelah dibuat"));
     }
 
-    public String getActivityFileUrl(UUID id) {
+    @Transactional
+    public void addFilesToKegiatan(UUID id, List<String> fileUrls) {
+        repository.findById(id)
+                .orElseThrow(() -> DomainException.notFound("Activity record with ID '" + id + "' was not found"));
+        if (fileUrls != null && !fileUrls.isEmpty()) {
+            repository.insertFilesKegiatan(id, fileUrls);
+        }
+    }
+
+    public List<String> getActivityFiles(UUID id) {
         ActivityResponse record = repository.findById(id)
                 .orElseThrow(() -> DomainException.notFound("Activity record with ID '" + id + "' was not found"));
-
-        String url = record.fileUrl();
-        if (url == null || url.trim().isEmpty() || url.equalsIgnoreCase("-")) {
-            throw DomainException.notFound("No file attachment is uploaded for this activity");
-        }
-        return url;
+        return record.fileUrls();
     }
 }
