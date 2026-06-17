@@ -25,11 +25,12 @@ public class DataKegiatanRepository {
     public List<ActivityResponse> listActivities(String status, String namaMahasiswa, int limit, int offset) {
         StringBuilder sql = new StringBuilder(
             "SELECT dk.id, pm.mahasiswa_id, m.nama as nama_mahasiswa, dk.judul, dk.deskripsi, " +
-            "       dk.waktu, dk.status, " +
+            "       dk.waktu, dk.status, me.nama as nama_mentor, " +
             "       ARRAY_AGG(fk.url ORDER BY fk.created_at DESC) FILTER (WHERE fk.url IS NOT NULL) as file_urls " +
             "FROM data_kegiatan dk " +
             "JOIN periode_magang pm ON dk.periode_magang_id = pm.id " +
             "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
+            "LEFT JOIN mentor me ON dk.mentor_id = me.id " +
             "LEFT JOIN file_kegiatan fk ON dk.id = fk.data_kegiatan_id " +
             "WHERE 1=1 "
         );
@@ -45,7 +46,7 @@ public class DataKegiatanRepository {
             params.addValue("namaMahasiswa", "%" + namaMahasiswa.trim() + "%");
         }
 
-        sql.append("GROUP BY dk.id, pm.mahasiswa_id, m.nama, dk.judul, dk.deskripsi, dk.waktu, dk.status ");
+        sql.append("GROUP BY dk.id, pm.mahasiswa_id, m.nama, dk.judul, dk.deskripsi, dk.waktu, dk.status, me.nama ");
         sql.append("ORDER BY dk.waktu DESC, m.nama ASC LIMIT :limit OFFSET :offset");
         params.addValue("limit", limit);
         params.addValue("offset", offset);
@@ -76,20 +77,37 @@ public class DataKegiatanRepository {
     public Optional<ActivityResponse> findById(UUID id) {
         String sql =
             "SELECT dk.id, pm.mahasiswa_id, m.nama as nama_mahasiswa, dk.judul, dk.deskripsi, " +
-            "       dk.waktu, dk.status, " +
+            "       dk.waktu, dk.status, me.nama as nama_mentor, " +
             "       ARRAY_AGG(fk.url ORDER BY fk.created_at DESC) FILTER (WHERE fk.url IS NOT NULL) as file_urls " +
             "FROM data_kegiatan dk " +
             "JOIN periode_magang pm ON dk.periode_magang_id = pm.id " +
             "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
+            "LEFT JOIN mentor me ON dk.mentor_id = me.id " +
             "LEFT JOIN file_kegiatan fk ON dk.id = fk.data_kegiatan_id " +
             "WHERE dk.id = :id " +
-            "GROUP BY dk.id, pm.mahasiswa_id, m.nama, dk.judul, dk.deskripsi, dk.waktu, dk.status";
+            "GROUP BY dk.id, pm.mahasiswa_id, m.nama, dk.judul, dk.deskripsi, dk.waktu, dk.status, me.nama";
         return jdbc.query(sql, new MapSqlParameterSource("id", id), this::mapActivityResponse).stream().findFirst();
     }
 
     public void updateStatus(UUID id, String status) {
         String sql = "UPDATE data_kegiatan SET status = :status, updated_at = NOW() WHERE id = :id";
         jdbc.update(sql, new MapSqlParameterSource().addValue("id", id).addValue("status", status.toLowerCase().trim()));
+    }
+
+    public void updateMentorId(UUID kegiatanId, UUID mentorId) {
+        String sql = "UPDATE data_kegiatan SET mentor_id = :mentorId, updated_at = NOW() WHERE id = :id";
+        jdbc.update(sql, new MapSqlParameterSource().addValue("id", kegiatanId).addValue("mentorId", mentorId));
+    }
+
+    public void clearMentorId(UUID kegiatanId) {
+        String sql = "UPDATE data_kegiatan SET mentor_id = NULL, updated_at = NOW() WHERE id = :id";
+        jdbc.update(sql, new MapSqlParameterSource("id", kegiatanId));
+    }
+
+    public Optional<UUID> findMentorIdByUserId(UUID userId) {
+        String sql = "SELECT id FROM mentor WHERE user_id = :userId";
+        List<UUID> result = jdbc.queryForList(sql, new MapSqlParameterSource("userId", userId), UUID.class);
+        return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
     }
 
     public void deleteActivity(UUID id) {
@@ -123,15 +141,16 @@ public class DataKegiatanRepository {
     public List<ActivityResponse> listActivitiesByUserId(UUID userId) {
         String sql =
             "SELECT dk.id, pm.mahasiswa_id, m.nama as nama_mahasiswa, dk.judul, dk.deskripsi, " +
-            "       dk.waktu, dk.status, " +
+            "       dk.waktu, dk.status, me.nama as nama_mentor, " +
             "       ARRAY_AGG(fk.url ORDER BY fk.created_at DESC) FILTER (WHERE fk.url IS NOT NULL) as file_urls " +
             "FROM data_kegiatan dk " +
             "JOIN periode_magang pm ON dk.periode_magang_id = pm.id " +
             "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
             "JOIN \"user\" u ON m.user_id = u.id " +
+            "LEFT JOIN mentor me ON dk.mentor_id = me.id " +
             "LEFT JOIN file_kegiatan fk ON dk.id = fk.data_kegiatan_id " +
             "WHERE u.id = :userId " +
-            "GROUP BY dk.id, pm.mahasiswa_id, m.nama, dk.judul, dk.deskripsi, dk.waktu, dk.status " +
+            "GROUP BY dk.id, pm.mahasiswa_id, m.nama, dk.judul, dk.deskripsi, dk.waktu, dk.status, me.nama " +
             "ORDER BY dk.waktu DESC";
         return jdbc.query(sql, new MapSqlParameterSource("userId", userId), this::mapActivityResponse);
     }
@@ -196,7 +215,8 @@ public class DataKegiatanRepository {
             rs.getString("deskripsi"),
             waktu,
             fileUrls,
-            rs.getString("status") != null ? StatusKegiatan.fromString(rs.getString("status")) : null
+            rs.getString("status") != null ? StatusKegiatan.fromString(rs.getString("status")) : null,
+            rs.getString("nama_mentor")
         );
     }
 }

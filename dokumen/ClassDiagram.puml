@@ -1,0 +1,134 @@
+@startuml
+' Class Diagram
+' Sistem Manajemen Magang
+
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam nodesep 50
+skinparam ranksep 50
+
+class User {
+  - id : UUID
+  - email : VARCHAR
+  - password : VARCHAR
+  - role : VARCHAR
+  - is_active : BOOLEAN
+  - created_at : TIMESTAMP
+  - updated_at : TIMESTAMP
+}
+
+class University {
+  - id : BIGINT
+  - name_university : TEXT
+  - created_at : TIMESTAMP
+}
+
+class Mahasiswa {
+  - id : UUID
+  - user_id : UUID
+  - id_university : BIGINT
+  - nim : VARCHAR
+  - nama : VARCHAR
+  - no_hp : VARCHAR
+  - gender : VARCHAR
+}
+
+class Mentor {
+  - id : UUID
+  - user_id : UUID
+  - nama : VARCHAR
+}
+
+class PeriodeMagang {
+  - id : UUID
+  - mahasiswa_id : UUID
+  - tanggal_mulai : DATE
+  - tanggal_berakhir : DATE
+  - status : VARCHAR
+  - created_at : TIMESTAMP
+}
+
+class Absensi {
+  - id : UUID
+  - periode_magang_id : UUID
+  - mahasiswa_id : UUID
+  - mentor_id : UUID
+  - tanggal : DATE
+  - status : VARCHAR
+  - attachment_url : TEXT
+  - created_at : TIMESTAMP
+}
+
+class DataKegiatan {
+  - id : UUID
+  - periode_magang_id : UUID
+  - mentor_id : UUID
+  - judul : VARCHAR
+  - deskripsi : TEXT
+  - waktu : TIMESTAMPTZ
+  - status : VARCHAR
+  - created_at : TIMESTAMP
+  - updated_at : TIMESTAMP
+}
+
+class FileKegiatan {
+  - id : UUID
+  - data_kegiatan_id : UUID
+  - nama_file : VARCHAR
+  - url : TEXT
+  - tipe_file : VARCHAR
+  - created_at : TIMESTAMP
+}
+
+class Penilaian {
+  - id : UUID
+  - periode_magang_id : UUID
+  - mentor_id : UUID
+  - kinerja : NUMERIC
+  - kedisiplinan : NUMERIC
+  - tanggung_jawab : NUMERIC
+  - komunikasi : NUMERIC
+  - sikap : NUMERIC
+  - kerapihan : NUMERIC
+  - absensi : NUMERIC
+  - kerjasama : NUMERIC
+  - nilai_total : NUMERIC
+  - catatan : TEXT
+  - created_at : TIMESTAMP
+}
+
+class SuratKeteranganMagang {
+  - id : UUID
+  - periode_magang_id : UUID
+  - url : TEXT
+  - created_at : TIMESTAMP
+}
+
+class Sertifikat {
+  - id : UUID
+  - periode_magang_id : UUID
+  - url : TEXT
+  - created_at : TIMESTAMP
+}
+
+' Relasi
+User "1" -- "1" Mahasiswa
+User "1" -- "1" Mentor
+University "1" -- "*" Mahasiswa
+
+Mahasiswa "1" -- "*" PeriodeMagang
+Mahasiswa "1" -- "*" Absensi
+
+Mentor "1" -- "*" Absensi
+Mentor "1" -- "*" DataKegiatan
+Mentor "1" -- "*" Penilaian
+
+PeriodeMagang "1" -- "*" Absensi
+PeriodeMagang "1" -- "*" DataKegiatan
+PeriodeMagang "1" -- "1" Penilaian
+PeriodeMagang "1" -- "1" SuratKeteranganMagang
+PeriodeMagang "1" -- "1" Sertifikat
+
+DataKegiatan "1" -- "*" FileKegiatan
+
+@enduml

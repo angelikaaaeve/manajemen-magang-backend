@@ -23,7 +23,8 @@ public class PenilaianRepository {
     // List all students and their assessments with filters
     public List<PenilaianResponse> listPenilaian(String status, String namaMahasiswa, int limit, int offset) {
         StringBuilder sql = new StringBuilder(
-            "SELECT pm.id as periode_id, pm.mahasiswa_id, m.nim, m.nama as nama_mahasiswa, " +
+            "SELECT pm.id as periode_id, pm.mahasiswa_id, pm.tanggal_mulai, pm.tanggal_berakhir, " +
+            "       m.nim, m.nama as nama_mahasiswa, " +
             "       p.id as penilaian_id, p.mentor_id, men.nama as nama_mentor, " +
             "       p.kinerja, p.kedisiplinan, p.tanggung_jawab, p.komunikasi, " +
             "       p.sikap, p.kerapihan, p.absensi, p.kerjasama, p.nilai_total, p.catatan " +
@@ -31,7 +32,7 @@ public class PenilaianRepository {
             "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
             "LEFT JOIN penilaian p ON pm.id = p.periode_magang_id " +
             "LEFT JOIN mentor men ON p.mentor_id = men.id " +
-            "WHERE pm.status = 'aktif' " // We grade students with active periods
+            "WHERE pm.status = 'aktif' "
         );
 
         MapSqlParameterSource params = new MapSqlParameterSource();
@@ -86,7 +87,8 @@ public class PenilaianRepository {
     // Find assessment detail by ID
     public Optional<PenilaianResponse> findById(UUID id) {
         String sql =
-            "SELECT pm.id as periode_id, pm.mahasiswa_id, m.nim, m.nama as nama_mahasiswa, " +
+            "SELECT pm.id as periode_id, pm.mahasiswa_id, pm.tanggal_mulai, pm.tanggal_berakhir, " +
+            "       m.nim, m.nama as nama_mahasiswa, " +
             "       p.id as penilaian_id, p.mentor_id, men.nama as nama_mentor, " +
             "       p.kinerja, p.kedisiplinan, p.tanggung_jawab, p.komunikasi, " +
             "       p.sikap, p.kerapihan, p.absensi, p.kerjasama, p.nilai_total, p.catatan " +
@@ -103,7 +105,8 @@ public class PenilaianRepository {
     // Find assessment detail by PeriodeMagang ID
     public Optional<PenilaianResponse> findByPeriodeMagangId(UUID periodId) {
         String sql =
-            "SELECT pm.id as periode_id, pm.mahasiswa_id, m.nim, m.nama as nama_mahasiswa, " +
+            "SELECT pm.id as periode_id, pm.mahasiswa_id, pm.tanggal_mulai, pm.tanggal_berakhir, " +
+            "       m.nim, m.nama as nama_mahasiswa, " +
             "       p.id as penilaian_id, p.mentor_id, men.nama as nama_mentor, " +
             "       p.kinerja, p.kedisiplinan, p.tanggung_jawab, p.komunikasi, " +
             "       p.sikap, p.kerapihan, p.absensi, p.kerjasama, p.nilai_total, p.catatan " +
@@ -208,7 +211,8 @@ public class PenilaianRepository {
     // Find assessment for a specific mahasiswa by their user ID
     public Optional<PenilaianResponse> findByUserId(UUID userId) {
         String sql =
-            "SELECT pm.id as periode_id, pm.mahasiswa_id, m.nim, m.nama as nama_mahasiswa, " +
+            "SELECT pm.id as periode_id, pm.mahasiswa_id, pm.tanggal_mulai, pm.tanggal_berakhir, " +
+            "       m.nim, m.nama as nama_mahasiswa, " +
             "       p.id as penilaian_id, p.mentor_id, men.nama as nama_mentor, " +
             "       p.kinerja, p.kedisiplinan, p.tanggung_jawab, p.komunikasi, " +
             "       p.sikap, p.kerapihan, p.absensi, p.kerjasama, p.nilai_total, p.catatan " +
@@ -272,12 +276,17 @@ public class PenilaianRepository {
 
         String statusPenilaian = pId != null ? "SUDAH_DINILAI" : "BELUM_DINILAI";
 
+        java.sql.Date tMulai    = rs.getDate("tanggal_mulai");
+        java.sql.Date tBerakhir = rs.getDate("tanggal_berakhir");
+
         return new PenilaianResponse(
             penilaianId,
             UUID.fromString(rs.getString("periode_id")),
             UUID.fromString(rs.getString("mahasiswa_id")),
             rs.getString("nim"),
             rs.getString("nama_mahasiswa"),
+            tMulai    != null ? tMulai.toLocalDate()    : null,
+            tBerakhir != null ? tBerakhir.toLocalDate() : null,
             mentorId,
             rs.getString("nama_mentor"),
             kinerja,

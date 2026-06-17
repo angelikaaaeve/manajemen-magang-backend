@@ -36,7 +36,13 @@ public class DataKegiatanController {
     public ResponseEntity<APIResponse<ActivityResponse>> updateStatus(
             @PathVariable UUID id,
             @RequestParam String status) {
-        return ResponseEntity.ok(APIResponse.success(dataKegiatanService.updateStatus(id, status), "Status updated successfully"));
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        UUID mentorUserId = null;
+        if (auth != null && auth.getPrincipal() instanceof UUID &&
+                auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_MENTOR"))) {
+            mentorUserId = (UUID) auth.getPrincipal();
+        }
+        return ResponseEntity.ok(APIResponse.success(dataKegiatanService.updateStatus(id, status, mentorUserId), "Status updated successfully"));
     }
 
     @DeleteMapping("/{id}")

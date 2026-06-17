@@ -23,12 +23,16 @@ public class SertifikatRepository {
     // List all certificates with filters
     public List<SertifikatResponse> listSertifikat(String status, String namaMahasiswa, int limit, int offset) {
         StringBuilder sql = new StringBuilder(
-            "SELECT pm.id as periode_id, pm.mahasiswa_id, m.nim, m.nama as nama_mahasiswa, " +
-            "       s.id as sertifikat_id, s.url, s.created_at " +
+            "SELECT pm.id as periode_id, pm.mahasiswa_id, pm.tanggal_mulai, pm.tanggal_berakhir, " +
+            "       m.nim, m.nama as nama_mahasiswa, " +
+            "       s.id as sertifikat_id, s.url, s.created_at, " +
+            "       me.nama as nama_mentor " +
             "FROM periode_magang pm " +
             "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
             "LEFT JOIN sertifikat s ON pm.id = s.periode_magang_id " +
-            "WHERE pm.status = 'aktif' " // We filter only for active period students
+            "LEFT JOIN penilaian p ON pm.id = p.periode_magang_id " +
+            "LEFT JOIN mentor me ON p.mentor_id = me.id " +
+            "WHERE pm.status = 'aktif' "
         );
 
         MapSqlParameterSource params = new MapSqlParameterSource();
@@ -83,11 +87,15 @@ public class SertifikatRepository {
     // Find by ID
     public Optional<SertifikatResponse> findById(UUID id) {
         String sql =
-            "SELECT pm.id as periode_id, pm.mahasiswa_id, m.nim, m.nama as nama_mahasiswa, " +
-            "       s.id as sertifikat_id, s.url, s.created_at " +
+            "SELECT pm.id as periode_id, pm.mahasiswa_id, pm.tanggal_mulai, pm.tanggal_berakhir, " +
+            "       m.nim, m.nama as nama_mahasiswa, " +
+            "       s.id as sertifikat_id, s.url, s.created_at, " +
+            "       me.nama as nama_mentor " +
             "FROM sertifikat s " +
             "JOIN periode_magang pm ON s.periode_magang_id = pm.id " +
             "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
+            "LEFT JOIN penilaian p ON pm.id = p.periode_magang_id " +
+            "LEFT JOIN mentor me ON p.mentor_id = me.id " +
             "WHERE s.id = :id";
 
         MapSqlParameterSource params = new MapSqlParameterSource("id", id);
@@ -97,11 +105,15 @@ public class SertifikatRepository {
     // Find by PeriodeMagang ID
     public Optional<SertifikatResponse> findByPeriodeMagangId(UUID periodId) {
         String sql =
-            "SELECT pm.id as periode_id, pm.mahasiswa_id, m.nim, m.nama as nama_mahasiswa, " +
-            "       s.id as sertifikat_id, s.url, s.created_at " +
+            "SELECT pm.id as periode_id, pm.mahasiswa_id, pm.tanggal_mulai, pm.tanggal_berakhir, " +
+            "       m.nim, m.nama as nama_mahasiswa, " +
+            "       s.id as sertifikat_id, s.url, s.created_at, " +
+            "       me.nama as nama_mentor " +
             "FROM periode_magang pm " +
             "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
             "LEFT JOIN sertifikat s ON pm.id = s.periode_magang_id " +
+            "LEFT JOIN penilaian p ON pm.id = p.periode_magang_id " +
+            "LEFT JOIN mentor me ON p.mentor_id = me.id " +
             "WHERE pm.id = :periodId";
 
         MapSqlParameterSource params = new MapSqlParameterSource("periodId", periodId);
@@ -173,12 +185,16 @@ public class SertifikatRepository {
     // Find certificate for a specific mahasiswa by their user ID
     public Optional<SertifikatResponse> findByUserId(UUID userId) {
         String sql =
-            "SELECT pm.id as periode_id, pm.mahasiswa_id, m.nim, m.nama as nama_mahasiswa, " +
-            "       s.id as sertifikat_id, s.url, s.created_at " +
+            "SELECT pm.id as periode_id, pm.mahasiswa_id, pm.tanggal_mulai, pm.tanggal_berakhir, " +
+            "       m.nim, m.nama as nama_mahasiswa, " +
+            "       s.id as sertifikat_id, s.url, s.created_at, " +
+            "       me.nama as nama_mentor " +
             "FROM periode_magang pm " +
             "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
             "JOIN \"user\" u ON m.user_id = u.id " +
             "LEFT JOIN sertifikat s ON pm.id = s.periode_magang_id " +
+            "LEFT JOIN penilaian p ON pm.id = p.periode_magang_id " +
+            "LEFT JOIN mentor me ON p.mentor_id = me.id " +
             "WHERE u.id = :userId AND pm.status = 'aktif' " +
             "LIMIT 1";
 
@@ -203,7 +219,10 @@ public class SertifikatRepository {
         java.sql.Timestamp ts = rs.getTimestamp("created_at");
         LocalDateTime createdAt = ts != null ? ts.toLocalDateTime() : null;
 
-        String statusSertifikat = sId != null ? "Sudah Diunggah" : "belum diunggah";
+        java.sql.Date tMulai    = rs.getDate("tanggal_mulai");
+        java.sql.Date tBerakhir = rs.getDate("tanggal_berakhir");
+
+        String statusSertifikat = sId != null ? "SUDAH_DIUNGGAH" : "BELUM_DIUNGGAH";
 
         return new SertifikatResponse(
             certificateId,
@@ -211,7 +230,10 @@ public class SertifikatRepository {
             UUID.fromString(rs.getString("mahasiswa_id")),
             rs.getString("nim"),
             rs.getString("nama_mahasiswa"),
-            url != null ? url : "-",
+            tMulai    != null ? tMulai.toLocalDate()    : null,
+            tBerakhir != null ? tBerakhir.toLocalDate() : null,
+            rs.getString("nama_mentor"),
+            url != null ? url : null,
             statusSertifikat,
             createdAt
         );

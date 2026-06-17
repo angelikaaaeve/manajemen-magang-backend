@@ -23,11 +23,15 @@ public class SuratKeteranganRepository {
     // List all letters with filters
     public List<SuratKeteranganResponse> listSuratKeterangan(String status, String namaMahasiswa, int limit, int offset) {
         StringBuilder sql = new StringBuilder(
-            "SELECT pm.id as periode_id, pm.mahasiswa_id, m.nim, m.nama as nama_mahasiswa, " +
-            "       sk.id as surat_id, sk.url, sk.created_at " +
+            "SELECT pm.id as periode_id, pm.mahasiswa_id, pm.tanggal_mulai, pm.tanggal_berakhir, " +
+            "       m.nim, m.nama as nama_mahasiswa, " +
+            "       sk.id as surat_id, sk.url, sk.created_at, " +
+            "       me.nama as nama_mentor " +
             "FROM periode_magang pm " +
             "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
             "LEFT JOIN surat_keterangan_magang sk ON pm.id = sk.periode_magang_id " +
+            "LEFT JOIN penilaian p ON pm.id = p.periode_magang_id " +
+            "LEFT JOIN mentor me ON p.mentor_id = me.id " +
             "WHERE pm.status = 'aktif' " // We filter only for active period students
         );
 
@@ -83,11 +87,15 @@ public class SuratKeteranganRepository {
     // Find by ID
     public Optional<SuratKeteranganResponse> findById(UUID id) {
         String sql =
-            "SELECT pm.id as periode_id, pm.mahasiswa_id, m.nim, m.nama as nama_mahasiswa, " +
-            "       sk.id as surat_id, sk.url, sk.created_at " +
+            "SELECT pm.id as periode_id, pm.mahasiswa_id, pm.tanggal_mulai, pm.tanggal_berakhir, " +
+            "       m.nim, m.nama as nama_mahasiswa, " +
+            "       sk.id as surat_id, sk.url, sk.created_at, " +
+            "       me.nama as nama_mentor " +
             "FROM surat_keterangan_magang sk " +
             "JOIN periode_magang pm ON sk.periode_magang_id = pm.id " +
             "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
+            "LEFT JOIN penilaian p ON pm.id = p.periode_magang_id " +
+            "LEFT JOIN mentor me ON p.mentor_id = me.id " +
             "WHERE sk.id = :id";
 
         MapSqlParameterSource params = new MapSqlParameterSource("id", id);
@@ -97,11 +105,15 @@ public class SuratKeteranganRepository {
     // Find by PeriodeMagang ID
     public Optional<SuratKeteranganResponse> findByPeriodeMagangId(UUID periodId) {
         String sql =
-            "SELECT pm.id as periode_id, pm.mahasiswa_id, m.nim, m.nama as nama_mahasiswa, " +
-            "       sk.id as surat_id, sk.url, sk.created_at " +
+            "SELECT pm.id as periode_id, pm.mahasiswa_id, pm.tanggal_mulai, pm.tanggal_berakhir, " +
+            "       m.nim, m.nama as nama_mahasiswa, " +
+            "       sk.id as surat_id, sk.url, sk.created_at, " +
+            "       me.nama as nama_mentor " +
             "FROM periode_magang pm " +
             "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
             "LEFT JOIN surat_keterangan_magang sk ON pm.id = sk.periode_magang_id " +
+            "LEFT JOIN penilaian p ON pm.id = p.periode_magang_id " +
+            "LEFT JOIN mentor me ON p.mentor_id = me.id " +
             "WHERE pm.id = :periodId";
 
         MapSqlParameterSource params = new MapSqlParameterSource("periodId", periodId);
@@ -173,12 +185,16 @@ public class SuratKeteranganRepository {
     // Find reference letter for a specific mahasiswa by their user ID
     public Optional<SuratKeteranganResponse> findByUserId(UUID userId) {
         String sql =
-            "SELECT pm.id as periode_id, pm.mahasiswa_id, m.nim, m.nama as nama_mahasiswa, " +
-            "       sk.id as surat_id, sk.url, sk.created_at " +
+            "SELECT pm.id as periode_id, pm.mahasiswa_id, pm.tanggal_mulai, pm.tanggal_berakhir, " +
+            "       m.nim, m.nama as nama_mahasiswa, " +
+            "       sk.id as surat_id, sk.url, sk.created_at, " +
+            "       me.nama as nama_mentor " +
             "FROM periode_magang pm " +
             "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
             "JOIN \"user\" u ON m.user_id = u.id " +
             "LEFT JOIN surat_keterangan_magang sk ON pm.id = sk.periode_magang_id " +
+            "LEFT JOIN penilaian p ON pm.id = p.periode_magang_id " +
+            "LEFT JOIN mentor me ON p.mentor_id = me.id " +
             "WHERE u.id = :userId AND pm.status = 'aktif' " +
             "LIMIT 1";
 
@@ -203,6 +219,11 @@ public class SuratKeteranganRepository {
         java.sql.Timestamp ts = rs.getTimestamp("created_at");
         LocalDateTime createdAt = ts != null ? ts.toLocalDateTime() : null;
 
+        java.sql.Date sqlStart = rs.getDate("tanggal_mulai");
+        java.sql.Date sqlEnd = rs.getDate("tanggal_berakhir");
+        java.time.LocalDate tanggalMulai = sqlStart != null ? sqlStart.toLocalDate() : null;
+        java.time.LocalDate tanggalBerakhir = sqlEnd != null ? sqlEnd.toLocalDate() : null;
+
         String statusSurat = sId != null ? "Sudah Diunggah" : "belum diunggah";
 
         return new SuratKeteranganResponse(
@@ -211,6 +232,9 @@ public class SuratKeteranganRepository {
             UUID.fromString(rs.getString("mahasiswa_id")),
             rs.getString("nim"),
             rs.getString("nama_mahasiswa"),
+            tanggalMulai,
+            tanggalBerakhir,
+            rs.getString("nama_mentor"),
             url != null ? url : "-",
             statusSurat,
             createdAt

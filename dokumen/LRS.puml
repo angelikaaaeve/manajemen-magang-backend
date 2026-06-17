@@ -1,0 +1,148 @@
+@startuml
+' Logical Record Structure (LRS) / Entity Relationship Diagram
+' Sistem Manajemen Magang
+
+hide circle
+skinparam linetype ortho
+skinparam nodesep 50
+skinparam ranksep 50
+
+entity "user" as user {
+  * id : UUID <<PK>>
+  --
+  * email : VARCHAR(255) <<UK>>
+  * password : VARCHAR(255)
+  * role : VARCHAR(20)
+  * is_active : BOOLEAN
+  * created_at : TIMESTAMP
+  * updated_at : TIMESTAMP
+}
+
+entity "university" as university {
+  * id : BIGINT <<PK>>
+  --
+  * name_university : TEXT
+  * created_at : TIMESTAMP
+}
+
+entity "mahasiswa" as mahasiswa {
+  * id : UUID <<PK>>
+  --
+  * user_id : UUID <<FK>> <<UK>>
+  id_university : BIGINT <<FK>>
+  * nim : VARCHAR(20) <<UK>>
+  * nama : VARCHAR(255)
+  no_hp : VARCHAR(20)
+  gender : VARCHAR(20)
+}
+
+entity "mentor" as mentor {
+  * id : UUID <<PK>>
+  --
+  * user_id : UUID <<FK>> <<UK>>
+  * nama : VARCHAR(255)
+}
+
+entity "periode_magang" as periode_magang {
+  * id : UUID <<PK>>
+  --
+  * mahasiswa_id : UUID <<FK>>
+  * tanggal_mulai : DATE
+  * tanggal_berakhir : DATE
+  * status : VARCHAR(10)
+  * created_at : TIMESTAMP
+}
+
+entity "absensi" as absensi {
+  * id : UUID <<PK>>
+  --
+  * periode_magang_id : UUID <<FK>>
+  * mahasiswa_id : UUID <<FK>>
+  mentor_id : UUID <<FK>>
+  * tanggal : DATE
+  * status : VARCHAR(10)
+  attachment_url : TEXT
+  * created_at : TIMESTAMP
+}
+
+entity "data_kegiatan" as data_kegiatan {
+  * id : UUID <<PK>>
+  --
+  * periode_magang_id : UUID <<FK>>
+  mentor_id : UUID <<FK>>
+  * judul : VARCHAR(255)
+  deskripsi : TEXT
+  * waktu : TIMESTAMPTZ
+  * status : VARCHAR(20)
+  * created_at : TIMESTAMP
+  * updated_at : TIMESTAMP
+}
+
+entity "file_kegiatan" as file_kegiatan {
+  * id : UUID <<PK>>
+  --
+  * data_kegiatan_id : UUID <<FK>>
+  nama_file : VARCHAR(255)
+  * url : TEXT
+  tipe_file : VARCHAR(50)
+  * created_at : TIMESTAMP
+}
+
+entity "penilaian" as penilaian {
+  * id : UUID <<PK>>
+  --
+  * periode_magang_id : UUID <<FK>> <<UK>>
+  * mentor_id : UUID <<FK>>
+  kinerja : NUMERIC(5,2)
+  kedisiplinan : NUMERIC(5,2)
+  tanggung_jawab : NUMERIC(5,2)
+  komunikasi : NUMERIC(5,2)
+  sikap : NUMERIC(5,2)
+  kerapihan : NUMERIC(5,2)
+  absensi : NUMERIC(5,2)
+  kerjasama : NUMERIC(5,2)
+  nilai_total : NUMERIC(5,2)
+  catatan : TEXT
+  * created_at : TIMESTAMP
+}
+
+entity "surat_keterangan_magang" as surat_keterangan_magang {
+  * id : UUID <<PK>>
+  --
+  * periode_magang_id : UUID <<FK>> <<UK>>
+  * url : TEXT
+  * created_at : TIMESTAMP
+}
+
+entity "sertifikat" as sertifikat {
+  * id : UUID <<PK>>
+  --
+  * periode_magang_id : UUID <<FK>> <<UK>>
+  * url : TEXT
+  * created_at : TIMESTAMP
+}
+
+' ==============================
+' RELATIONS
+' ==============================
+
+user ||--|| mahasiswa
+user ||--|| mentor
+university ||--o{ mahasiswa
+
+mahasiswa ||--o{ periode_magang
+mahasiswa ||--o{ absensi
+
+mentor ||--o{ absensi
+mentor ||--o{ data_kegiatan
+mentor ||--o{ penilaian
+
+periode_magang ||--o{ absensi
+periode_magang ||--o{ data_kegiatan
+periode_magang ||--|| penilaian
+periode_magang ||--|| surat_keterangan_magang
+periode_magang ||--|| sertifikat
+
+data_kegiatan ||--o{ file_kegiatan
+
+@enduml

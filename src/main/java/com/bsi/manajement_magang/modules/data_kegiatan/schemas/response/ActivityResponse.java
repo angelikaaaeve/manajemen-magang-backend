@@ -14,5 +14,6 @@ public record ActivityResponse(
     String deskripsi,
     OffsetDateTime waktu,
     List<String> fileUrls,
-    StatusKegiatan status
+    StatusKegiatan status,
+    String namaMentor
 ) {}

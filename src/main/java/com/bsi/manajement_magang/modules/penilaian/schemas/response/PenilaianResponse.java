@@ -1,6 +1,7 @@
 package com.bsi.manajement_magang.modules.penilaian.schemas.response;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.UUID;
 
 public record PenilaianResponse(
@@ -9,6 +10,8 @@ public record PenilaianResponse(
     UUID mahasiswaId,
     String nim,
     String namaMahasiswa,
+    LocalDate tanggalMulai,
+    LocalDate tanggalBerakhir,
     UUID mentorId,
     String namaMentor,
     BigDecimal kinerja,

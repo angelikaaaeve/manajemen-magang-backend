@@ -26,7 +26,7 @@ public class DataKegiatanService {
     }
 
     @Transactional
-    public ActivityResponse updateStatus(UUID id, String status) {
+    public ActivityResponse updateStatus(UUID id, String status, UUID mentorUserId) {
         repository.findById(id)
                 .orElseThrow(() -> DomainException.notFound("Activity record with ID '" + id + "' was not found"));
         if (status == null || status.trim().isEmpty()) throw DomainException.emptyField("status");
@@ -34,6 +34,13 @@ public class DataKegiatanService {
         if (!s.equals("disetujui") && !s.equals("belum disetujui") && !s.equals("ditolak"))
             throw DomainException.invalidValue("status", "'" + status + "' tidak valid. Pilihan: disetujui, belum disetujui, ditolak");
         repository.updateStatus(id, s);
+        if (s.equals("disetujui") && mentorUserId != null) {
+            repository.findMentorIdByUserId(mentorUserId).ifPresent(mentorId ->
+                repository.updateMentorId(id, mentorId)
+            );
+        } else if (s.equals("belum disetujui")) {
+            repository.clearMentorId(id);
+        }
         return repository.findById(id)
                 .orElseThrow(() -> DomainException.internalError("Failed to retrieve updated activity record"));
     }
