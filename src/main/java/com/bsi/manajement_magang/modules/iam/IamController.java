@@ -8,6 +8,7 @@ import com.bsi.manajement_magang.modules.iam.schemas.response.UserResponse;
 import com.bsi.manajement_magang.modules.iam.IamService;
 import com.bsi.manajement_magang.shared.APIResponse;
 import com.bsi.manajement_magang.shared.DomainException;
+import com.bsi.manajement_magang.shared.SecurityUtil;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -63,20 +64,14 @@ public class IamController {
     @GetMapping("/me")
     public ResponseEntity<APIResponse<UserResponse>> me() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || auth.getPrincipal() == null) {
-            throw DomainException.unauthorized("Not authenticated");
-        }
-        UUID userId = (UUID) auth.getPrincipal();
+        UUID userId = SecurityUtil.requireUserId(auth);
         return ResponseEntity.ok(APIResponse.success(iamService.getMe(userId)));
     }
 
     @PutMapping("/update")
     public ResponseEntity<APIResponse<UserResponse>> update(@RequestBody UpdateUserRequest req) {
         var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || auth.getPrincipal() == null) {
-            throw DomainException.unauthorized("Not authenticated");
-        }
-        UUID userId = (UUID) auth.getPrincipal();
+        UUID userId = SecurityUtil.requireUserId(auth);
         return ResponseEntity.ok(APIResponse.success(iamService.update(userId, req), "Profile updated successfully"));
     }
 

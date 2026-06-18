@@ -9,6 +9,7 @@ import com.bsi.manajement_magang.modules.data_absensi.schemas.response.AbsensiHa
 import com.bsi.manajement_magang.shared.APIResponse;
 import com.bsi.manajement_magang.shared.DomainException;
 import com.bsi.manajement_magang.shared.PaginatedResponse;
+import com.bsi.manajement_magang.shared.SecurityUtil;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -70,7 +71,7 @@ public class DataAbsensiController {
                 .noneMatch(a -> a.getAuthority().equals("ROLE_MENTOR"))) {
             throw DomainException.unauthorized("Access restricted to mentor");
         }
-        UUID mentorUserId = (UUID) auth.getPrincipal();
+        UUID mentorUserId = SecurityUtil.requireUserId(auth);
         LocalDate targetDate = req.tanggal() != null ? req.tanggal() : LocalDate.now();
         AbsensiResponse result = dataAbsensiService.submitAbsensiByMentor(
             mentorUserId, req.mahasiswaId(), req.status(), targetDate, req.attachmentUrl()
@@ -86,11 +87,10 @@ public class DataAbsensiController {
     @GetMapping("/total-kehadiran")
     public ResponseEntity<APIResponse<Long>> getTotalKehadiran() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || auth.getPrincipal() == null ||
-                auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_MAHASISWA"))) {
+        if (auth == null || auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_MAHASISWA"))) {
             throw DomainException.unauthorized("Access restricted to mahasiswa");
         }
-        UUID userId = (UUID) auth.getPrincipal();
+        UUID userId = SecurityUtil.requireUserId(auth);
         Long total = dataAbsensiService.getTotalKehadiran(userId);
         return ResponseEntity.ok(APIResponse.success(total != null ? total : 0L));
     }
@@ -98,11 +98,10 @@ public class DataAbsensiController {
     @GetMapping("/statistik-kehadiran")
     public ResponseEntity<APIResponse<Map<String, Long>>> getStatistikKehadiran() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || auth.getPrincipal() == null ||
-                auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_MAHASISWA"))) {
+        if (auth == null || auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_MAHASISWA"))) {
             throw DomainException.unauthorized("Access restricted to mahasiswa");
         }
-        UUID userId = (UUID) auth.getPrincipal();
+        UUID userId = SecurityUtil.requireUserId(auth);
         AbsensiMahasiswaStatResponse stat = dataAbsensiService.getMahasiswaStat(userId);
         Map<String, Long> data = Map.of(
                 "totalHadir", stat.totalHadir(),
@@ -167,7 +166,7 @@ public class DataAbsensiController {
                 .noneMatch(a -> a.getAuthority().equals("ROLE_MENTOR"))) {
             throw DomainException.unauthorized("Access restricted to mentor");
         }
-        UUID mentorUserId = (UUID) auth.getPrincipal();
+        UUID mentorUserId = SecurityUtil.requireUserId(auth);
         AbsensiResponse result = dataAbsensiService.verifikasiAbsensi(id, action, mentorUserId);
         String msg = "setujui".equalsIgnoreCase(action) ? "Absensi berhasil disetujui" : "Absensi berhasil ditolak";
         return ResponseEntity.ok(APIResponse.success(result, msg));

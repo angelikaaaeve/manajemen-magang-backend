@@ -6,6 +6,7 @@ import com.bsi.manajement_magang.modules.penilaian.schemas.response.PenilaianSta
 import com.bsi.manajement_magang.modules.penilaian.PenilaianService;
 import com.bsi.manajement_magang.shared.APIResponse;
 import com.bsi.manajement_magang.shared.DomainException;
+import com.bsi.manajement_magang.shared.SecurityUtil;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -46,11 +47,10 @@ public class PenilaianController {
     @GetMapping("/mahasiswa/nilai")
     public ResponseEntity<APIResponse<PenilaianResponse>> getMahasiswaNilai() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || auth.getPrincipal() == null ||
-                auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_MAHASISWA"))) {
+        if (auth == null || auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_MAHASISWA"))) {
             throw DomainException.unauthorized("Access restricted to mahasiswa");
         }
-        UUID userId = (UUID) auth.getPrincipal();
+        UUID userId = SecurityUtil.requireUserId(auth);
         PenilaianResponse result = penilaianService.getMahasiswaNilai(userId)
                 .orElseThrow(() -> DomainException.notFound("Tidak ada data penilaian ditemukan untuk mahasiswa ini"));
         return ResponseEntity.ok(APIResponse.success(result));

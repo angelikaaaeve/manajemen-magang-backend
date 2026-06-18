@@ -5,6 +5,7 @@ import com.bsi.manajement_magang.modules.data_kegiatan.schemas.response.Activity
 import com.bsi.manajement_magang.shared.APIResponse;
 import com.bsi.manajement_magang.shared.DomainException;
 import com.bsi.manajement_magang.shared.PaginatedResponse;
+import com.bsi.manajement_magang.shared.SecurityUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -40,7 +41,7 @@ public class DataKegiatanController {
         UUID mentorUserId = null;
         if (auth != null && auth.getPrincipal() instanceof UUID &&
                 auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_MENTOR"))) {
-            mentorUserId = (UUID) auth.getPrincipal();
+            mentorUserId = SecurityUtil.requireUserId(auth);
         }
         return ResponseEntity.ok(APIResponse.success(dataKegiatanService.updateStatus(id, status, mentorUserId), "Status updated successfully"));
     }
@@ -62,8 +63,7 @@ public class DataKegiatanController {
             @PathVariable UUID id,
             @RequestBody Map<String, Object> body) {
         var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || auth.getPrincipal() == null ||
-                auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_MAHASISWA"))) {
+        if (auth == null || auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_MAHASISWA"))) {
             throw DomainException.unauthorized("Access restricted to mahasiswa");
         }
         @SuppressWarnings("unchecked")
@@ -82,11 +82,10 @@ public class DataKegiatanController {
     @GetMapping("/mahasiswa")
     public ResponseEntity<APIResponse<List<ActivityResponse>>> getMahasiswaActivities() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || auth.getPrincipal() == null ||
-                auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_MAHASISWA"))) {
+        if (auth == null || auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_MAHASISWA"))) {
             throw DomainException.unauthorized("Access restricted to mahasiswa");
         }
-        UUID userId = (UUID) auth.getPrincipal();
+        UUID userId = SecurityUtil.requireUserId(auth);
         return ResponseEntity.ok(APIResponse.success(dataKegiatanService.listMahasiswaActivities(userId)));
     }
 
@@ -94,11 +93,10 @@ public class DataKegiatanController {
     public ResponseEntity<APIResponse<ActivityResponse>> createMahasiswaActivity(
             @RequestBody Map<String, Object> body) {
         var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || auth.getPrincipal() == null ||
-                auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_MAHASISWA"))) {
+        if (auth == null || auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_MAHASISWA"))) {
             throw DomainException.unauthorized("Access restricted to mahasiswa");
         }
-        UUID userId = (UUID) auth.getPrincipal();
+        UUID userId = SecurityUtil.requireUserId(auth);
         String judul = (String) body.get("judul");
         String deskripsi = body.containsKey("deskripsi") ? (String) body.get("deskripsi") : "";
         @SuppressWarnings("unchecked")

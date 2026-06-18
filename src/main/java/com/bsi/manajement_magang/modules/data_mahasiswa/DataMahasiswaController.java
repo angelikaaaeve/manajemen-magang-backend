@@ -7,6 +7,7 @@ import com.bsi.manajement_magang.modules.data_mahasiswa.schemas.response.Student
 import com.bsi.manajement_magang.modules.data_mahasiswa.DataMahasiswaService;
 import com.bsi.manajement_magang.shared.APIResponse;
 import com.bsi.manajement_magang.shared.DomainException;
+import com.bsi.manajement_magang.shared.SecurityUtil;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -63,11 +64,10 @@ public class DataMahasiswaController {
     @GetMapping("/sisa-waktu-magang")
     public ResponseEntity<APIResponse<Long>> getSisaWaktuMagang() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || auth.getPrincipal() == null ||
-                auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_MAHASISWA"))) {
+        if (auth == null || auth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_MAHASISWA"))) {
             throw DomainException.unauthorized("Access restricted to mahasiswa");
         }
-        UUID userId = (UUID) auth.getPrincipal();
+        UUID userId = SecurityUtil.requireUserId(auth);
         return ResponseEntity.ok(APIResponse.success(dataMahasiswaService.getSisaWaktuMagang(userId)));
     }
 }
