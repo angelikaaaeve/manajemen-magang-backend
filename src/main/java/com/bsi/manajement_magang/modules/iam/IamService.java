@@ -25,26 +25,21 @@ import java.util.UUID;
 public class IamService {
     private final UserRepository userRepository;
     private final Argon2Hasher argon2Hasher;
-    private final MentorRegistrationGuard mentorRegistrationGuard;
 
     @Value("${app.mentor.secret-key:}")
     private String mentorSecretKey;
 
-    public IamService(UserRepository userRepository, Argon2Hasher argon2Hasher, MentorRegistrationGuard mentorRegistrationGuard) {
+    public IamService(UserRepository userRepository, Argon2Hasher argon2Hasher) {
         this.userRepository = userRepository;
         this.argon2Hasher = argon2Hasher;
-        this.mentorRegistrationGuard = mentorRegistrationGuard;
     }
 
     @Transactional
-    public UserResponse register(RegisterRequest req, String clientIp) {
+    public UserResponse register(RegisterRequest req) {
         Role role = Role.fromString(req.role());
 
         if (role == Role.mentor) {
-            mentorRegistrationGuard.assertNotBlocked(clientIp);
-
             if (mentorSecretKey == null || mentorSecretKey.isBlank() || !mentorSecretKey.equals(req.secretKey())) {
-                mentorRegistrationGuard.recordFailure(clientIp);
                 throw DomainException.unauthorized("Secret key mentor tidak valid");
             }
         }
@@ -104,7 +99,6 @@ public class IamService {
                         nama
                 );
                 userRepository.saveMentor(mentor);
-                mentorRegistrationGuard.recordSuccess(clientIp);
                 break;
             default:
                 break;

@@ -15,7 +15,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.UUID;
 
@@ -30,8 +29,8 @@ public class IamController {
 
     @PostMapping("/register")
     public ResponseEntity<APIResponse<UserResponse>> register(
-            @RequestBody @Valid RegisterRequest req, HttpServletRequest request) {
-        UserResponse data = iamService.register(req, resolveClientIp(request));
+            @RequestBody @Valid RegisterRequest req) {
+        UserResponse data = iamService.register(req);
         return ResponseEntity.ok(APIResponse.success(data, "Registration successful"));
     }
 
@@ -75,11 +74,4 @@ public class IamController {
         return ResponseEntity.ok(APIResponse.success(iamService.update(userId, req), "Profile updated successfully"));
     }
 
-    private String resolveClientIp(HttpServletRequest request) {
-        String forwardedFor = request.getHeader("X-Forwarded-For");
-        if (forwardedFor != null && !forwardedFor.isBlank()) {
-            return forwardedFor.split(",")[0].trim();
-        }
-        return request.getRemoteAddr();
-    }
 }

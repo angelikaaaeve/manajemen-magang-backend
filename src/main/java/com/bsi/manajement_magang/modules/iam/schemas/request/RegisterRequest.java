@@ -24,6 +24,5 @@ public record RegisterRequest(
     Gender gender,
     String universitas,
 
-    // Required when role is "mentor", validated against app.mentor.secret-key
     String secretKey
 ) {}
