@@ -2,6 +2,7 @@ package com.bsi.manajement_magang.modules.data_kegiatan;
 
 import com.bsi.manajement_magang.modules.data_kegiatan.schemas.response.ActivityResponse;
 import com.bsi.manajement_magang.modules.data_kegiatan.schemas.response.ActivityStatResponse;
+import com.bsi.manajement_magang.modules.data_kegiatan.schemas.response.ActivityRekapResponse;
 import com.bsi.manajement_magang.shared.APIResponse;
 import com.bsi.manajement_magang.shared.DomainException;
 import com.bsi.manajement_magang.shared.PaginatedResponse;
@@ -31,6 +32,11 @@ public class DataKegiatanController {
             @RequestParam(defaultValue = "1") int index,
             @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(dataKegiatanService.listActivities(status, namaMahasiswa, index, size));
+    }
+
+    @GetMapping("/rekap")
+    public ResponseEntity<APIResponse<List<ActivityRekapResponse>>> getRekapKegiatan() {
+        return ResponseEntity.ok(APIResponse.success(dataKegiatanService.getRekapKegiatan()));
     }
 
     @PutMapping("/{id}/status")

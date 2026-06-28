@@ -3,6 +3,7 @@ package com.bsi.manajement_magang.modules.data_kegiatan;
 import com.bsi.manajement_magang.enums.StatusKegiatan;
 import com.bsi.manajement_magang.modules.data_kegiatan.schemas.response.ActivityResponse;
 import com.bsi.manajement_magang.modules.data_kegiatan.schemas.response.ActivityStatResponse;
+import com.bsi.manajement_magang.modules.data_kegiatan.schemas.response.ActivityRekapResponse;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -136,6 +137,25 @@ public class DataKegiatanRepository {
             disetujui != null ? disetujui : 0L,
             ditolak != null ? ditolak : 0L
         );
+    }
+
+    public List<ActivityRekapResponse> listRekapActivities() {
+        String sql = 
+            "SELECT m.nama as nama_mahasiswa, dk.judul as nama_kegiatan, dk.waktu " +
+            "FROM data_kegiatan dk " +
+            "JOIN periode_magang pm ON dk.periode_magang_id = pm.id " +
+            "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
+            "ORDER BY m.nama ASC, dk.waktu ASC";
+            
+        return jdbc.query(sql, (rs, rowNum) -> {
+            java.sql.Timestamp tWaktu = rs.getTimestamp("waktu");
+            OffsetDateTime waktu = OffsetDateTime.ofInstant(tWaktu.toInstant(), ZoneId.systemDefault());
+            return new ActivityRekapResponse(
+                rs.getString("nama_mahasiswa"),
+                rs.getString("nama_kegiatan"),
+                waktu
+            );
+        });
     }
 
     public List<ActivityResponse> listActivitiesByUserId(UUID userId) {

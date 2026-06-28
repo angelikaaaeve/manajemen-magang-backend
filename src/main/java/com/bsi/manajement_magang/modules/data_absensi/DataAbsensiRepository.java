@@ -87,27 +87,34 @@ public class DataAbsensiRepository {
 
     public List<AbsensiResponse> listAbsensi(String status, String namaMahasiswa, int limit, int offset) {
         StringBuilder sql = new StringBuilder(
-            "SELECT a.id, a.periode_magang_id, pm.mahasiswa_id, a.mentor_id, m.nim, m.nama as nama_mahasiswa, " +
-            "       a.tanggal, a.status, a.attachment_url " +
-            "FROM absensi a " +
-            "JOIN periode_magang pm ON a.periode_magang_id = pm.id " +
-            "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
+            "WITH all_days AS (" +
+            "  SELECT m.id AS m_id, pm.id AS pm_id, m.nim, m.nama, " +
+            "         t.tanggal::date AS tanggal " +
+            "  FROM mahasiswa m " +
+            "  JOIN periode_magang pm ON pm.mahasiswa_id = m.id " +
+            "  CROSS JOIN generate_series(pm.tanggal_mulai, LEAST(CURRENT_DATE, pm.tanggal_berakhir), '1 day'::interval) AS t(tanggal) " +
+            ") " +
+            "SELECT COALESCE(a.id, gen_random_uuid()) AS id, d.pm_id AS periode_magang_id, d.m_id AS mahasiswa_id, " +
+            "       a.mentor_id, d.nim, d.nama AS nama_mahasiswa, d.tanggal, " +
+            "       COALESCE(a.status, 'alpha') AS status, a.attachment_url " +
+            "FROM all_days d " +
+            "LEFT JOIN absensi a ON a.periode_magang_id = d.pm_id AND a.tanggal = d.tanggal " +
             "WHERE 1=1 "
         );
 
         MapSqlParameterSource params = new MapSqlParameterSource();
 
         if (status != null && !status.trim().isEmpty() && !status.equalsIgnoreCase("semua")) {
-            sql.append("AND a.status = :status ");
+            sql.append("AND COALESCE(a.status, 'alpha') = :status ");
             params.addValue("status", status.toLowerCase().trim());
         }
 
         if (namaMahasiswa != null && !namaMahasiswa.trim().isEmpty()) {
-            sql.append("AND m.nama ILIKE :namaMahasiswa ");
+            sql.append("AND d.nama ILIKE :namaMahasiswa ");
             params.addValue("namaMahasiswa", "%" + namaMahasiswa.trim() + "%");
         }
 
-        sql.append("ORDER BY a.tanggal DESC, m.nama ASC LIMIT :limit OFFSET :offset");
+        sql.append("ORDER BY d.tanggal DESC, d.nama ASC LIMIT :limit OFFSET :offset");
         params.addValue("limit", limit);
         params.addValue("offset", offset);
 
@@ -116,21 +123,27 @@ public class DataAbsensiRepository {
 
     public long countAbsensi(String status, String namaMahasiswa) {
         StringBuilder sql = new StringBuilder(
-            "SELECT COUNT(1) FROM absensi a " +
-            "JOIN periode_magang pm ON a.periode_magang_id = pm.id " +
-            "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
+            "WITH all_days AS (" +
+            "  SELECT m.id AS m_id, pm.id AS pm_id, m.nim, m.nama, " +
+            "         t.tanggal::date AS tanggal " +
+            "  FROM mahasiswa m " +
+            "  JOIN periode_magang pm ON pm.mahasiswa_id = m.id " +
+            "  CROSS JOIN generate_series(pm.tanggal_mulai, LEAST(CURRENT_DATE, pm.tanggal_berakhir), '1 day'::interval) AS t(tanggal) " +
+            ") " +
+            "SELECT COUNT(1) FROM all_days d " +
+            "LEFT JOIN absensi a ON a.periode_magang_id = d.pm_id AND a.tanggal = d.tanggal " +
             "WHERE 1=1 "
         );
 
         MapSqlParameterSource params = new MapSqlParameterSource();
 
         if (status != null && !status.trim().isEmpty() && !status.equalsIgnoreCase("semua")) {
-            sql.append("AND a.status = :status ");
+            sql.append("AND COALESCE(a.status, 'alpha') = :status ");
             params.addValue("status", status.toLowerCase().trim());
         }
 
         if (namaMahasiswa != null && !namaMahasiswa.trim().isEmpty()) {
-            sql.append("AND m.nama ILIKE :namaMahasiswa ");
+            sql.append("AND d.nama ILIKE :namaMahasiswa ");
             params.addValue("namaMahasiswa", "%" + namaMahasiswa.trim() + "%");
         }
 
@@ -251,13 +264,20 @@ public class DataAbsensiRepository {
 
     public List<AbsensiResponse> listAbsensiByUserId(UUID userId, int limit, int offset) {
         String sql =
-            "SELECT a.id, a.periode_magang_id, pm.mahasiswa_id, a.mentor_id, m.nim, m.nama as nama_mahasiswa, " +
-            "       a.tanggal, a.status, a.attachment_url " +
-            "FROM absensi a " +
-            "JOIN periode_magang pm ON a.periode_magang_id = pm.id " +
-            "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
-            "WHERE m.user_id = :userId " +
-            "ORDER BY a.tanggal DESC " +
+            "WITH all_days AS (" +
+            "  SELECT m.id AS m_id, pm.id AS pm_id, m.nim, m.nama, " +
+            "         t.tanggal::date AS tanggal " +
+            "  FROM mahasiswa m " +
+            "  JOIN periode_magang pm ON pm.mahasiswa_id = m.id " +
+            "  CROSS JOIN generate_series(pm.tanggal_mulai, LEAST(CURRENT_DATE, pm.tanggal_berakhir), '1 day'::interval) AS t(tanggal) " +
+            "  WHERE m.user_id = :userId " +
+            ") " +
+            "SELECT COALESCE(a.id, gen_random_uuid()) AS id, d.pm_id AS periode_magang_id, d.m_id AS mahasiswa_id, " +
+            "       a.mentor_id, d.nim, d.nama AS nama_mahasiswa, d.tanggal, " +
+            "       COALESCE(a.status, 'alpha') AS status, a.attachment_url " +
+            "FROM all_days d " +
+            "LEFT JOIN absensi a ON a.periode_magang_id = d.pm_id AND a.tanggal = d.tanggal " +
+            "ORDER BY d.tanggal DESC " +
             "LIMIT :limit OFFSET :offset";
         MapSqlParameterSource params = new MapSqlParameterSource("userId", userId)
             .addValue("limit", limit)
@@ -267,10 +287,14 @@ public class DataAbsensiRepository {
 
     public long countAbsensiByUserId(UUID userId) {
         String sql =
-            "SELECT COUNT(1) FROM absensi a " +
-            "JOIN periode_magang pm ON a.periode_magang_id = pm.id " +
-            "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
-            "WHERE m.user_id = :userId";
+            "WITH all_days AS (" +
+            "  SELECT pm.id AS pm_id " +
+            "  FROM mahasiswa m " +
+            "  JOIN periode_magang pm ON pm.mahasiswa_id = m.id " +
+            "  CROSS JOIN generate_series(pm.tanggal_mulai, LEAST(CURRENT_DATE, pm.tanggal_berakhir), '1 day'::interval) AS t(tanggal) " +
+            "  WHERE m.user_id = :userId " +
+            ") " +
+            "SELECT COUNT(1) FROM all_days d";
         Long count = jdbc.queryForObject(sql, new MapSqlParameterSource("userId", userId), Long.class);
         return count != null ? count : 0L;
     }
@@ -331,12 +355,12 @@ public class DataAbsensiRepository {
 
     public List<com.bsi.manajement_magang.modules.data_absensi.schemas.response.RekapAbsensiResponse> getRekapAbsensi(LocalDate startDate, LocalDate endDate, UUID mahasiswaId) {
         StringBuilder sql = new StringBuilder(
-            "SELECT m.nama AS nama_mahasiswa, a.tanggal, a.status " +
-            "FROM absensi a " +
-            "JOIN periode_magang pm ON a.periode_magang_id = pm.id " +
+            "SELECT m.nama AS nama_mahasiswa, t.tanggal::date AS tanggal, COALESCE(a.status, 'alpha') AS status " +
+            "FROM generate_series(CAST(:startDate AS date), CAST(:endDate AS date), '1 day'::interval) AS t(tanggal) " +
+            "JOIN periode_magang pm ON t.tanggal::date BETWEEN pm.tanggal_mulai AND pm.tanggal_berakhir " +
             "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
-            "WHERE a.tanggal >= :startDate AND a.tanggal <= :endDate " +
-            "AND a.tanggal BETWEEN pm.tanggal_mulai AND pm.tanggal_berakhir "
+            "LEFT JOIN absensi a ON a.periode_magang_id = pm.id AND a.tanggal = t.tanggal::date " +
+            "WHERE 1=1 "
         );
 
         MapSqlParameterSource params = new MapSqlParameterSource()
@@ -348,13 +372,49 @@ public class DataAbsensiRepository {
             params.addValue("mahasiswaId", mahasiswaId);
         }
 
-        sql.append("ORDER BY a.tanggal ASC, m.nama ASC");
+        sql.append("ORDER BY m.nama ASC, t.tanggal ASC");
 
         return jdbc.query(sql.toString(), params, (rs, rowNum) -> new com.bsi.manajement_magang.modules.data_absensi.schemas.response.RekapAbsensiResponse(
             rs.getString("nama_mahasiswa"),
             rs.getDate("tanggal").toLocalDate(),
             rs.getString("status")
         ));
+    }
+
+    public List<com.bsi.manajement_magang.modules.data_absensi.schemas.response.RekapDetailAbsensiResponse> getRekapDetailAbsensi(LocalDate startDate, LocalDate endDate, UUID mahasiswaId) {
+        StringBuilder sql = new StringBuilder(
+            "SELECT a.id, m.nama AS nama_mahasiswa, t.tanggal::date AS tanggal, COALESCE(a.status, 'alpha') AS status, " +
+            "a.created_at, a.attachment_url " +
+            "FROM generate_series(CAST(:startDate AS date), CAST(:endDate AS date), '1 day'::interval) AS t(tanggal) " +
+            "JOIN periode_magang pm ON t.tanggal::date BETWEEN pm.tanggal_mulai AND pm.tanggal_berakhir " +
+            "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
+            "LEFT JOIN absensi a ON a.periode_magang_id = pm.id AND a.tanggal = t.tanggal::date " +
+            "WHERE 1=1 "
+        );
+
+        MapSqlParameterSource params = new MapSqlParameterSource()
+            .addValue("startDate", startDate)
+            .addValue("endDate", endDate);
+
+        if (mahasiswaId != null) {
+            sql.append("AND m.id = :mahasiswaId ");
+            params.addValue("mahasiswaId", mahasiswaId);
+        }
+
+        sql.append("ORDER BY m.nama ASC, t.tanggal ASC");
+
+        return jdbc.query(sql.toString(), params, (rs, rowNum) -> {
+            String idStr = rs.getString("id");
+            java.sql.Timestamp createdAt = rs.getTimestamp("created_at");
+            return new com.bsi.manajement_magang.modules.data_absensi.schemas.response.RekapDetailAbsensiResponse(
+                idStr != null ? UUID.fromString(idStr) : null,
+                rs.getString("nama_mahasiswa"),
+                rs.getDate("tanggal").toLocalDate(),
+                rs.getString("status"),
+                createdAt != null ? createdAt.toLocalDateTime() : null,
+                rs.getString("attachment_url")
+            );
+        });
     }
 
     // ========================================================

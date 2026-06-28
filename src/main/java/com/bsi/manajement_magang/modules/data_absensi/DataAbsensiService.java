@@ -152,6 +152,10 @@ public class DataAbsensiService {
             .collect(java.util.stream.Collectors.toList());
     }
 
+    public List<com.bsi.manajement_magang.modules.data_absensi.schemas.response.RekapDetailAbsensiResponse> getRekapDetailAbsensi(LocalDate startDate, LocalDate endDate, UUID mahasiswaId) {
+        return repository.getRekapDetailAbsensi(startDate, endDate, mahasiswaId);
+    }
+
     // ========================================================
     // MAHASISWA-SIDE FEATURES
     // ========================================================

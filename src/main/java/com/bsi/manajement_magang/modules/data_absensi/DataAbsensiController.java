@@ -155,6 +155,16 @@ public class DataAbsensiController {
         ));
     }
 
+    @GetMapping("/rekap/detail")
+    public ResponseEntity<APIResponse<java.util.List<com.bsi.manajement_magang.modules.data_absensi.schemas.response.RekapDetailAbsensiResponse>>> getRekapDetailAbsensi(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate tanggalAwal,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate tanggalAkhir,
+            @RequestParam UUID mahasiswaId) {
+        return ResponseEntity.ok(APIResponse.success(
+            dataAbsensiService.getRekapDetailAbsensi(tanggalAwal, tanggalAkhir, mahasiswaId)
+        ));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<APIResponse<Void>> deleteAbsensi(@PathVariable UUID id) {
         dataAbsensiService.deleteAbsensi(id);

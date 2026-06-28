@@ -59,3 +59,19 @@ Detail Endpoint untuk Frontend Developer
 
 ---
 
+## GET /api/kegiatan/rekap
+**Operation:** getRekapKegiatan
+
+### Request Structure
+*No Body Request*
+
+### Response Structure
+**Type:** ResponseEntity<APIResponse<List<ActivityRekapResponse>>>
+- 
+amaMahasiswa: String
+- 
+amaKegiatan: String
+- waktu: OffsetDateTime
+
+---
+

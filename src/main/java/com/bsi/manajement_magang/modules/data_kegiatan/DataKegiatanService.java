@@ -2,6 +2,7 @@ package com.bsi.manajement_magang.modules.data_kegiatan;
 
 import com.bsi.manajement_magang.modules.data_kegiatan.schemas.response.ActivityResponse;
 import com.bsi.manajement_magang.modules.data_kegiatan.schemas.response.ActivityStatResponse;
+import com.bsi.manajement_magang.modules.data_kegiatan.schemas.response.ActivityRekapResponse;
 import com.bsi.manajement_magang.shared.DomainException;
 import com.bsi.manajement_magang.shared.PaginatedResponse;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,10 @@ public class DataKegiatanService {
         List<ActivityResponse> data = repository.listActivities(status, namaMahasiswa, size, offset);
         long total = repository.countActivities(status, namaMahasiswa);
         return PaginatedResponse.success(data, total, index, size);
+    }
+
+    public List<ActivityRekapResponse> getRekapKegiatan() {
+        return repository.listRekapActivities();
     }
 
     @Transactional
