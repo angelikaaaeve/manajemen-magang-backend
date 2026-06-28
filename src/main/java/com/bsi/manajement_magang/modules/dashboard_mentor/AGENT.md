@@ -51,3 +51,17 @@ Detail Endpoint untuk Frontend Developer
 
 ---
 
+## GET `/api/dashboard-mentor/statistik-kehadiran`
+**Operation:** getAttendanceStatsByDateRange
+
+### Request Structure
+- `tanggalAwal`: String (Format: yyyy-MM-dd, Query Parameter)
+- `tanggalAkhir`: String (Format: yyyy-MM-dd, Query Parameter)
+
+### Response Structure
+**Type:** `ResponseEntity<APIResponse<AttendanceStatResponse>>`
+- `jumlahHadir`: long
+- `jumlahIzin`: long
+- `jumlahSakit`: long
+
+---

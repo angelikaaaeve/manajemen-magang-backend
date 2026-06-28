@@ -329,6 +329,34 @@ public class DataAbsensiRepository {
         return count != null ? count : 0L;
     }
 
+    public List<com.bsi.manajement_magang.modules.data_absensi.schemas.response.RekapAbsensiResponse> getRekapAbsensi(LocalDate startDate, LocalDate endDate, UUID mahasiswaId) {
+        StringBuilder sql = new StringBuilder(
+            "SELECT m.nama AS nama_mahasiswa, a.tanggal, a.status " +
+            "FROM absensi a " +
+            "JOIN periode_magang pm ON a.periode_magang_id = pm.id " +
+            "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
+            "WHERE a.tanggal >= :startDate AND a.tanggal <= :endDate " +
+            "AND a.tanggal BETWEEN pm.tanggal_mulai AND pm.tanggal_berakhir "
+        );
+
+        MapSqlParameterSource params = new MapSqlParameterSource()
+            .addValue("startDate", startDate)
+            .addValue("endDate", endDate);
+
+        if (mahasiswaId != null) {
+            sql.append("AND m.id = :mahasiswaId ");
+            params.addValue("mahasiswaId", mahasiswaId);
+        }
+
+        sql.append("ORDER BY a.tanggal ASC, m.nama ASC");
+
+        return jdbc.query(sql.toString(), params, (rs, rowNum) -> new com.bsi.manajement_magang.modules.data_absensi.schemas.response.RekapAbsensiResponse(
+            rs.getString("nama_mahasiswa"),
+            rs.getDate("tanggal").toLocalDate(),
+            rs.getString("status")
+        ));
+    }
+
     // ========================================================
     // Row mappers
     // ========================================================

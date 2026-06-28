@@ -24,3 +24,5 @@ Definisi: Endpoint untuk getRiwayatAbsensi
 **GET** `/api/absensi/mahasiswa/statistik`
 Definisi: Endpoint untuk getMahasiswaStat
 
+**GET** `/api/absensi/rekap`
+Definisi: Endpoint untuk getRekapAbsensi

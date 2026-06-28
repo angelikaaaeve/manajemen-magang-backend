@@ -197,4 +197,31 @@ public class DashboardMentorRepository {
             rs.getString("status_periode") != null ? StatusPeriode.fromString(rs.getString("status_periode")) : null
         )).stream().findFirst();
     }
+    // 11. Accumulation of attendance by date range
+    public Map<String, Long> getAttendanceAccumulationByDateRange(LocalDate startDate, LocalDate endDate) {
+        String sql = "SELECT status, COUNT(*) as status_count " +
+                     "FROM absensi " +
+                     "WHERE status IN ('hadir', 'izin', 'sakit') " +
+                     "AND tanggal >= :startDate AND tanggal <= :endDate " +
+                     "GROUP BY status";
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("startDate", startDate)
+                .addValue("endDate", endDate);
+
+        List<Map<String, Object>> rows = jdbc.queryForList(sql, params);
+        Map<String, Long> result = new HashMap<>();
+        // Initialize with 0s to guarantee fields are returned
+        result.put("hadir", 0L);
+        result.put("izin", 0L);
+        result.put("sakit", 0L);
+
+        for (Map<String, Object> row : rows) {
+            String status = (String) row.get("status");
+            Long count = ((Number) row.get("status_count")).longValue();
+            if (status != null) {
+                result.put(status.toLowerCase(), count);
+            }
+        }
+        return result;
+    }
 }

@@ -145,6 +145,16 @@ public class DataAbsensiController {
         return ResponseEntity.ok(dataAbsensiService.listAbsensi(status, namaMahasiswa, index, size));
     }
 
+    @GetMapping("/rekap")
+    public ResponseEntity<APIResponse<java.util.List<Object[]>>> getRekapAbsensi(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate tanggalAwal,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate tanggalAkhir,
+            @RequestParam(required = false) UUID mahasiswaId) {
+        return ResponseEntity.ok(APIResponse.success(
+            dataAbsensiService.getRekapAbsensi(tanggalAwal, tanggalAkhir, mahasiswaId)
+        ));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<APIResponse<Void>> deleteAbsensi(@PathVariable UUID id) {
         dataAbsensiService.deleteAbsensi(id);

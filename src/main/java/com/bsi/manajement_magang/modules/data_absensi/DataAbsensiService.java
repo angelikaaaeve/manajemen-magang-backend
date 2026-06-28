@@ -143,6 +143,15 @@ public class DataAbsensiService {
         return csv.toString();
     }
 
+    public List<Object[]> getRekapAbsensi(LocalDate startDate, LocalDate endDate, UUID mahasiswaId) {
+        List<com.bsi.manajement_magang.modules.data_absensi.schemas.response.RekapAbsensiResponse> records = 
+            repository.getRekapAbsensi(startDate, endDate, mahasiswaId);
+        
+        return records.stream()
+            .map(r -> new Object[]{r.namaMahasiswa(), r.tanggal(), r.status()})
+            .collect(java.util.stream.Collectors.toList());
+    }
+
     // ========================================================
     // MAHASISWA-SIDE FEATURES
     // ========================================================

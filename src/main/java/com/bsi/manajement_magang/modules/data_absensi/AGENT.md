@@ -8,7 +8,7 @@ Detail Endpoint untuk Frontend Developer
 ### Request Structure
 *No Body Request*
 
-### Response Structure
+### Response Structu
 **Type:** `ResponseEntity<APIResponse<Long>>`
 - Refer to ResponseEntity<APIResponse<Long>>
 
@@ -112,3 +112,16 @@ Detail Endpoint untuk Frontend Developer
 
 ---
 
+## GET `/api/absensi/rekap`
+**Operation:** getRekapAbsensi
+
+### Request Structure
+- `tanggalAwal`: String (Format yyyy-MM-dd, Required Query Parameter)
+- `tanggalAkhir`: String (Format yyyy-MM-dd, Required Query Parameter)
+- `mahasiswaId`: UUID (Optional Query Parameter)
+
+### Response Structure
+**Type:** `ResponseEntity<APIResponse<List<Object[]>>>`
+- Returns an array of arrays representing `[[Nama Mahasiswa, Tanggal, Status]]`
+
+---

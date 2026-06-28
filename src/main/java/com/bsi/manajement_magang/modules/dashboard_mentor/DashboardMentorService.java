@@ -4,6 +4,7 @@ import com.bsi.manajement_magang.enums.Gender;
 import com.bsi.manajement_magang.enums.StatusPeriode;
 import com.bsi.manajement_magang.modules.dashboard_mentor.DashboardMentorRepository;
 import com.bsi.manajement_magang.modules.dashboard_mentor.schemas.request.RegisterStudentRequest;
+import com.bsi.manajement_magang.modules.dashboard_mentor.schemas.response.AttendanceStatResponse;
 import com.bsi.manajement_magang.modules.dashboard_mentor.schemas.response.DashboardStatResponse;
 import com.bsi.manajement_magang.modules.dashboard_mentor.schemas.response.SearchStudentResponse;
 import com.bsi.manajement_magang.shared.Argon2Hasher;
@@ -119,5 +120,15 @@ public class DashboardMentorService {
             return (LocalDate) obj;
         }
         return LocalDate.parse(obj.toString());
+    }
+
+    // 4. Get Attendance Statistics by Date Range
+    public AttendanceStatResponse getAttendanceStatsByDateRange(LocalDate startDate, LocalDate endDate) {
+        Map<String, Long> map = repository.getAttendanceAccumulationByDateRange(startDate, endDate);
+        return new AttendanceStatResponse(
+                map.getOrDefault("hadir", 0L),
+                map.getOrDefault("izin", 0L),
+                map.getOrDefault("sakit", 0L)
+        );
     }
 }
