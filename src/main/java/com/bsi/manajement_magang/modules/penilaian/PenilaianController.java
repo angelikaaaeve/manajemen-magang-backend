@@ -60,4 +60,9 @@ public class PenilaianController {
     public ResponseEntity<APIResponse<java.util.Map<String, List<PenilaianResponse>>>> getRekapPenilaian() {
         return ResponseEntity.ok(APIResponse.success(penilaianService.getRekapPenilaian(), "Rekap penilaian berhasil diambil"));
     }
+
+    @GetMapping("/rekap/{mahasiswaId}")
+    public ResponseEntity<APIResponse<List<PenilaianResponse>>> getRekapByMahasiswaId(@PathVariable UUID mahasiswaId) {
+        return ResponseEntity.ok(APIResponse.success(penilaianService.getRekapByMahasiswaId(mahasiswaId), "Rekap penilaian mahasiswa berhasil diambil"));
+    }
 }

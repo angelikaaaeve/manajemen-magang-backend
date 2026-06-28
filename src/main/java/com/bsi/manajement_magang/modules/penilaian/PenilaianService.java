@@ -90,4 +90,8 @@ public class PenilaianService {
         }
         return rekap;
     }
+
+    public List<PenilaianResponse> getRekapByMahasiswaId(UUID mahasiswaId) {
+        return repository.getPenilaianByMahasiswaId(mahasiswaId);
+    }
 }

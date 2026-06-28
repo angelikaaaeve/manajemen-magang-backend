@@ -101,6 +101,24 @@ public class PenilaianRepository {
         return jdbc.query(sql, this::mapPenilaianResponse);
     }
 
+    public List<PenilaianResponse> getPenilaianByMahasiswaId(UUID mahasiswaId) {
+        String sql =
+            "SELECT pm.id as periode_id, pm.mahasiswa_id, pm.tanggal_mulai, pm.tanggal_berakhir, " +
+            "       m.nim, m.nama as nama_mahasiswa, " +
+            "       p.id as penilaian_id, p.mentor_id, men.nama as nama_mentor, " +
+            "       p.kinerja, p.kedisiplinan, p.tanggung_jawab, p.komunikasi, " +
+            "       p.sikap, p.kerapihan, p.absensi, p.kerjasama, p.nilai_total, p.catatan " +
+            "FROM periode_magang pm " +
+            "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
+            "LEFT JOIN penilaian p ON pm.id = p.periode_magang_id " +
+            "LEFT JOIN mentor men ON p.mentor_id = men.id " +
+            "WHERE m.id = :mahasiswaId " +
+            "ORDER BY pm.tanggal_mulai DESC";
+
+        MapSqlParameterSource params = new MapSqlParameterSource("mahasiswaId", mahasiswaId);
+        return jdbc.query(sql, params, this::mapPenilaianResponse);
+    }
+
     // Find assessment detail by ID
     public Optional<PenilaianResponse> findById(UUID id) {
         String sql =

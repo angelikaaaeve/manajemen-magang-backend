@@ -112,3 +112,27 @@ Detail Endpoint untuk Frontend Developer
     "Budi": null
   }
   ```
+
+---
+
+## GET `/api/penilaian/rekap/{mahasiswaId}`
+**Operation:** getRekapByMahasiswaId
+
+### Request Structure
+*Path Variables:*
+- `mahasiswaId` (UUID, required)
+
+### Response Structure
+**Type:** `ResponseEntity<APIResponse<List<PenilaianResponse>>>`
+- **Description:** Mengembalikan rekapitulasi (array) data penilaian spesifik untuk 1 mahasiswa tersebut.
+- **Contoh JSON Data:**
+  ```json
+  [
+    {
+      "id": "...",
+      "kinerja": 80.00,
+      "kedisiplinan": 90.00,
+      "nilaiTotal": 85.00
+    }
+  ]
+  ```
