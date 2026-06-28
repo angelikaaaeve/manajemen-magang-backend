@@ -6,11 +6,15 @@ Detail Endpoint untuk Frontend Developer
 **Operation:** listPenilaian
 
 ### Request Structure
-*No Body Request*
+*Query Parameters:*
+- `status` (String, optional)
+- `namaMahasiswa` (String, optional)
+- `index` (int, default 1)
+- `size` (int, default 10)
 
 ### Response Structure
-**Type:** `ResponseEntity<APIResponse<List<PenilaianResponse>>>`
-- Refer to ResponseEntity<APIResponse<List<PenilaianResponse>>>
+**Type:** `ResponseEntity<PaginatedResponse<PenilaianResponse>>`
+- Refer to `PaginatedResponse<PenilaianResponse>`
 
 ---
 
@@ -18,7 +22,18 @@ Detail Endpoint untuk Frontend Developer
 **Operation:** editPenilaian
 
 ### Request Structure
-*No Body Request*
+**Type:** `PenilaianRequest` (JSON Body)
+- `periodeMagangId`: UUID
+- `mentorId`: UUID
+- `kinerja`: BigDecimal
+- `kedisiplinan`: BigDecimal
+- `tanggungJawab`: BigDecimal
+- `komunikasi`: BigDecimal
+- `sikap`: BigDecimal
+- `kerapihan`: BigDecimal
+- `absensi`: BigDecimal
+- `kerjasama`: BigDecimal
+- `catatan`: String
 
 ### Response Structure
 **Type:** `ResponseEntity<APIResponse<PenilaianResponse>>`
@@ -27,6 +42,8 @@ Detail Endpoint untuk Frontend Developer
 - `mahasiswaId`: UUID
 - `nim`: String
 - `namaMahasiswa`: String
+- `tanggalMulai`: LocalDate
+- `tanggalBerakhir`: LocalDate
 - `mentorId`: UUID
 - `namaMentor`: String
 - `kinerja`: BigDecimal
@@ -47,7 +64,8 @@ Detail Endpoint untuk Frontend Developer
 **Operation:** getPenilaianStatistics
 
 ### Request Structure
-*No Body Request*
+*Query Parameters:*
+- `namaMahasiswa` (String, optional)
 
 ### Response Structure
 **Type:** `ResponseEntity<APIResponse<PenilaianStatResponse>>`
@@ -57,3 +75,40 @@ Detail Endpoint untuk Frontend Developer
 
 ---
 
+## GET `/api/penilaian/mahasiswa/nilai`
+**Operation:** getMahasiswaNilai
+
+### Request Structure
+*No Body Request. Requires ROLE_MAHASISWA token.*
+
+### Response Structure
+**Type:** `ResponseEntity<APIResponse<PenilaianResponse>>`
+- Refer to `PenilaianResponse` schema.
+
+---
+
+## GET `/api/penilaian/rekap`
+**Operation:** getRekapPenilaian
+
+### Request Structure
+*No Body Request*
+
+### Response Structure
+**Type:** `ResponseEntity<APIResponse<Map<String, List<PenilaianResponse>>>>`
+- **Description:** Mengembalikan rekapitulasi penilaian dikelompokkan berdasarkan nama mahasiswa.
+- **Key (`String`):** Nama mahasiswa.
+- **Value (`List<PenilaianResponse>` atau `null`):** Array data penilaian jika sudah dinilai, atau `null` jika mahasiswa tersebut belum mendapatkan penilaian.
+- **Contoh JSON Data:**
+  ```json
+  {
+    "Andreas": [
+      {
+        "id": "...",
+        "kinerja": 80.00,
+        "kedisiplinan": 90.00,
+        "nilaiTotal": 85.00
+      }
+    ],
+    "Budi": null
+  }
+  ```

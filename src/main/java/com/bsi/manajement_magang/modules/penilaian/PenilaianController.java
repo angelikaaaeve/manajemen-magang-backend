@@ -55,4 +55,9 @@ public class PenilaianController {
                 .orElseThrow(() -> DomainException.notFound("Tidak ada data penilaian ditemukan untuk mahasiswa ini"));
         return ResponseEntity.ok(APIResponse.success(result));
     }
+
+    @GetMapping("/rekap")
+    public ResponseEntity<APIResponse<java.util.Map<String, List<PenilaianResponse>>>> getRekapPenilaian() {
+        return ResponseEntity.ok(APIResponse.success(penilaianService.getRekapPenilaian(), "Rekap penilaian berhasil diambil"));
+    }
 }

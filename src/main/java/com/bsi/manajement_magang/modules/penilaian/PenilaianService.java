@@ -68,4 +68,26 @@ public class PenilaianService {
     public Optional<PenilaianResponse> getMahasiswaNilai(UUID userId) {
         return repository.findByUserId(userId);
     }
+
+    public java.util.Map<String, List<PenilaianResponse>> getRekapPenilaian() {
+        List<PenilaianResponse> allData = repository.getAllPenilaian();
+        java.util.Map<String, List<PenilaianResponse>> rekap = new java.util.LinkedHashMap<>();
+        
+        for (PenilaianResponse res : allData) {
+            String name = res.namaMahasiswa();
+            if (!rekap.containsKey(name)) {
+                rekap.put(name, null);
+            }
+            
+            if (res.id() != null) {
+                List<PenilaianResponse> list = rekap.get(name);
+                if (list == null) {
+                    list = new java.util.ArrayList<>();
+                    rekap.put(name, list);
+                }
+                list.add(res);
+            }
+        }
+        return rekap;
+    }
 }
