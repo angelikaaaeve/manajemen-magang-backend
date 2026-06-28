@@ -39,6 +39,11 @@ public class DataKegiatanController {
         return ResponseEntity.ok(APIResponse.success(dataKegiatanService.getRekapKegiatan()));
     }
 
+    @GetMapping("/rekap/{mahasiswaId}")
+    public ResponseEntity<APIResponse<List<ActivityRekapResponse>>> getRekapKegiatanByMahasiswaId(@PathVariable UUID mahasiswaId) {
+        return ResponseEntity.ok(APIResponse.success(dataKegiatanService.getRekapKegiatanByMahasiswaId(mahasiswaId)));
+    }
+
     @PutMapping("/{id}/status")
     public ResponseEntity<APIResponse<ActivityResponse>> updateStatus(
             @PathVariable UUID id,

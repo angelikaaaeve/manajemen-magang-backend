@@ -75,3 +75,16 @@ amaKegiatan: String
 
 ---
 
+## GET /api/kegiatan/rekap/{mahasiswaId}
+**Operation:** getRekapKegiatanByMahasiswaId
+
+### Request Structure
+*No Body Request*
+
+### Response Structure
+**Type:** `ResponseEntity<APIResponse<List<ActivityRekapResponse>>>`
+- `namaMahasiswa`: String
+- `namaKegiatan`: String
+- `waktu`: OffsetDateTime
+
+---

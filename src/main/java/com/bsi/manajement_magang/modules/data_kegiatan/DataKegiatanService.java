@@ -30,6 +30,10 @@ public class DataKegiatanService {
         return repository.listRekapActivities();
     }
 
+    public List<ActivityRekapResponse> getRekapKegiatanByMahasiswaId(UUID mahasiswaId) {
+        return repository.listRekapActivitiesByMahasiswaId(mahasiswaId);
+    }
+
     @Transactional
     public ActivityResponse updateStatus(UUID id, String status, UUID mentorUserId) {
         repository.findById(id)

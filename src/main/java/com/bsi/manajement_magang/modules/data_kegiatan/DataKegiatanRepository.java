@@ -158,6 +158,26 @@ public class DataKegiatanRepository {
         });
     }
 
+    public List<ActivityRekapResponse> listRekapActivitiesByMahasiswaId(UUID mahasiswaId) {
+        String sql = 
+            "SELECT m.nama as nama_mahasiswa, dk.judul as nama_kegiatan, dk.waktu " +
+            "FROM data_kegiatan dk " +
+            "JOIN periode_magang pm ON dk.periode_magang_id = pm.id " +
+            "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
+            "WHERE m.id = :mahasiswaId " +
+            "ORDER BY dk.waktu ASC";
+            
+        return jdbc.query(sql, new MapSqlParameterSource("mahasiswaId", mahasiswaId), (rs, rowNum) -> {
+            java.sql.Timestamp tWaktu = rs.getTimestamp("waktu");
+            OffsetDateTime waktu = OffsetDateTime.ofInstant(tWaktu.toInstant(), ZoneId.systemDefault());
+            return new ActivityRekapResponse(
+                rs.getString("nama_mahasiswa"),
+                rs.getString("nama_kegiatan"),
+                waktu
+            );
+        });
+    }
+
     public List<ActivityResponse> listActivitiesByUserId(UUID userId) {
         String sql =
             "SELECT dk.id, pm.mahasiswa_id, m.nama as nama_mahasiswa, dk.judul, dk.deskripsi, " +
