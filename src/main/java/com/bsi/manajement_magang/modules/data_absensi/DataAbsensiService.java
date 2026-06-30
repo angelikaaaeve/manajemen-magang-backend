@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -37,6 +38,10 @@ public class DataAbsensiService {
             repository.listAbsensiHarianMentor(tanggal, limit, offset);
         long total = repository.countAbsensiHarianMentor(tanggal);
         return PaginatedResponse.success(data, total, index, size);
+    }
+    
+    public Map<String, Long> getAbsensiHarianMentorStatistik(LocalDate tanggal) {
+        return repository.getAbsensiHarianMentorStatistik(tanggal);
     }
 
     /**
@@ -76,11 +81,11 @@ public class DataAbsensiService {
     // ========================================================
 
     public PaginatedResponse<AbsensiResponse> listAbsensi(String status, String namaMahasiswa,
-                                                          int index, int size) {
+                                                          LocalDate tanggal, int index, int size) {
         int limit = size;
         int offset = (index - 1) * size;
-        List<AbsensiResponse> data = repository.listAbsensi(status, namaMahasiswa, limit, offset);
-        long total = repository.countAbsensi(status, namaMahasiswa);
+        List<AbsensiResponse> data = repository.listAbsensi(status, namaMahasiswa, tanggal, limit, offset);
+        long total = repository.countAbsensi(status, namaMahasiswa, tanggal);
         return PaginatedResponse.success(data, total, index, size);
     }
 
@@ -123,7 +128,7 @@ public class DataAbsensiService {
     }
 
     public String exportRekapAbsensi(String status, String namaMahasiswa) {
-        List<AbsensiResponse> records = repository.listAbsensi(status, namaMahasiswa, Integer.MAX_VALUE, 0);
+        List<AbsensiResponse> records = repository.listAbsensi(status, namaMahasiswa, null, Integer.MAX_VALUE, 0);
 
         StringBuilder csv = new StringBuilder();
         csv.append('﻿');

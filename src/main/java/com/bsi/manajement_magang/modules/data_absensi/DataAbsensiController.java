@@ -57,6 +57,19 @@ public class DataAbsensiController {
             dataAbsensiService.listAbsensiHarianMentor(targetDate, index, size)
         );
     }
+    
+    @GetMapping("/mentor/harian/statistik")
+    public ResponseEntity<APIResponse<Map<String, Long>>> getAbsensiHarianMentorStatistik(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate tanggal) {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getAuthorities().stream()
+                .noneMatch(a -> a.getAuthority().equals("ROLE_MENTOR"))) {
+            throw DomainException.unauthorized("Access restricted to mentor");
+        }
+        return ResponseEntity.ok(
+            APIResponse.success(dataAbsensiService.getAbsensiHarianMentorStatistik(tanggal))
+        );
+    }
 
     /**
      * POST /api/absensi/mentor/submit
@@ -140,9 +153,10 @@ public class DataAbsensiController {
     public ResponseEntity<PaginatedResponse<AbsensiResponse>> listAbsensi(
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String namaMahasiswa,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate tanggal,
             @RequestParam(defaultValue = "1") int index,
             @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(dataAbsensiService.listAbsensi(status, namaMahasiswa, index, size));
+        return ResponseEntity.ok(dataAbsensiService.listAbsensi(status, namaMahasiswa, tanggal, index, size));
     }
 
     @GetMapping("/rekap")

@@ -42,6 +42,7 @@ public class DataAbsensiRepository {
             "FROM mahasiswa m " +
             "JOIN periode_magang pm " +
             "  ON pm.mahasiswa_id = m.id " +
+            "  AND pm.status = 'aktif' " +
             "  AND :tanggal BETWEEN pm.tanggal_mulai AND pm.tanggal_berakhir " +
             "LEFT JOIN absensi a ON a.periode_magang_id = pm.id AND a.tanggal = :tanggal " +
             "ORDER BY m.nama ASC " +
@@ -59,9 +60,54 @@ public class DataAbsensiRepository {
             "FROM mahasiswa m " +
             "JOIN periode_magang pm " +
             "  ON pm.mahasiswa_id = m.id " +
+            "  AND pm.status = 'aktif' " +
             "  AND :tanggal BETWEEN pm.tanggal_mulai AND pm.tanggal_berakhir";
         Long count = jdbc.queryForObject(sql, new MapSqlParameterSource("tanggal", tanggal), Long.class);
         return count != null ? count : 0L;
+    }
+
+    public Map<String, Long> getAbsensiHarianMentorStatistik(LocalDate tanggal) {
+        StringBuilder sql = new StringBuilder();
+        MapSqlParameterSource params = new MapSqlParameterSource();
+
+        if (tanggal != null) {
+            sql.append(
+                "SELECT " +
+                "  COUNT(CASE WHEN COALESCE(a.status, 'alpha') = 'hadir' THEN 1 END) AS hadir, " +
+                "  COUNT(CASE WHEN COALESCE(a.status, 'alpha') IN ('izin', 'sakit') THEN 1 END) AS off, " +
+                "  COUNT(CASE WHEN COALESCE(a.status, 'alpha') = 'alpha' THEN 1 END) AS alfa " +
+                "FROM mahasiswa m " +
+                "JOIN periode_magang pm " +
+                "  ON pm.mahasiswa_id = m.id " +
+                "  AND pm.status = 'aktif' " +
+                "  AND :tanggal BETWEEN pm.tanggal_mulai AND pm.tanggal_berakhir " +
+                "LEFT JOIN absensi a ON a.periode_magang_id = pm.id AND a.tanggal = :tanggal"
+            );
+            params.addValue("tanggal", tanggal);
+        } else {
+            sql.append(
+                "WITH all_days AS (" +
+                "  SELECT m.id AS m_id, pm.id AS pm_id, t.tanggal::date AS tanggal " +
+                "  FROM mahasiswa m " +
+                "  JOIN periode_magang pm ON pm.mahasiswa_id = m.id AND pm.status = 'aktif' " +
+                "  CROSS JOIN generate_series(pm.tanggal_mulai, LEAST(CURRENT_DATE, pm.tanggal_berakhir), '1 day'::interval) AS t(tanggal) " +
+                ") " +
+                "SELECT " +
+                "  COUNT(CASE WHEN COALESCE(a.status, 'alpha') = 'hadir' THEN 1 END) AS hadir, " +
+                "  COUNT(CASE WHEN COALESCE(a.status, 'alpha') IN ('izin', 'sakit') THEN 1 END) AS off, " +
+                "  COUNT(CASE WHEN COALESCE(a.status, 'alpha') = 'alpha' THEN 1 END) AS alfa " +
+                "FROM all_days d " +
+                "LEFT JOIN absensi a ON a.periode_magang_id = d.pm_id AND a.tanggal = d.tanggal"
+            );
+        }
+        
+        return jdbc.queryForObject(sql.toString(), params, (rs, rowNum) -> {
+            return Map.of(
+                "hadir", rs.getLong("hadir"),
+                "off", rs.getLong("off"),
+                "alfa", rs.getLong("alfa")
+            );
+        });
     }
 
     /** Resolve mentor.id dari user_id — dipakai untuk mencatat siapa yang input absensi. */
@@ -85,7 +131,7 @@ public class DataAbsensiRepository {
     // SHARED LIST + FIND QUERIES
     // ========================================================
 
-    public List<AbsensiResponse> listAbsensi(String status, String namaMahasiswa, int limit, int offset) {
+    public List<AbsensiResponse> listAbsensi(String status, String namaMahasiswa, LocalDate tanggal, int limit, int offset) {
         StringBuilder sql = new StringBuilder(
             "WITH all_days AS (" +
             "  SELECT m.id AS m_id, pm.id AS pm_id, m.nim, m.nama, " +
@@ -114,6 +160,11 @@ public class DataAbsensiRepository {
             params.addValue("namaMahasiswa", "%" + namaMahasiswa.trim() + "%");
         }
 
+        if (tanggal != null) {
+            sql.append("AND d.tanggal = :tanggal ");
+            params.addValue("tanggal", tanggal);
+        }
+
         sql.append("ORDER BY d.tanggal DESC, d.nama ASC LIMIT :limit OFFSET :offset");
         params.addValue("limit", limit);
         params.addValue("offset", offset);
@@ -121,7 +172,7 @@ public class DataAbsensiRepository {
         return jdbc.query(sql.toString(), params, this::mapAbsensiResponse);
     }
 
-    public long countAbsensi(String status, String namaMahasiswa) {
+    public long countAbsensi(String status, String namaMahasiswa, LocalDate tanggal) {
         StringBuilder sql = new StringBuilder(
             "WITH all_days AS (" +
             "  SELECT m.id AS m_id, pm.id AS pm_id, m.nim, m.nama, " +
@@ -145,6 +196,11 @@ public class DataAbsensiRepository {
         if (namaMahasiswa != null && !namaMahasiswa.trim().isEmpty()) {
             sql.append("AND d.nama ILIKE :namaMahasiswa ");
             params.addValue("namaMahasiswa", "%" + namaMahasiswa.trim() + "%");
+        }
+
+        if (tanggal != null) {
+            sql.append("AND d.tanggal = :tanggal ");
+            params.addValue("tanggal", tanggal);
         }
 
         Long count = jdbc.queryForObject(sql.toString(), params, Long.class);
