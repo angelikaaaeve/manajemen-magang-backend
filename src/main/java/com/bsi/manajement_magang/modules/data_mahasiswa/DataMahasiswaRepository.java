@@ -318,7 +318,20 @@ public class DataMahasiswaRepository {
             "WHERE pm.status = 'aktif' AND p.id IS NULL " + filterClause;
         Long totalUnassessed = jdbc.queryForObject(sqlUnassessed, params, Long.class);
 
+        // 4. Count total mahasiswa matching criteria (must have active or completed period)
+        String sqlTotalMahasiswa =
+            "SELECT COUNT(DISTINCT m.id) " +
+            "FROM mahasiswa m " +
+            univJoin +
+            "JOIN ( " +
+            "    SELECT DISTINCT ON (mahasiswa_id) mahasiswa_id, status " +
+            "    FROM periode_magang ORDER BY mahasiswa_id, created_at DESC " +
+            ") pm ON m.id = pm.mahasiswa_id " +
+            "WHERE pm.status IN ('aktif', 'selesai') " + filterClause;
+        Long totalMahasiswa = jdbc.queryForObject(sqlTotalMahasiswa, params, Long.class);
+
         return new StudentStatResponse(
+            totalMahasiswa != null ? totalMahasiswa : 0L,
             totalActive != null ? totalActive : 0L,
             totalCompleted != null ? totalCompleted : 0L,
             totalUnassessed != null ? totalUnassessed : 0L

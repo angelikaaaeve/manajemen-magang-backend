@@ -74,6 +74,7 @@ Detail Endpoint untuk Frontend Developer
 
 ### Response Structure
 **Type:** `ResponseEntity<APIResponse<StudentStatResponse>>`
+- `totalMahasiswa`: long
 - `totalAktif`: long
 - `totalSelesai`: long
 - `totalAktifTanpaPenilaian`: long
