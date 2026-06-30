@@ -139,35 +139,32 @@ public class DataKegiatanRepository {
         );
     }
 
-    public List<ActivityRekapResponse> listRekapActivities() {
-        String sql = 
+    public List<ActivityRekapResponse> listRekapActivities(java.time.LocalDate startDate, java.time.LocalDate endDate, UUID mahasiswaId) {
+        StringBuilder sql = new StringBuilder(
             "SELECT m.nama as nama_mahasiswa, dk.judul as nama_kegiatan, dk.waktu " +
             "FROM data_kegiatan dk " +
             "JOIN periode_magang pm ON dk.periode_magang_id = pm.id " +
             "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
-            "ORDER BY m.nama ASC, dk.waktu ASC";
+            "WHERE 1=1 "
+        );
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        
+        if (startDate != null) {
+            sql.append("AND DATE(dk.waktu) >= :startDate ");
+            params.addValue("startDate", startDate);
+        }
+        if (endDate != null) {
+            sql.append("AND DATE(dk.waktu) <= :endDate ");
+            params.addValue("endDate", endDate);
+        }
+        if (mahasiswaId != null) {
+            sql.append("AND m.id = :mahasiswaId ");
+            params.addValue("mahasiswaId", mahasiswaId);
+        }
+        
+        sql.append("ORDER BY m.nama ASC, dk.waktu ASC");
             
-        return jdbc.query(sql, (rs, rowNum) -> {
-            java.sql.Timestamp tWaktu = rs.getTimestamp("waktu");
-            OffsetDateTime waktu = OffsetDateTime.ofInstant(tWaktu.toInstant(), ZoneId.systemDefault());
-            return new ActivityRekapResponse(
-                rs.getString("nama_mahasiswa"),
-                rs.getString("nama_kegiatan"),
-                waktu
-            );
-        });
-    }
-
-    public List<ActivityRekapResponse> listRekapActivitiesByMahasiswaId(UUID mahasiswaId) {
-        String sql = 
-            "SELECT m.nama as nama_mahasiswa, dk.judul as nama_kegiatan, dk.waktu " +
-            "FROM data_kegiatan dk " +
-            "JOIN periode_magang pm ON dk.periode_magang_id = pm.id " +
-            "JOIN mahasiswa m ON pm.mahasiswa_id = m.id " +
-            "WHERE m.id = :mahasiswaId " +
-            "ORDER BY dk.waktu ASC";
-            
-        return jdbc.query(sql, new MapSqlParameterSource("mahasiswaId", mahasiswaId), (rs, rowNum) -> {
+        return jdbc.query(sql.toString(), params, (rs, rowNum) -> {
             java.sql.Timestamp tWaktu = rs.getTimestamp("waktu");
             OffsetDateTime waktu = OffsetDateTime.ofInstant(tWaktu.toInstant(), ZoneId.systemDefault());
             return new ActivityRekapResponse(

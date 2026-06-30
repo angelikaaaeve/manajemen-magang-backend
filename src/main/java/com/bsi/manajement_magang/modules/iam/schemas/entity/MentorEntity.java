@@ -6,13 +6,15 @@ public class MentorEntity {
     private UUID id;
     private UUID userId;
     private String nama;
+    private String noHp;
 
     public MentorEntity() {}
 
-    public MentorEntity(UUID id, UUID userId, String nama) {
+    public MentorEntity(UUID id, UUID userId, String nama, String noHp) {
         this.id = id;
         this.userId = userId;
         this.nama = nama;
+        this.noHp = noHp;
     }
 
     public UUID getId() {
@@ -37,5 +39,13 @@ public class MentorEntity {
 
     public void setNama(String nama) {
         this.nama = nama;
+    }
+
+    public String getNoHp() {
+        return noHp;
+    }
+
+    public void setNoHp(String noHp) {
+        this.noHp = noHp;
     }
 }

@@ -50,11 +50,12 @@ public class UserRepository {
     }
 
     public void saveMentor(MentorEntity mentor) {
-        String sql = "INSERT INTO mentor (id, user_id, nama) VALUES (:id, :user_id, :nama)";
+        String sql = "INSERT INTO mentor (id, user_id, nama, no_hp) VALUES (:id, :user_id, :nama, :no_hp)";
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("id", mentor.getId())
                 .addValue("user_id", mentor.getUserId())
-                .addValue("nama", mentor.getNama());
+                .addValue("nama", mentor.getNama())
+                .addValue("no_hp", mentor.getNoHp());
         jdbc.update(sql, params);
     }
 
@@ -81,7 +82,7 @@ public class UserRepository {
     }
 
     public Optional<MentorEntity> findMentorByUserId(UUID userId) {
-        String sql = "SELECT id, user_id, nama FROM mentor WHERE user_id = :userId";
+        String sql = "SELECT id, user_id, nama, no_hp FROM mentor WHERE user_id = :userId";
         MapSqlParameterSource params = new MapSqlParameterSource("userId", userId);
         return jdbc.query(sql, params, mentorRowMapper).stream().findFirst();
     }
@@ -116,10 +117,11 @@ public class UserRepository {
     }
 
     public void updateMentor(MentorEntity mentor) {
-        String sql = "UPDATE mentor SET nama = :nama WHERE user_id = :userId";
+        String sql = "UPDATE mentor SET nama = :nama, no_hp = :noHp WHERE user_id = :userId";
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("userId", mentor.getUserId())
-                .addValue("nama", mentor.getNama());
+                .addValue("nama", mentor.getNama())
+                .addValue("noHp", mentor.getNoHp());
         jdbc.update(sql, params);
     }
 

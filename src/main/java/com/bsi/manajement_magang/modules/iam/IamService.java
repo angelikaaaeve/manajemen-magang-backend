@@ -96,7 +96,8 @@ public class IamService {
                 MentorEntity mentor = new MentorEntity(
                         UUID.randomUUID(),
                         userId,
-                        nama
+                        nama,
+                        null
                 );
                 userRepository.saveMentor(mentor);
                 break;
@@ -156,6 +157,7 @@ public class IamService {
                 MentorEntity mentor = userRepository.findMentorByUserId(userId)
                         .orElseThrow(() -> DomainException.notFound("Mentor profile not found"));
                 nama = mentor.getNama();
+                noHp = mentor.getNoHp();
                 break;
             default:
                 nama = "Admin";
@@ -235,9 +237,11 @@ public class IamService {
                         .orElseThrow(() -> DomainException.notFound("Mentor profile not found"));
 
                 if (req.nama() != null) mentor.setNama(req.nama());
+                if (req.noHp() != null) mentor.setNoHp(req.noHp());
 
                 userRepository.updateMentor(mentor);
                 nama = mentor.getNama();
+                noHp = mentor.getNoHp();
                 break;
 
             default:

@@ -26,12 +26,8 @@ public class DataKegiatanService {
         return PaginatedResponse.success(data, total, index, size);
     }
 
-    public List<ActivityRekapResponse> getRekapKegiatan() {
-        return repository.listRekapActivities();
-    }
-
-    public List<ActivityRekapResponse> getRekapKegiatanByMahasiswaId(UUID mahasiswaId) {
-        return repository.listRekapActivitiesByMahasiswaId(mahasiswaId);
+    public List<ActivityRekapResponse> getRekapKegiatan(java.time.LocalDate startDate, java.time.LocalDate endDate, UUID mahasiswaId) {
+        return repository.listRekapActivities(startDate, endDate, mahasiswaId);
     }
 
     @Transactional

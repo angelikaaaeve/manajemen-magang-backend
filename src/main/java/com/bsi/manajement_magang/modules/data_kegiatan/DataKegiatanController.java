@@ -35,13 +35,11 @@ public class DataKegiatanController {
     }
 
     @GetMapping("/rekap")
-    public ResponseEntity<APIResponse<List<ActivityRekapResponse>>> getRekapKegiatan() {
-        return ResponseEntity.ok(APIResponse.success(dataKegiatanService.getRekapKegiatan()));
-    }
-
-    @GetMapping("/rekap/{mahasiswaId}")
-    public ResponseEntity<APIResponse<List<ActivityRekapResponse>>> getRekapKegiatanByMahasiswaId(@PathVariable UUID mahasiswaId) {
-        return ResponseEntity.ok(APIResponse.success(dataKegiatanService.getRekapKegiatanByMahasiswaId(mahasiswaId)));
+    public ResponseEntity<APIResponse<List<ActivityRekapResponse>>> getRekapKegiatan(
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate startDate,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate endDate,
+            @RequestParam(required = false) UUID mahasiswaId) {
+        return ResponseEntity.ok(APIResponse.success(dataKegiatanService.getRekapKegiatan(startDate, endDate, mahasiswaId)));
     }
 
     @PutMapping("/{id}/status")
