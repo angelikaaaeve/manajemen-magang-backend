@@ -57,7 +57,7 @@ public class DataMahasiswaController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<APIResponse<StudentResponse>> getStudentDetail(@PathVariable UUID id) {
+    public ResponseEntity<APIResponse<com.bsi.manajement_magang.modules.data_mahasiswa.schemas.response.StudentDetailResponse>> getStudentDetail(@PathVariable UUID id) {
         return ResponseEntity.ok(APIResponse.success(dataMahasiswaService.getStudentDetail(id)));
     }
 

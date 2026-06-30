@@ -88,22 +88,30 @@ Detail Endpoint untuk Frontend Developer
 *No Body Request*
 
 ### Response Structure
-**Type:** `ResponseEntity<APIResponse<StudentResponse>>`
-- `id`: UUID
-- `userId`: UUID
-- `email`: String
-- `nim`: String
-- `nama`: String
-- `noHp`: String
-- `gender`: Gender
-- `idUniversity`: Long
-- `universitas`: String
-- `periodeId`: UUID
-- `tanggalMulai`: LocalDate
-- `tanggalBerakhir`: LocalDate
-- `statusPeriode`: StatusPeriode
-- `mentorId`: UUID
-- `namaMentor`: String
+**Type:** `ResponseEntity<APIResponse<StudentDetailResponse>>`
+- `mahasiswa`: StudentResponse
+  - `id`: UUID
+  - `userId`: UUID
+  - `email`: String
+  - `nim`: String
+  - `nama`: String
+  - `noHp`: String
+  - `gender`: Gender
+  - `idUniversity`: Long
+  - `universitas`: String
+  - `periodeId`: UUID
+  - `tanggalMulai`: LocalDate
+  - `tanggalBerakhir`: LocalDate
+  - `statusPeriode`: StatusPeriode
+  - `mentorId`: UUID
+  - `namaMentor`: String
+- `rekapitulasiKehadiran`: AttendanceRecap
+  - `hadir`: long
+  - `izin`: long
+  - `sakit`: long
+  - `tidakHadir`: long
+- `dataKegiatan`: List<ActivityResponse>
+- `totalNilai`: Integer (bisa bernilai null jika belum dinilai)
 
 ---
 

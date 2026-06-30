@@ -18,10 +18,19 @@ import java.util.*;
 public class DataMahasiswaService {
     private final DataMahasiswaRepository repository;
     private final Argon2Hasher argon2Hasher;
+    private final com.bsi.manajement_magang.modules.data_absensi.DataAbsensiRepository dataAbsensiRepository;
+    private final com.bsi.manajement_magang.modules.data_kegiatan.DataKegiatanRepository dataKegiatanRepository;
+    private final com.bsi.manajement_magang.modules.penilaian.PenilaianRepository penilaianRepository;
 
-    public DataMahasiswaService(DataMahasiswaRepository repository, Argon2Hasher argon2Hasher) {
+    public DataMahasiswaService(DataMahasiswaRepository repository, Argon2Hasher argon2Hasher,
+                                com.bsi.manajement_magang.modules.data_absensi.DataAbsensiRepository dataAbsensiRepository,
+                                com.bsi.manajement_magang.modules.data_kegiatan.DataKegiatanRepository dataKegiatanRepository,
+                                com.bsi.manajement_magang.modules.penilaian.PenilaianRepository penilaianRepository) {
         this.repository = repository;
         this.argon2Hasher = argon2Hasher;
+        this.dataAbsensiRepository = dataAbsensiRepository;
+        this.dataKegiatanRepository = dataKegiatanRepository;
+        this.penilaianRepository = penilaianRepository;
     }
 
     @Transactional
@@ -145,9 +154,38 @@ public class DataMahasiswaService {
         return com.bsi.manajement_magang.shared.PaginatedResponse.success(data, total, index, size);
     }
 
-    public StudentResponse getStudentDetail(UUID id) {
-        return repository.findStudentDetailById(id)
+    public com.bsi.manajement_magang.modules.data_mahasiswa.schemas.response.StudentDetailResponse getStudentDetail(UUID id) {
+        StudentResponse student = repository.findStudentDetailById(id)
                 .orElseThrow(() -> DomainException.notFound("Student with ID '" + id + "' was not found"));
+        
+        java.util.List<com.bsi.manajement_magang.modules.data_kegiatan.schemas.response.ActivityResponse> dataKegiatan = 
+                dataKegiatanRepository.listActivitiesByUserId(student.userId());
+
+        com.bsi.manajement_magang.modules.data_absensi.schemas.response.AbsensiMahasiswaStatResponse absensiStat = 
+                dataAbsensiRepository.getMahasiswaStat(student.userId());
+        com.bsi.manajement_magang.modules.data_mahasiswa.schemas.response.AttendanceRecap rekapitulasiKehadiran = 
+                new com.bsi.manajement_magang.modules.data_mahasiswa.schemas.response.AttendanceRecap(
+                        absensiStat.totalHadir(),
+                        absensiStat.totalIzin(),
+                        absensiStat.totalSakit(),
+                        absensiStat.totalAlfa()
+                );
+
+        Integer totalNilai = null;
+        if (student.periodeId() != null) {
+            java.util.Optional<com.bsi.manajement_magang.modules.penilaian.schemas.response.PenilaianResponse> penilaianOpt = 
+                    penilaianRepository.findByPeriodeMagangId(student.periodeId());
+            if (penilaianOpt.isPresent() && penilaianOpt.get().nilaiTotal() != null) {
+                totalNilai = penilaianOpt.get().nilaiTotal().intValue();
+            }
+        }
+
+        return new com.bsi.manajement_magang.modules.data_mahasiswa.schemas.response.StudentDetailResponse(
+                student,
+                rekapitulasiKehadiran,
+                dataKegiatan,
+                totalNilai
+        );
     }
 
     public StudentStatResponse getStudentStatistics(String gender, String universitas) {
